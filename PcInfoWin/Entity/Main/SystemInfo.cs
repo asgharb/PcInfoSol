@@ -39,8 +39,11 @@ namespace PcInfoWin.Entity.Main
         public List<OpticalDriveInfo> OpticalDriveInfo { get; set; }
         [Ignore]
         public List<MonitorInfo> monitorInfos { get; set; }
+
         public bool IsActive { get; set; }
+
         public DateTime InsertDate { get; set; } = DateTime.Now;
+
         public DateTime? ExpireDate { get; set; } = null;
 
         public SystemInfo()
