@@ -75,6 +75,7 @@
     <Compile Include="Provider\OpticalDriveInfoProvider.cs" />
     <Compile Include="Provider\RamInfoProvider.cs" />
     <Compile Include="Provider\SystemEnvironmentProvider.cs" />
+    <Compile Include="TrayApplication.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
