@@ -18,21 +18,23 @@ namespace PcInfoWin
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-          //  SystemInfo curreentInfo= new SystemInfo();
+            SystemInfo curreentInfo= new SystemInfo();
 
             var selector = new DataSelectHelper();
+
+            //SystemInfo infoFromDB = selector.SelectSystemInfoWithRelations(33);
             SystemInfo infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(33);
-            //var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
+            var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
 
 
-            //if (differences.Count == 0)
-            //    Console.WriteLine("No difference was found." );
-            //else
-            //{
-            //    Console.WriteLine("Differences:");
-            //    foreach (var diff in differences)
-            //        Console.WriteLine(diff);
-            //}
+            if (differences.Count == 0)
+                Console.WriteLine("No difference was found.");
+            else
+            {
+                Console.WriteLine("Differences:");
+                foreach (var diff in differences)
+                    Console.WriteLine(diff);
+            }
 
 
             if (Settings.Default.SystemInfoID >0)

@@ -148,56 +148,43 @@ namespace PcInfoWin.Data
 
         public T SelectWithRelationsByPrimaryKey<T>(object keyValue) where T : new()
         {
-            // ابتدا شی اصلی را انتخاب می‌کنیم
+            // 1- واکشی شی اصلی
             var mainObj = SelectByPrimaryKey<T>(keyValue);
-            if (mainObj == null) return default;
+            if (mainObj == null)
+                return default;
 
+            // 2- بررسی propertyهای کلاس اصلی
             var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
             foreach (var prop in props)
             {
-                // فقط فیلدهایی که [Ignore] دارند یعنی نمونه یا لیست کلاس دیگر
+                // فقط propertyهایی که [Ignore] دارند (زیرمجموعه)
                 if (!EntityMetadataHelper.IsIgnored(prop))
                     continue;
 
                 Type propType = prop.PropertyType;
 
-                // پیدا کردن foreign key در والد که به این child اشاره می‌کند
-                var parentFkProp = EntityMetadataHelper.GetForeignKeyPropertyForParent(prop, typeof(T));
-                if (parentFkProp == null)
-                    continue;
-
-                var foreignKeyValue = parentFkProp.GetValue(mainObj);
-                if (foreignKeyValue == null)
-                    continue;
-
-                // نمونه کلاس دیگر (تک‌تایی)
+                // تک‌شی
                 if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) || propType == typeof(string))
                 {
+                    // مقدار SystemInfoRef را مستقیم به foreign key بده
                     try
                     {
                         var method = typeof(DataSelectHelper)
-                            .GetMethod(nameof(SelectWithRelationsByPrimaryKey))
+                            .GetMethod(nameof(SelectByForeignKey))
                             .MakeGenericMethod(propType);
 
-                        var childObj = method.Invoke(this, new object[] { foreignKeyValue });
-
-                        // set SystemInfoRef در child
-                        if (childObj != null)
-                        {
-                            var fkPropInChild = EntityMetadataHelper.GetForeignKeyProperty(propType);
-                            if (fkPropInChild != null)
-                                fkPropInChild.SetValue(childObj, foreignKeyValue);
-                        }
-
-                        prop.SetValue(mainObj, childObj);
+                        // فراخوانی SelectByForeignKey با SystemInfoID
+                        var childObjList = (IList)method.Invoke(this, new object[] { keyValue });
+                        // چون تک‌شی است، فقط اولین مورد را ست می‌کنیم
+                        prop.SetValue(mainObj, childObjList.Cast<object>().FirstOrDefault());
                     }
                     catch
                     {
-                        // خطا نادیده گرفته می‌شود
+                        continue;
                     }
                 }
-                // لیست از نمونه‌ها
+                // لیست
                 else if (propType.IsGenericType)
                 {
                     Type itemType = propType.GetGenericArguments()[0];
@@ -207,28 +194,65 @@ namespace PcInfoWin.Data
                             .GetMethod(nameof(SelectByForeignKey))
                             .MakeGenericMethod(itemType);
 
-                        var listObj = method.Invoke(this, new object[] { foreignKeyValue });
-                        if (listObj != null)
-                        {
-                            var enumerable = (IEnumerable)listObj;
-                            foreach (var item in enumerable)
-                            {
-                                var fkPropInItem = EntityMetadataHelper.GetForeignKeyProperty(item.GetType());
-                                if (fkPropInItem != null)
-                                    fkPropInItem.SetValue(item, foreignKeyValue);
-                            }
-                            prop.SetValue(mainObj, listObj);
-                        }
+                        var listObj = method.Invoke(this, new object[] { keyValue });
+                        prop.SetValue(mainObj, listObj);
                     }
                     catch
                     {
-                        // خطا نادیده گرفته می‌شود
+                        continue;
                     }
                 }
             }
 
             return mainObj;
         }
+
+
+
+        public SystemInfo SelectSystemInfoWithRelations(int systemInfoId)
+        {
+            // 1- خواندن شی اصلی
+            SystemInfo mainObj = SelectByPrimaryKey<SystemInfo>(systemInfoId);
+            if (mainObj == null) return null;
+
+            // 2- گرفتن تمام propertyهای [Ignore] (یعنی کلاس یا لیست زیرمجموعه)
+            var props = typeof(SystemInfo).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Where(p => Attribute.IsDefined(p, typeof(IgnoreAttribute)));
+
+            foreach (var prop in props)
+            {
+                Type propType = prop.PropertyType;
+
+                // اگر تک‌شی است (Class)
+                if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) || propType == typeof(string))
+                {
+                    var method = typeof(DataSelectHelper)
+                        .GetMethod(nameof(SelectByForeignKey))
+                        .MakeGenericMethod(propType);
+
+                    // اجرای کوئری با شرط SystemInfoRef = systemInfoId
+                    var childObj = method.Invoke(this, new object[] { systemInfoId });
+                    // چون SelectByForeignKey همیشه لیست برمی‌گرداند، اولین مورد را انتخاب می‌کنیم
+                    var firstItem = ((IEnumerable)childObj).Cast<object>().FirstOrDefault();
+                    prop.SetValue(mainObj, firstItem);
+                }
+                // اگر لیست است
+                else if (propType.IsGenericType)
+                {
+                    Type itemType = propType.GetGenericArguments()[0];
+                    var method = typeof(DataSelectHelper)
+                        .GetMethod(nameof(SelectByForeignKey))
+                        .MakeGenericMethod(itemType);
+
+                    var listObj = method.Invoke(this, new object[] { systemInfoId });
+                    prop.SetValue(mainObj, listObj);
+                }
+            }
+
+            return mainObj;
+        }
+
+
 
 
         #endregion
