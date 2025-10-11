@@ -17,7 +17,7 @@ namespace PcInfoWin.Entity.Main
         public DateTime InsertDate { get; set; } = DateTime.Now;
         public DateTime? ExpireDate { get; set; } = null;
 
-
+        
 
         public override string ToString()
         {

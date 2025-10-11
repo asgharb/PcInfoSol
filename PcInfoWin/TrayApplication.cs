@@ -59,13 +59,11 @@ namespace PcInfoWin
 
         private void ShowPcCodeForm(bool isEditMode)
         {
-
-
-            using (var form = new PcCodeForm())
-            {
-                form.IsEditMode = isEditMode; 
-                form.ShowDialog();
-            }
+            //using (var form = new PcCodeForm())
+            //{
+            //    form.IsEditMode = isEditMode; 
+            //    form.ShowDialog();
+            //}
         }
 
 

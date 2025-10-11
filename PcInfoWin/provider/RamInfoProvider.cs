@@ -69,16 +69,17 @@ namespace PcInfoWin.Provider
 
                 try
                 {
+
                     using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
                     {
                         foreach (ManagementObject mo in searcher.Get())
                         {
                             int capacityGB = (int)(Convert.ToUInt64(mo["Capacity"]) / (1024 * 1024 * 1024));
 
-
                             ushort memType = 0;
-                            if (mo["MemoryType"] != null)
-                                memType = Convert.ToUInt16(mo["MemoryType"]);
+                            if (mo["SMBIOSMemoryType"] != null)
+                                memType = Convert.ToUInt16(mo["SMBIOSMemoryType"]);
+
 
                             string memoryType;
                             switch (memType)
@@ -93,7 +94,7 @@ namespace PcInfoWin.Provider
                             modules.Add(new RamModuleInfo
                             {
                                 Manufacturer = mo["Manufacturer"]?.ToString() ?? "Unknown",
-                                CapacityGB = capacityGB, // توجه: در مدل شما CapacityMB است، حالا GB ست کردیم
+                                CapacityGB = capacityGB,
                                 SpeedMHz = Convert.ToInt32(mo["Speed"] ?? 0),
                                 MemoryType = memoryType,
                                 SystemInfoRef = systemInfoRef

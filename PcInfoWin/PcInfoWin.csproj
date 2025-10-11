@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{770CBE47-598C-4F36-B3BB-91B465981F95}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>PcInfoWin</RootNamespace>
     <AssemblyName>PcInfoWin</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -32,9 +32,31 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Hardware.Info, Version=101.1.0.0, Culture=neutral, PublicKeyToken=3130d442e696f124, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardware.Info.101.1.0\lib\netstandard2.0\Hardware.Info.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Win32.Registry, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Win32.Registry.5.0.0\lib\net461\Microsoft.Win32.Registry.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.CodeDom, Version=9.0.0.9, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.9.0.9\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.Diagnostics.PerformanceCounter, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Diagnostics.PerformanceCounter.8.0.0\lib\net462\System.Diagnostics.PerformanceCounter.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Management" />
+    <Reference Include="System.Security.AccessControl, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.AccessControl.5.0.0\lib\net461\System.Security.AccessControl.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security.Principal.Windows, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Security.Principal.Windows.5.0.0\lib\net461\System.Security.Principal.Windows.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +70,11 @@
   <ItemGroup>
     <Compile Include="Attributes\AllAttributes.cs" />
     <Compile Include="Data\ConnctionString.cs" />
+    <Compile Include="Data\DataHelper.cs" />
+    <Compile Include="Data\DataInsertHelper.cs" />
+    <Compile Include="Data\DataSelectHelper.cs" />
+    <Compile Include="Data\DataUpdateHelper.cs" />
+    <Compile Include="Data\EntityMetadataHelper.cs" />
     <Compile Include="Data\SchemaGeneratorAdvanced.cs" />
     <Compile Include="Data\SqlTypeHelper.cs" />
     <Compile Include="Entity\Main\BaseEntity.cs" />
@@ -68,7 +95,6 @@
     <Compile Include="Provider\CpuInfoProvider.cs" />
     <Compile Include="Provider\DiskInfoProvider.cs" />
     <Compile Include="Provider\GpuInfoProvider.cs" />
-    <Compile Include="Provider\MonitorHelper.cs" />
     <Compile Include="Provider\MonitorInfoProvider.cs" />
     <Compile Include="Provider\MotherboardInfoProvider.cs" />
     <Compile Include="Provider\NetworkAdapterInfoProvider.cs" />
@@ -85,6 +111,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

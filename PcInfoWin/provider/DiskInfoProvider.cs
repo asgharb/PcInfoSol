@@ -101,25 +101,35 @@ namespace PcInfoWin.Provider
                         }
 
                         STORAGE_DEVICE_DESCRIPTOR desc = Marshal.PtrToStructure<STORAGE_DEVICE_DESCRIPTOR>(outBuffer);
-                        Marshal.FreeHGlobal(outBuffer);
 
+                        // خواندن رشته‌ها قبل از آزاد کردن حافظه
                         string model = ReadStringFromOffset(outBuffer, desc.ProductIdOffset);
                         string manufacturer = ReadStringFromOffset(outBuffer, desc.VendorIdOffset);
-                        string type = GetDeviceType(desc.BusType);
+
+                        Marshal.FreeHGlobal(outBuffer);
+
+                        string busTypeName = GetBusType(desc.BusType);
 
                         // ظرفیت با WMI fallback
                         int sizeGB = GetDiskSizeGB(i);
+
+                        // تعیین SSD/HDD
+                        string mediaType = GetDiskMediaType(i, busTypeName, model);
 
                         list.Add(new DiskInfo
                         {
                             Model = model.Trim(),
                             Manufacturer = manufacturer.Trim(),
                             SizeGB = sizeGB,
-                            Type = type
+                            Type = mediaType,
+                            //BusType = busTypeName
                         });
                     }
                 }
-                catch { /* نادیده گرفتن دیسک‌های ناموجود */ }
+                catch
+                {
+                    // نادیده گرفتن دیسک‌های ناموجود
+                }
             }
 
             return list;
@@ -127,12 +137,41 @@ namespace PcInfoWin.Provider
 
         private string ReadStringFromOffset(IntPtr buffer, uint offset)
         {
-            if (offset == 0) return "Unknown";
-            IntPtr ptr = IntPtr.Add(buffer, (int)offset);
-            return Marshal.PtrToStringAnsi(ptr) ?? "Unknown";
+            if (buffer == IntPtr.Zero || offset == 0) return string.Empty;
+
+            List<byte> bytes = new List<byte>();
+            int i = 0;
+            while (true)
+            {
+                byte b = Marshal.ReadByte(buffer, (int)offset + i);
+                if (b == 0) break;
+                bytes.Add(b);
+                i++;
+            }
+
+            return System.Text.Encoding.ASCII.GetString(bytes.ToArray()).Trim();
         }
 
-        private string GetDeviceType(byte busType)
+        private int GetDiskSizeGB(int diskIndex)
+        {
+            try
+            {
+                var searcher = new ManagementObjectSearcher(
+                    $"SELECT Size FROM Win32_DiskDrive WHERE Index={diskIndex}");
+                foreach (var mo in searcher.Get())
+                {
+                    if (mo["Size"] != null && ulong.TryParse(mo["Size"].ToString(), out ulong sizeBytes))
+                    {
+                        return (int)(sizeBytes / (1024 * 1024 * 1024));
+                    }
+                }
+            }
+            catch { }
+
+            return 0;
+        }
+
+        private string GetBusType(byte busType)
         {
             switch (busType)
             {
@@ -158,27 +197,38 @@ namespace PcInfoWin.Provider
             }
         }
 
-
-        private int GetDiskSizeGB(int diskIndex)
+        private string GetDiskMediaType(int diskIndex, string busType, string model)
         {
             try
             {
-                var searcher = new System.Management.ManagementObjectSearcher(
-                    $"SELECT Size FROM Win32_DiskDrive WHERE Index={diskIndex}");
+                // اگر NVMe است، مطمئناً SSD است
+                if (busType == "NVMe") return "SSD";
+
+                var searcher = new ManagementObjectSearcher(
+                    $"SELECT MediaType, Model FROM Win32_DiskDrive WHERE Index={diskIndex}");
                 foreach (var mo in searcher.Get())
                 {
-                    if (mo["Size"] != null && ulong.TryParse(mo["Size"].ToString(), out ulong sizeBytes))
+                    string mediaType = mo["MediaType"]?.ToString() ?? "";
+                    string wmiModel = mo["Model"]?.ToString() ?? "";
+
+                    if (!string.IsNullOrEmpty(mediaType))
                     {
-                        return (int)(sizeBytes / (1024 * 1024 * 1024));
+                        if (mediaType.ToUpper().Contains("SSD")) return "SSD";
+                        if (mediaType.ToUpper().Contains("HDD")) return "HDD";
+                    }
+
+                    if (!string.IsNullOrEmpty(wmiModel))
+                    {
+                        if (wmiModel.ToUpper().Contains("SSD")) return "SSD";
                     }
                 }
             }
-            catch
-            {
-            }
+            catch { }
 
-            return 0;
+            // پیشفرض: دیسک‌های SATA معمولاً HDD هستند مگر اینکه مشخص شود SSD
+            if (busType == "SATA" && model.ToUpper().Contains("SSD")) return "SSD";
+
+            return "HDD";
         }
-
     }
 }
