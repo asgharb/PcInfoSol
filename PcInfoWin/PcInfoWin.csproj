@@ -46,6 +46,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Entity\Main\BaseEntity.cs" />
+    <Compile Include="Entity\Main\SystemInfo.cs" />
+    <Compile Include="Entity\Models\CpuInfo.cs" />
+    <Compile Include="Entity\Models\DiskInfo.cs" />
+    <Compile Include="Entity\Models\GpuInfo.cs" />
+    <Compile Include="Entity\Models\MonitorInfo.cs" />
+    <Compile Include="Entity\Models\MotherboardInfo.cs" />
+    <Compile Include="Entity\Models\NetworkAdapterInfo.cs" />
+    <Compile Include="Entity\Models\OpticalDriveInfo.cs" />
+    <Compile Include="Entity\Models\PcCodeInfo.cs" />
+    <Compile Include="Entity\Models\RamModuleInfo.cs" />
+    <Compile Include="Entity\Models\RamSummaryInfo.cs" />
+    <Compile Include="Entity\Models\SystemEnvironmentInfo.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -54,6 +67,16 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Provider\CpuInfoProvider.cs" />
+    <Compile Include="Provider\DiskInfoProvider.cs" />
+    <Compile Include="Provider\GpuInfoProvider.cs" />
+    <Compile Include="Provider\MonitorHelper.cs" />
+    <Compile Include="Provider\MonitorInfoProvider.cs" />
+    <Compile Include="Provider\MotherboardInfoProvider.cs" />
+    <Compile Include="Provider\NetworkAdapterInfoProvider.cs" />
+    <Compile Include="Provider\OpticalDriveInfoProvider.cs" />
+    <Compile Include="Provider\RamInfoProvider.cs" />
+    <Compile Include="Provider\SystemEnvironmentProvider.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
