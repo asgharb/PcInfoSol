@@ -19,6 +19,5 @@ namespace PcInfoWin.Entity.Models
 
         public string MediaType { get; set; }
 
-
     }
 }

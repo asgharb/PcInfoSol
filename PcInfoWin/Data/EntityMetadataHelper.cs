@@ -50,27 +50,51 @@ namespace PcInfoWin.Data
             return prop;
         }
 
+        //public static PropertyInfo GetForeignKeyPropertyForParent(PropertyInfo childProp, Type parentType)
+        //{
+        //    // بررسی همه propertyهای والد و کلاس‌های base
+        //    var props = parentType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+        //    foreach (var prop in props)
+        //    {
+        //        var fkAttr = prop.GetCustomAttribute<ForeignKeyAttribute>();
+        //        if (fkAttr != null)
+        //        {
+        //            // مقایسه نام کلاس child با RelatedTable
+        //            if (string.Equals(fkAttr.RelatedTable, childProp.PropertyType.Name, StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                return prop;
+        //            }
+        //        }
+        //    }
+
+        //    // اگر پیدا نشد null برمی‌گردد
+        //    return null;
+        //}
+
         public static PropertyInfo GetForeignKeyPropertyForParent(PropertyInfo childProp, Type parentType)
         {
-            // بررسی همه propertyهای والد و کلاس‌های base
-            var props = parentType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            // نوع آیتم زیرمجموعه (مثلاً CpuInfo)
+            Type childType = childProp.PropertyType;
+            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(childType) && childType != typeof(string))
+                childType = childType.GetGenericArguments().FirstOrDefault(); // برای لیست‌ها
 
-            foreach (var prop in props)
-            {
-                var fkAttr = prop.GetCustomAttribute<ForeignKeyAttribute>();
-                if (fkAttr != null)
+            if (childType == null)
+                return null;
+
+            // در کلاس فرزند دنبال ForeignKeyAttribute بگرد که RelatedTable برابر parentType.Name باشد
+            var fkProp = childType
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                .FirstOrDefault(p =>
                 {
-                    // مقایسه نام کلاس child با RelatedTable
-                    if (string.Equals(fkAttr.RelatedTable, childProp.PropertyType.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return prop;
-                    }
-                }
-            }
+                    var fkAttr = p.GetCustomAttribute<ForeignKeyAttribute>();
+                    return fkAttr != null &&
+                           string.Equals(fkAttr.RelatedTable, parentType.Name, StringComparison.OrdinalIgnoreCase);
+                });
 
-            // اگر پیدا نشد null برمی‌گردد
-            return null;
+            return fkProp;
         }
+
 
 
         /// <summary>

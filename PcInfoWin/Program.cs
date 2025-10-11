@@ -1,5 +1,7 @@
 ﻿using PcInfoWin.Data;
 using PcInfoWin.Entity.Main;
+using PcInfoWin.Properties;
+using PcInfoWin.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,26 +18,46 @@ namespace PcInfoWin
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            SystemInfo curreentInfo= new SystemInfo();
+          //  SystemInfo curreentInfo= new SystemInfo();
 
-            var insertor = new DataInsertHelper();
+            var selector = new DataSelectHelper();
+            SystemInfo infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(33);
+            //var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
 
-            // فراخوانی تابع اصلی
-            bool success = insertor.InsertWithRelationsTransaction(curreentInfo, out var mainKey);
 
-            if (success)
+            //if (differences.Count == 0)
+            //    Console.WriteLine("No difference was found." );
+            //else
+            //{
+            //    Console.WriteLine("Differences:");
+            //    foreach (var diff in differences)
+            //        Console.WriteLine(diff);
+            //}
+
+
+            if (Settings.Default.SystemInfoID >0)
             {
-                Console.WriteLine($"Insert Complated: {mainKey}");
-            }
-            else
-            {
-                Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
+
             }
 
 
-            //var selector = new DataSelectHelper();
-            //SystemInfo systemInfo = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(mainKey);
-            //systemInfo.ToString();
+
+            //var insertor = new DataInsertHelper();
+
+            //// فراخوانی تابع اصلی
+            //bool success = insertor.InsertWithRelationsTransaction(curreentInfo, out var mainKey);
+
+            //if (success)
+            //{
+            //    Console.WriteLine($"Insert Complated: {mainKey}");
+            //}
+            //else
+            //{
+            //    Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
+            //}
+
+
+ 
 
             //Console.WriteLine(systemInfo.ToString());
 

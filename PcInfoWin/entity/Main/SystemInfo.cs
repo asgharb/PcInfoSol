@@ -38,9 +38,9 @@ namespace PcInfoWin.Entity.Main
         [Ignore]
         public List<OpticalDriveInfo> OpticalDriveInfo { get; set; }
         [Ignore]
-        public List<MonitorInfo> monitorInfos { get; set; }
+        public List<MonitorInfo> monitorInfo { get; set; }
 
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
 
         public DateTime InsertDate { get; set; } = DateTime.Now;
 
@@ -48,6 +48,7 @@ namespace PcInfoWin.Entity.Main
 
         public SystemInfo()
         {
+            IsActive=true; InsertDate= DateTime.Now; ExpireDate=null;
             // ---------- System Environment ----------
             var sysEnvProvider = new SystemEnvironmentProvider();
             systemEnvironmentInfo = sysEnvProvider.GetSystemEnvironmentInfo();
@@ -83,7 +84,7 @@ namespace PcInfoWin.Entity.Main
 
             // ---------- Monitor ----------
             var monitorProvider = new MonitorInfoProvider();
-            monitorInfos = monitorProvider.GetAllMonitors();
+            monitorInfo = monitorProvider.GetAllMonitors();
         }
 
         public void AttachChildEntities()
@@ -147,7 +148,7 @@ namespace PcInfoWin.Entity.Main
             sb.AppendLine("==========================OpticalDriveInfo==========================================");
             AppendModel(nameof(OpticalDriveInfo), OpticalDriveInfo);
             sb.AppendLine("=========================monitorInfos===========================================");
-            AppendModel(nameof(monitorInfos), monitorInfos);
+            AppendModel(nameof(monitorInfo), monitorInfo);
 
             return sb.ToString();
         }

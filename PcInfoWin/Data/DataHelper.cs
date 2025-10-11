@@ -72,7 +72,7 @@ namespace PcInfoWin.Data
             }
         }
 
-        // تبدیل DataTable به لیست از کلاس مشخص
+
         //public List<T> ConvertToList<T>(DataTable table) where T : new()
         //{
         //    var list = new List<T>();
@@ -81,18 +81,28 @@ namespace PcInfoWin.Data
         //    foreach (DataRow row in table.Rows)
         //    {
         //        T obj = new T();
+
         //        foreach (var prop in props)
         //        {
         //            if (Attribute.IsDefined(prop, typeof(IgnoreAttribute)))
         //                continue;
 
         //            string columnName = prop.GetCustomAttribute<ColumnAttribute>()?.Name ?? prop.Name;
-        //            if (!table.Columns.Contains(columnName)) continue;
+        //            if (!table.Columns.Contains(columnName))
+        //                continue;
 
         //            var value = row[columnName];
-        //            if (value == DBNull.Value) continue;
-        //            prop.SetValue(obj, Convert.ChangeType(value, prop.PropertyType));
+        //            if (value == DBNull.Value)
+        //                continue;
+
+        //            // 🔹 بررسی نوع Nullable
+        //            Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+        //            // 🔹 تبدیل مقدار و ست کردن
+        //            object safeValue = Convert.ChangeType(value, targetType);
+        //            prop.SetValue(obj, safeValue);
         //        }
+
         //        list.Add(obj);
         //    }
 
@@ -102,7 +112,8 @@ namespace PcInfoWin.Data
         public List<T> ConvertToList<T>(DataTable table) where T : new()
         {
             var list = new List<T>();
-            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
             foreach (DataRow row in table.Rows)
             {
@@ -110,7 +121,9 @@ namespace PcInfoWin.Data
 
                 foreach (var prop in props)
                 {
-                    if (Attribute.IsDefined(prop, typeof(IgnoreAttribute)))
+                    if (Attribute.IsDefined(prop, typeof(IgnoreAttribute)) ||
+                        prop.Name == "InsertDate" ||
+                        prop.Name == "ExpireDate")
                         continue;
 
                     string columnName = prop.GetCustomAttribute<ColumnAttribute>()?.Name ?? prop.Name;
@@ -121,10 +134,7 @@ namespace PcInfoWin.Data
                     if (value == DBNull.Value)
                         continue;
 
-                    // 🔹 بررسی نوع Nullable
                     Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-                    // 🔹 تبدیل مقدار و ست کردن
                     object safeValue = Convert.ChangeType(value, targetType);
                     prop.SetValue(obj, safeValue);
                 }
@@ -134,6 +144,7 @@ namespace PcInfoWin.Data
 
             return list;
         }
+
 
     }
 }
