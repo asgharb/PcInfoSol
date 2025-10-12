@@ -17,6 +17,8 @@ namespace PcInfoWin.Entity.Models
 
         public string PcCodeInfoName { get; set; }
 
-        public string Description {  get; set; }    
+        public string Desc1 {  get; set; }    
+
+        public string Desc2 {  get; set; }
     }
 }

@@ -40,7 +40,6 @@ namespace PcInfoWin
 
             menu.Items.Add("تغییر PC_Code", null, (s, e) => ShowPcCodeForm(true));
             menu.Items.Add(new ToolStripSeparator());
-            //menu.Items.Add("خروج", null, (s, e) => ExitApplication());
             menu.Items.Add("خروج", null, (s, e) => ShowPcCodeForm(false));
 
             return menu;
@@ -59,18 +58,11 @@ namespace PcInfoWin
 
         private void ShowPcCodeForm(bool isEditMode)
         {
-            //using (var form = new PcCodeForm())
-            //{
-            //    form.IsEditMode = isEditMode; 
-            //    form.ShowDialog();
-            //}
-        }
-
-
-        private void ExitApplication()
-        {
-            trayIcon.Visible = false;
-            Application.Exit();
+            using (var form = new PcCodeForm())
+            {
+                form.IsEditMode = isEditMode;
+                form.ShowDialog();
+            }
         }
 
         public void Dispose()

@@ -24,7 +24,7 @@ namespace PcInfoWin.Entity.Main
         [Ignore]
         public CpuInfo cpuInfo { get; set; }
         [Ignore]
-        public GpuInfo gppuInfo { get; set; }
+        public GpuInfo gpuInfo { get; set; }
         [Ignore]
         public MotherboardInfo motherboardInfo { get; set; }
         [Ignore]
@@ -59,7 +59,7 @@ namespace PcInfoWin.Entity.Main
 
             // ---------- GPU ----------
             var gpuProvider = new GpuInfoProvider();
-            gppuInfo = gpuProvider.GetGpuInfo();
+            gpuInfo = gpuProvider.GetGpuInfo();
 
             // ---------- Motherboard ----------
             var mbProvider = new MotherboardInfoProvider();
@@ -134,7 +134,7 @@ namespace PcInfoWin.Entity.Main
             sb.AppendLine("==========================cpuInfo==========================================");
             AppendModel(nameof(cpuInfo), cpuInfo);
             sb.AppendLine("===========================gppuInfo=========================================");
-            AppendModel(nameof(gppuInfo), gppuInfo);
+            AppendModel(nameof(gpuInfo), gpuInfo);
             sb.AppendLine("===========================motherboardInfo=========================================");
             AppendModel(nameof(motherboardInfo), motherboardInfo);
             sb.AppendLine("===========================RamSummaryInfo=========================================");
