@@ -25,7 +25,7 @@ namespace PcInfoWin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("33")]
         public int SystemInfoID {
             get {
                 return ((int)(this["SystemInfoID"]));
@@ -37,13 +37,13 @@ namespace PcInfoWin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string PcCodeInfoName {
+        [global::System.Configuration.DefaultSettingValueAttribute("Test01")]
+        public string PcCodeName {
             get {
-                return ((string)(this["PcCodeInfoName"]));
+                return ((string)(this["PcCodeName"]));
             }
             set {
-                this["PcCodeInfoName"] = value;
+                this["PcCodeName"] = value;
             }
         }
     }

@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="SystemInfoID" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">0</Value>
+      <Value Profile="(Default)">33</Value>
     </Setting>
-    <Setting Name="PcCodeInfoName" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+    <Setting Name="PcCodeName" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Test01</Value>
     </Setting>
   </Settings>
 </SettingsFile>

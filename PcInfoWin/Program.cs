@@ -5,8 +5,8 @@ using PcInfoWin.Properties;
 using PcInfoWin.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Configuration;
+using System.IO;
 using System.Windows.Forms;
 
 namespace PcInfoWin
@@ -19,56 +19,94 @@ namespace PcInfoWin
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //SystemInfo curreentInfo = new SystemInfo();
+            SystemInfo curreentInfo = new SystemInfo();
 
-            //if (Settings.Default.SystemInfoID > 0)
-            //{
-            //    curreentInfo.SystemInfoID = Settings.Default.SystemInfoID;
+            int inProgramSystemInfoID = -1;
+            try
+            {
+                inProgramSystemInfoID = Settings.Default.SystemInfoID;
+            }
 
-            //    var selector = new DataSelectHelper();
+            catch (Exception ex)
+            {
+                string filename = ((ConfigurationErrorsException)ex).Filename;
+                if (File.Exists(filename))
+                    File.Delete(filename);
+                Application.Restart();
+            }
+            if (Settings.Default.SystemInfoID > 0)
+            {
+                curreentInfo.SystemInfoID = Settings.Default.SystemInfoID;
+                curreentInfo.pcCodeInfo.PcCodeName = Settings.Default.PcCodeName;
 
-            //    SystemInfo infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(curreentInfo.SystemInfoID);
-            //    var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
+                var selector = new DataSelectHelper();
 
-            //    if (differences.Count == 0)
-            //        Console.WriteLine("No difference was found.");
-            //    else
-            //    {
-            //        Console.WriteLine("Differences:");
-            //        foreach (var diff in differences)
-            //        {
-            //            Console.WriteLine();
-            //            Console.WriteLine(diff);
-            //        }
+                SystemInfo infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(curreentInfo.SystemInfoID);
+                var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
 
-            //        DataUpdateHelper dataUpdateHelper = new DataUpdateHelper();
+                if (differences.Count == 0)
+                    Console.WriteLine("No difference was found.");
+                else
+                {
+                    Console.WriteLine("Differences:");
+                    foreach (var diff in differences)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine(diff);
+                    }
 
-            //        dataUpdateHelper.ApplySystemInfoDifferences(differences, 33);
-            //    }
-            //}
-            //else
-            //{
-            //    var selector = new DataSelectHelper();
-            //    List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumnValue<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
-            //    if (adapterInfo != null && adapterInfo.Count > 0)
-            //    {
-            //        var macAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
-            //    }
-            //    else
-            //    {
-            //        var insertor = new DataInsertHelper();
-            //        bool success = insertor.InsertWithRelationsTransaction(curreentInfo, out var mainKey);
+                    DataUpdateHelper dataUpdateHelper = new DataUpdateHelper();
 
-            //        if (success)
-            //        {
-            //            Console.WriteLine($"Insert Complated: {mainKey}");
-            //        }
-            //        else
-            //        {
-            //            Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
-            //        }
-            //    }
-            //}
+                    dataUpdateHelper.ApplySystemInfoDifferences(differences, curreentInfo.SystemInfoID);
+                }
+            }
+            else
+            {
+                var selector = new DataSelectHelper();
+                List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumnValue<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
+                if (adapterInfo != null && adapterInfo.Count > 0)
+                {
+                    var macAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
+                    int sysId = curreentInfo.NetworkAdapterInfo[0].SystemInfoRef;
+                    SystemInfo infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(sysId);
+                    var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
+                    if (differences.Count == 0)
+                        Console.WriteLine("No difference was found.");
+                    else
+                    {
+                        Console.WriteLine("Differences:");
+                        foreach (var diff in differences)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine(diff);
+                        }
+
+                        DataUpdateHelper dataUpdateHelper = new DataUpdateHelper();
+
+                        dataUpdateHelper.ApplySystemInfoDifferences(differences, 33);
+                    }
+                }
+                else
+                {
+                    using (var form = new PcCodeForm())
+                    {
+                        form.IsEditMode = true;
+                        form.ShowDialog();
+                    }
+
+                    var insertor = new DataInsertHelper();
+                    bool success = insertor.InsertWithRelationsTransaction(curreentInfo, out var mainKey);
+
+                    if (success)
+                    {
+                        Console.WriteLine($"Insert Complated: {mainKey}");
+                    }
+                    else
+                    {
+                        Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
+                    }
+                }
+            }
 
             using (var trayApp = new TrayApplication())
             {

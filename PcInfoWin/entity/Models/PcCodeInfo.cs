@@ -15,10 +15,15 @@ namespace PcInfoWin.Entity.Models
         [Column("PcCodeInfoID")]
         public int PcCodeInfoID { get; set; }
 
-        public string PcCodeInfoName { get; set; }
+        public string PcCodeName { get; set; }
 
         public string Desc1 {  get; set; }    
 
         public string Desc2 {  get; set; }
+
+        //public PcCodeInfo()
+        //{
+        //    PcCodeInfoID = 0; PcCodeName=""; Desc1=""; Desc2="";
+        //}
     }
 }

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcInfoWin", "PcInfoWin\PcIn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChackDb", "ChackDb\ChackDb.csproj", "{3B2CA55F-8934-4B2B-BA35-88F5BFB81CA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DashBoard", "DashBoard\DashBoard.csproj", "{F1AEF7A9-C6F9-42C4-932A-2E06B8D857CB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{3B2CA55F-8934-4B2B-BA35-88F5BFB81CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B2CA55F-8934-4B2B-BA35-88F5BFB81CA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B2CA55F-8934-4B2B-BA35-88F5BFB81CA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1AEF7A9-C6F9-42C4-932A-2E06B8D857CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1AEF7A9-C6F9-42C4-932A-2E06B8D857CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1AEF7A9-C6F9-42C4-932A-2E06B8D857CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1AEF7A9-C6F9-42C4-932A-2E06B8D857CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

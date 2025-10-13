@@ -16,8 +16,9 @@ namespace PcInfoWin.Entity.Models
         public string Domain { get; set; }
         public string OperatingSystem { get; set; }
         public string OsVersion { get; set; }
-        public string currentUserFullName {  get; set; }
-        public int? currentUserPersonnelCode { get; set; }
+        public string CurrentUserFullName {  get; set; }
+        public int CurrentUserPersonnelCode { get; set; } =0;
+        public string Description { get; set; }
 
 
 
