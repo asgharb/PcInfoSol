@@ -22,6 +22,8 @@ namespace PcInfoWin.Entity.Main
         [Ignore]
         public SystemEnvironmentInfo systemEnvironmentInfo { get; set; }
         [Ignore]
+        public PcCodeInfo pcCodeInfo { get; set; }
+        [Ignore]
         public CpuInfo cpuInfo { get; set; }
         [Ignore]
         public GpuInfo gpuInfo { get; set; }
@@ -48,7 +50,7 @@ namespace PcInfoWin.Entity.Main
 
         public SystemInfo()
         {
-            IsActive=true; InsertDate= DateTime.Now; ExpireDate=null;
+            IsActive = true; InsertDate = DateTime.Now; ExpireDate = null;
             // ---------- System Environment ----------
             var sysEnvProvider = new SystemEnvironmentProvider();
             systemEnvironmentInfo = sysEnvProvider.GetSystemEnvironmentInfo();
@@ -85,6 +87,10 @@ namespace PcInfoWin.Entity.Main
             // ---------- Monitor ----------
             var monitorProvider = new MonitorInfoProvider();
             monitorInfo = monitorProvider.GetAllMonitors();
+
+            // ---------- PC Code ----------
+            pcCodeInfo = new PcCodeInfo();
+
         }
 
         public void AttachChildEntities()
@@ -149,6 +155,8 @@ namespace PcInfoWin.Entity.Main
             AppendModel(nameof(OpticalDriveInfo), OpticalDriveInfo);
             sb.AppendLine("=========================monitorInfos===========================================");
             AppendModel(nameof(monitorInfo), monitorInfo);
+            sb.AppendLine("=========================PcCodeInfo===========================================");
+            AppendModel(nameof(pcCodeInfo), pcCodeInfo);
 
             return sb.ToString();
         }
