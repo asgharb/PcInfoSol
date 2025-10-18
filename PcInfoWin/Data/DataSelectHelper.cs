@@ -2,6 +2,7 @@
 using PcInfoWin.Data;
 using PcInfoWin.Entity.Main;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
