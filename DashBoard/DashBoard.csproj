@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="25.1.5" />
+    <PackageReference Include="UI.for.WinForms.GridView" Version="2025.2.520" />
   </ItemGroup>
 
 </Project>

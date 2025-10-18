@@ -1,14 +1,15 @@
-﻿using PcInfoWin.Attributes;
-using PcInfoWin.Data;
-using PcInfoWin.Entity.Main;
+﻿using DashBoard.Attributes;
+using DashBoard.Data;
+using DashBoard.Entity.Main;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 
 
-namespace PcInfoWin.Data
+namespace DashBoard.Data
 {
 
 
@@ -62,83 +63,6 @@ namespace PcInfoWin.Data
 
         #endregion
 
-        #region واکشی بازگشتی روابط [Ignore]
-
-        //public T SelectWithRelationsByPrimaryKey<T>(object keyValue) where T : new()
-        //{
-        //    // ابتدا شی اصلی را انتخاب می‌کنیم
-        //    var mainObj = SelectByPrimaryKey<T>(keyValue);
-        //    if (mainObj == null) return default;
-
-        //    var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        //    foreach (var prop in props)
-        //    {
-        //        // فقط فیلدهایی که [Ignore] دارند یعنی نمونه یا لیست کلاس دیگر
-        //        if (!EntityMetadataHelper.IsIgnored(prop))
-        //            continue;
-
-        //        Type propType = prop.PropertyType;
-
-        //        // نمونه کلاس دیگر (تک‌تایی)
-        //        if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) || propType == typeof(string))
-        //        {
-        //            try
-        //            {
-        //                // پیدا کردن foreign key در والد که به این child اشاره می‌کند
-        //                var parentFkProp = EntityMetadataHelper.GetForeignKeyPropertyForParent(prop, typeof(T));
-        //                if (parentFkProp == null)
-        //                    continue;
-
-        //                var foreignKeyValue = parentFkProp.GetValue(mainObj);
-        //                if (foreignKeyValue == null)
-        //                    continue;
-
-        //                // فراخوانی بازگشتی
-        //                var method = typeof(DataSelectHelper)
-        //                    .GetMethod(nameof(SelectWithRelationsByPrimaryKey))
-        //                    .MakeGenericMethod(propType);
-
-        //                var childObj = method.Invoke(this, new object[] { foreignKeyValue });
-        //                prop.SetValue(mainObj, childObj);
-        //            }
-        //            catch
-        //            {
-        //                // اگر مشکلی بود نادیده گرفته شود
-        //            }
-        //        }
-        //        // لیست از نمونه‌ها
-        //        else if (propType.IsGenericType)
-        //        {
-        //            Type itemType = propType.GetGenericArguments()[0];
-        //            try
-        //            {
-        //                // پیدا کردن foreign key در والد که به این child اشاره می‌کند
-        //                var parentFkProp = EntityMetadataHelper.GetForeignKeyPropertyForParent(prop, typeof(T));
-        //                if (parentFkProp == null)
-        //                    continue;
-
-        //                var foreignKeyValue = parentFkProp.GetValue(mainObj);
-        //                if (foreignKeyValue == null)
-        //                    continue;
-
-        //                // فراخوانی متد انتخاب با foreign key
-        //                var method = typeof(DataSelectHelper)
-        //                    .GetMethod(nameof(SelectByForeignKey))
-        //                    .MakeGenericMethod(itemType);
-
-        //                var listObj = method.Invoke(this, new object[] { foreignKeyValue });
-        //                prop.SetValue(mainObj, listObj);
-        //            }
-        //            catch
-        //            {
-        //                // خطا نادیده گرفته می‌شود
-        //            }
-        //        }
-        //    }
-
-        //    return mainObj;
-        //}
 
         public T SelectWithRelationsByPrimaryKey<T>(object keyValue) where T : new()
         {
@@ -246,10 +170,134 @@ namespace PcInfoWin.Data
             return mainObj;
         }
 
+        public List<SystemInfo> SelectAllSystemInfoWithRelations()
+        {
+            // 1. گرفتن همه‌ی SystemInfoها
+            var allSystems = SelectAll<SystemInfo>();
+            if (allSystems == null || allSystems.Count == 0)
+                return new List<SystemInfo>();
 
+            // 2. گرفتن همه‌ی propertyهایی که زیرمجموعه هستند (با [Ignore])
+            var props = typeof(SystemInfo).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Where(p => Attribute.IsDefined(p, typeof(IgnoreAttribute)));
 
+            // 3. برای هر SystemInfo، زیرمجموعه‌ها را واکشی کنیم
+            foreach (var sys in allSystems)
+            {
+                int systemInfoId = sys.SystemInfoID;
 
-        #endregion
+                foreach (var prop in props)
+                {
+                    Type propType = prop.PropertyType;
+
+                    // 🔹 اگر تک‌شی است (مثلاً CpuInfo)
+                    if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) || propType == typeof(string))
+                    {
+                        try
+                        {
+                            var method = typeof(DataSelectHelper)
+                                .GetMethod(nameof(SelectByForeignKey))
+                                .MakeGenericMethod(propType);
+
+                            var resultList = (IEnumerable)method.Invoke(this, new object[] { systemInfoId });
+                            var firstItem = resultList.Cast<object>().FirstOrDefault();
+
+                            prop.SetValue(sys, firstItem);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    // 🔹 اگر لیست است (مثلاً List<MonitorInfo>)
+                    else if (propType.IsGenericType)
+                    {
+                        try
+                        {
+                            Type itemType = propType.GetGenericArguments()[0];
+                            var method = typeof(DataSelectHelper)
+                                .GetMethod(nameof(SelectByForeignKey))
+                                .MakeGenericMethod(itemType);
+
+                            var listResult = method.Invoke(this, new object[] { systemInfoId });
+                            prop.SetValue(sys, listResult);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+            return allSystems;
+        }
+
+        public List<T> SelectAllWithRelations<T>() where T : new()
+        {
+            // 1️⃣ واکشی تمام رکوردهای اصلی
+            var allObjects = SelectAll<T>();
+            if (allObjects == null || allObjects.Count == 0)
+                return new List<T>();
+
+            // 2️⃣ گرفتن propertyهایی که با [Ignore] مشخص شده‌اند
+            var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                        .Where(p => Attribute.IsDefined(p, typeof(IgnoreAttribute)))
+                        .ToList();
+
+            // 3️⃣ برای هر رکورد، زیرمجموعه‌ها را پر کن
+            foreach (var obj in allObjects)
+            {
+                // پیدا کردن کلید اصلی برای گرفتن مقدار آن
+                var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(typeof(T));
+                var keyValue = keyProp.GetValue(obj);
+
+                foreach (var prop in props)
+                {
+                    Type propType = prop.PropertyType;
+
+                    // 🔹 حالت تک‌شی (مثل CpuInfo)
+                    if (!typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) || propType == typeof(string))
+                    {
+                        try
+                        {
+                            var method = typeof(DataSelectHelper)
+                                .GetMethod(nameof(SelectByForeignKey))
+                                .MakeGenericMethod(propType);
+
+                            var resultList = (IEnumerable)method.Invoke(this, new object[] { keyValue });
+                            var firstItem = resultList.Cast<object>().FirstOrDefault();
+
+                            prop.SetValue(obj, firstItem);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                    // 🔹 حالت لیستی (مثل List<MonitorInfo>)
+                    else if (propType.IsGenericType)
+                    {
+                        try
+                        {
+                            Type itemType = propType.GetGenericArguments()[0];
+                            var method = typeof(DataSelectHelper)
+                                .GetMethod(nameof(SelectByForeignKey))
+                                .MakeGenericMethod(itemType);
+
+                            var listResult = method.Invoke(this, new object[] { keyValue });
+                            prop.SetValue(obj, listResult);
+                        }
+                        catch
+                        {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            return allObjects;
+        }
+
 
         #region توابع کمکی کاربردی
 
