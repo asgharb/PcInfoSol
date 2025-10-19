@@ -1,10 +1,7 @@
 ﻿using Hardware.Info;
-using PcInfoWin.Entity.Models;
-using System;
-using System.Collections.Generic;
+using SqlDataExtention.Entity;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace PcInfoWin.Provider
 {

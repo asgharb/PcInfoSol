@@ -1,7 +1,7 @@
 ﻿using Hardware.Info;
-using PcInfoWin.Entity.Models;
-using System;
+using SqlDataExtention.Entity;
 using System.Linq;
+
 namespace PcInfoWin.Provider
 {
     public class CpuInfoProvider

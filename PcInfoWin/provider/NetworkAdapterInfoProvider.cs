@@ -1,4 +1,4 @@
-﻿using PcInfoWin.Entity.Models;
+﻿using SqlDataExtention.Entity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Management;

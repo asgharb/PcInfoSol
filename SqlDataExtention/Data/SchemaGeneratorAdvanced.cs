@@ -1,11 +1,14 @@
-﻿using System;
+﻿using SqlDataExtention.Attributes;
+using SqlDataExtention.Entity;
+using SqlDataExtention.Entity.Main;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace DashBoard.Data
+namespace SqlDataExtention.Data
 {
     public class SchemaGeneratorAdvanced
     {
@@ -15,7 +18,6 @@ namespace DashBoard.Data
         {
             _connectionString = ConnctionString.GetConnctionString();
         }
-
 
         public void CreateTables(params Type[] modelTypes)
         {
@@ -45,9 +47,8 @@ namespace DashBoard.Data
                 string colName = GetColumnName(prop);
                 string sqlType = SqlTypeHelper.GetSqlType(prop.PropertyType);
 
-
-                string key = prop.GetCustomAttribute<KeyAttribute>() != null ? " PRIMARY KEY" : "";
                 string identity = prop.GetCustomAttribute<DbGeneratedAttribute>() != null ? " IDENTITY(1,1)" : "";
+                string key = prop.GetCustomAttribute<KeyAttribute>() != null ? " PRIMARY KEY" : "";
 
                 sb.AppendLine($"{colName} {sqlType}{identity}{key},");
             }
@@ -58,15 +59,16 @@ namespace DashBoard.Data
                 var fkAttr = prop.GetCustomAttribute<ForeignKeyAttribute>();
                 if (fkAttr != null)
                 {
-                    sb.AppendLine($"FOREIGN KEY ({prop.Name}) REFERENCES {fkAttr.RelatedTable}({fkAttr.RelatedColumn}),");
+                    string colName = GetColumnName(prop);
+                    sb.AppendLine($"FOREIGN KEY ({colName}) REFERENCES {fkAttr.RelatedTable}({fkAttr.RelatedColumn}),");
                 }
             }
 
-            sb.Length--; // حذف کامای آخر
-            sb.AppendLine("\n);");
-            sb.AppendLine("END");
+            // حذف کامای آخر و کاراکترهای اضافی
+            string sql = sb.ToString().TrimEnd(',', '\r', '\n') + "\n);";
+            sql += "\nEND";
 
-            ExecuteNonQuery(sb.ToString());
+            ExecuteNonQuery(sql);
 
             AlterTableAddMissingColumns(type);
         }
@@ -83,15 +85,16 @@ namespace DashBoard.Data
                 foreach (var prop in properties)
                 {
                     if (prop.GetCustomAttribute<IgnoreAttribute>() != null) continue;
+                    if (prop.GetCustomAttribute<KeyAttribute>() != null) continue;
+                    if (prop.GetCustomAttribute<DbGeneratedAttribute>() != null) continue;
 
                     string colName = GetColumnName(prop);
                     string sqlType = SqlTypeHelper.GetSqlType(prop.PropertyType);
 
-
                     string checkColumnSql = $@"
-                    SELECT COUNT(*) 
-                    FROM INFORMATION_SCHEMA.COLUMNS 
-                    WHERE TABLE_NAME = '{tableName}' AND COLUMN_NAME = '{colName}'";
+                        SELECT COUNT(*) 
+                        FROM INFORMATION_SCHEMA.COLUMNS 
+                        WHERE TABLE_NAME = '{tableName}' AND COLUMN_NAME = '{colName}'";
                     using (var cmd = new SqlCommand(checkColumnSql, conn))
                     {
                         int exists = (int)cmd.ExecuteScalar();
@@ -171,6 +174,23 @@ namespace DashBoard.Data
             }
         }
 
-
+        public void CreateSysmtemAllTabels()
+        {
+            CreateTables(
+                typeof(SystemInfo),
+                typeof(SystemEnvironmentInfo),
+                typeof(PcCodeInfo),
+                typeof(CpuInfo),
+                typeof(GpuInfo),
+                typeof(MotherboardInfo),
+                typeof(RamSummaryInfo),
+                typeof(DiskInfo),
+                typeof(NetworkAdapterInfo),
+                typeof(RamModuleInfo),
+                typeof(OpticalDriveInfo),
+                typeof(MonitorInfo),
+                typeof(LogEntry)
+                );
+        }
     }
 }

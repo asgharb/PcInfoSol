@@ -53,7 +53,7 @@ namespace PcInfoWin
                     if(!string.IsNullOrWhiteSpace(txtPcCode.Text))
                     {
                         PcCode = txtPcCode.Text.Trim();
-                        Settings.Default.PcCodeName= PcCode;
+                        Settings.Default.PcCode= PcCode;
                         this.DialogResult = DialogResult.OK;
                         this.Close();
                     }

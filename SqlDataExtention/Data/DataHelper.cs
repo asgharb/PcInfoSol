@@ -1,11 +1,12 @@
-﻿using DashBoard.Attributes;
+﻿using SqlDataExtention.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Reflection;
 
 
-namespace DashBoard.Data
+namespace SqlDataExtention.Data
 {
     public class DataHelper
     {
@@ -25,6 +26,11 @@ namespace DashBoard.Data
             return conn;
         }
 
+        public SqlConnection GetConnectionClosed()
+        {
+            var conn = new SqlConnection(_connectionString);
+            return conn;
+        }
         public DataTable ExecuteQuery(string query, params SqlParameter[] parameters)
         {
             using (var conn = GetConnection())
@@ -70,42 +76,6 @@ namespace DashBoard.Data
         }
 
 
-        //public List<T> ConvertToList<T>(DataTable table) where T : new()
-        //{
-        //    var list = new List<T>();
-        //    var props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-        //    foreach (DataRow row in table.Rows)
-        //    {
-        //        T obj = new T();
-
-        //        foreach (var prop in props)
-        //        {
-        //            if (Attribute.IsDefined(prop, typeof(IgnoreAttribute)))
-        //                continue;
-
-        //            string columnName = prop.GetCustomAttribute<ColumnAttribute>()?.Name ?? prop.Name;
-        //            if (!table.Columns.Contains(columnName))
-        //                continue;
-
-        //            var value = row[columnName];
-        //            if (value == DBNull.Value)
-        //                continue;
-
-        //            // 🔹 بررسی نوع Nullable
-        //            Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-        //            // 🔹 تبدیل مقدار و ست کردن
-        //            object safeValue = Convert.ChangeType(value, targetType);
-        //            prop.SetValue(obj, safeValue);
-        //        }
-
-        //        list.Add(obj);
-        //    }
-
-        //    return list;
-        //}
-
         public List<T> ConvertToList<T>(DataTable table) where T : new()
         {
             var list = new List<T>();
@@ -141,7 +111,6 @@ namespace DashBoard.Data
 
             return list;
         }
-
 
     }
 }

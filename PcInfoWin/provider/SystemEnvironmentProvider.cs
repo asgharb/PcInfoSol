@@ -1,6 +1,5 @@
-﻿using PcInfoWin.Entity.Models;
+﻿using SqlDataExtention.Entity;
 using System;
-using System.Management;
 using System.Runtime.InteropServices;
 
 namespace PcInfoWin.Provider

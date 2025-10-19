@@ -1,5 +1,5 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using PcInfoWin.Entity.Models;
+using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
 using System.Management;

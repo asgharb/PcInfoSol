@@ -69,28 +69,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\AllAttributes.cs" />
-    <Compile Include="Data\ConnctionString.cs" />
-    <Compile Include="Data\DataHelper.cs" />
-    <Compile Include="Data\DataInsertHelper.cs" />
-    <Compile Include="Data\DataSelectHelper.cs" />
-    <Compile Include="Data\DataUpdateHelper.cs" />
-    <Compile Include="Data\EntityMetadataHelper.cs" />
-    <Compile Include="Data\SchemaGeneratorAdvanced.cs" />
-    <Compile Include="Data\SqlTypeHelper.cs" />
-    <Compile Include="Entity\Main\BaseEntity.cs" />
-    <Compile Include="Entity\Main\SystemInfo.cs" />
-    <Compile Include="Entity\Models\CpuInfo.cs" />
-    <Compile Include="Entity\Models\DiskInfo.cs" />
-    <Compile Include="Entity\Models\GpuInfo.cs" />
-    <Compile Include="Entity\Models\MonitorInfo.cs" />
-    <Compile Include="Entity\Models\MotherboardInfo.cs" />
-    <Compile Include="Entity\Models\NetworkAdapterInfo.cs" />
-    <Compile Include="Entity\Models\OpticalDriveInfo.cs" />
-    <Compile Include="Entity\Models\PcCodeInfo.cs" />
-    <Compile Include="Entity\Models\RamModuleInfo.cs" />
-    <Compile Include="Entity\Models\RamSummaryInfo.cs" />
-    <Compile Include="Entity\Models\SystemEnvironmentInfo.cs" />
     <Compile Include="PcCodeForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -108,8 +86,8 @@
     <Compile Include="Provider\OpticalDriveInfoProvider.cs" />
     <Compile Include="Provider\RamInfoProvider.cs" />
     <Compile Include="Provider\SystemEnvironmentProvider.cs" />
+    <Compile Include="SystemInfoHelper.cs" />
     <Compile Include="TrayApplication.cs" />
-    <Compile Include="Utils\SystemInfoComparer.cs" />
     <EmbeddedResource Include="PcCodeForm.resx">
       <DependentUpon>PcCodeForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -136,6 +114,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\SqlDataExtention\SqlDataExtention.csproj">
+      <Project>{431281cc-ebab-4d63-82f4-cdbe9ba65e1c}</Project>
+      <Name>SqlDataExtention</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
