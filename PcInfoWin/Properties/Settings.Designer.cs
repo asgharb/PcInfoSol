@@ -25,7 +25,7 @@ namespace PcInfoWin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int SystemInfoID {
             get {
                 return ((int)(this["SystemInfoID"]));
@@ -37,13 +37,85 @@ namespace PcInfoWin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Test01")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string PcCode {
             get {
                 return ((string)(this["PcCode"]));
             }
             set {
                 this["PcCode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UserFullName {
+            get {
+                return ((string)(this["UserFullName"]));
+            }
+            set {
+                this["UserFullName"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PersonnelCode {
+            get {
+                return ((int)(this["PersonnelCode"]));
+            }
+            set {
+                this["PersonnelCode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Unit {
+            get {
+                return ((string)(this["Unit"]));
+            }
+            set {
+                this["Unit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Desc1 {
+            get {
+                return ((string)(this["Desc1"]));
+            }
+            set {
+                this["Desc1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Desc2 {
+            get {
+                return ((string)(this["Desc2"]));
+            }
+            set {
+                this["Desc2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string Desc3 {
+            get {
+                return ((string)(this["Desc3"]));
+            }
+            set {
+                this["Desc3"] = value;
             }
         }
     }

@@ -39,7 +39,7 @@ namespace SqlDataExtention.Entity.Main
         public DateTime InsertDate { get; set; } = DateTime.Now;
         public DateTime? ExpireDate { get; set; }
 
-
+        //}
         public override string ToString()
         {
             var sb = new StringBuilder();

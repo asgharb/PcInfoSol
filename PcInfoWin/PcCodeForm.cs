@@ -6,8 +6,10 @@ namespace PcInfoWin
 {
     public partial class PcCodeForm : Form
     {
-        public bool IsEditMode { get; set; } = false;
+        public static bool IsEditMode = false;
         public string PcCode { get; set; } = string.Empty;
+
+        public static bool resultImportData=false;
 
         private readonly string password = "123";
         public PcCodeForm()
@@ -42,33 +44,46 @@ namespace PcInfoWin
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if (!IsEditMode)
+            try
             {
-               Environment.Exit(0);
-            }
-            else
-            {
-                if(!string.IsNullOrWhiteSpace(txtPassword.Text) && txtPassword.Text== password)
+                if (!IsEditMode)
                 {
-                    if(!string.IsNullOrWhiteSpace(txtPcCode.Text))
-                    {
-                        PcCode = txtPcCode.Text.Trim();
-                        Settings.Default.PcCode= PcCode;
-                        this.DialogResult = DialogResult.OK;
-                        this.Close();
-                    }
-                    else
-                    {
-                        MessageBox.Show("لطفا PC_Code را وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                    Environment.Exit(0);
                 }
                 else
                 {
-                    MessageBox.Show("رمز عبور اشتباه است.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (!string.IsNullOrWhiteSpace(txtPassword.Text) && txtPassword.Text == password)
+                    {
+                        if (!string.IsNullOrWhiteSpace(txtPcCode.Text))
+                        {
+                            PcCode = txtPcCode.Text.Trim();
+                            Settings.Default.PcCode = PcCode;
+                            Settings.Default.PersonnelCode = string.IsNullOrWhiteSpace(txt_UserPersonnelCode.Text.Trim()) ? 0 : int.Parse(txt_UserPersonnelCode.Text.Trim());
+                            Settings.Default.UserFullName = txt_UserFullName.Text.Trim();
+                            Settings.Default.Unit = txt_Unit.Text.Trim();
+                            Settings.Default.Desc1 = txt_Desc1.Text.Trim();
+                            Settings.Default.Desc2 = txt_Desc2.Text.Trim();
+                            Settings.Default.Desc3 = txt_Desc3.Text.Trim();
+                            resultImportData=true;
+                            this.DialogResult = DialogResult.OK;
+                            this.Close();
+                        }
+                        else
+                        {
+                            MessageBox.Show("لطفا PC_Code را وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("رمز عبور اشتباه است.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show("خطا در ثبت اطلاعات: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-
         private void PcCodeForm_Load(object sender, EventArgs e)
         {
 

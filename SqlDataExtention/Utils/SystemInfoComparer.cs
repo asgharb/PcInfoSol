@@ -131,7 +131,17 @@ namespace SqlDataExtention.Utils
                     prop.PropertyType == typeof(DateTime) ||
                     prop.PropertyType == typeof(decimal))
                 {
-                    if (!Equals(v1, v2))
+                    object val1 = v1;
+                    object val2 = v2;
+
+                    // فقط رشته‌ها را trim کن
+                    if (prop.PropertyType == typeof(string))
+                    {
+                        val1 = (v1 as string)?.Trim();
+                        val2 = (v2 as string)?.Trim();
+                    }
+
+                    if (!Equals(val1, val2))
                     {
                         diffs.Add(new Difference
                         {
@@ -146,6 +156,7 @@ namespace SqlDataExtention.Utils
                         });
                     }
                 }
+
                 else
                 {
                     // بازگشتی برای آبجکت تو در تو

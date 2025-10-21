@@ -3,10 +3,28 @@
   <Profiles />
   <Settings>
     <Setting Name="SystemInfoID" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">3</Value>
+      <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="PcCode" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Test01</Value>
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="UserFullName" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="PersonnelCode" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="Unit" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Desc1" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Desc2" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="Desc3" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
     </Setting>
   </Settings>
 </SettingsFile>

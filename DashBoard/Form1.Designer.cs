@@ -68,11 +68,12 @@
             // 
             // gridControl1
             // 
-            gridControl1.Location = new System.Drawing.Point(6, 167);
+            gridControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            gridControl1.Location = new System.Drawing.Point(0, 158);
             gridControl1.MainView = gridView1;
             gridControl1.MenuManager = ribbonControl1;
             gridControl1.Name = "gridControl1";
-            gridControl1.Size = new System.Drawing.Size(1409, 664);
+            gridControl1.Size = new System.Drawing.Size(1427, 685);
             gridControl1.TabIndex = 1;
             gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
             // 

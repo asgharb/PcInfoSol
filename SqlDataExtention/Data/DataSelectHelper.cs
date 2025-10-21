@@ -22,7 +22,7 @@ namespace SqlDataExtention.Data
         public List<T> SelectAll<T>() where T : new()
         {
             string tableName = EntityMetadataHelper.GetTableName(typeof(T));
-            string query = $"SELECT * FROM [{tableName}]";
+            string query = $"SELECT * FROM [{tableName}] WHERE ([ExpireDate] IS NULL OR [ExpireDate] = '')";
             var dt = _dataHelper.ExecuteQuery(query);
             return _dataHelper.ConvertToList<T>(dt);
         }
@@ -34,7 +34,7 @@ namespace SqlDataExtention.Data
             var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
             string columnName = EntityMetadataHelper.GetColumnName(keyProp);
 
-            string query = $"SELECT * FROM [{tableName}] WHERE [{columnName}] = @val";
+            string query = $"SELECT * FROM [{tableName}] WHERE [{columnName}] = @val AND ([ExpireDate] IS NULL OR [ExpireDate] = '')";
             var param = new SqlParameter("@val", keyValue);
 
             var dt = _dataHelper.ExecuteQuery(query, param);
@@ -48,7 +48,7 @@ namespace SqlDataExtention.Data
             var fkProp = EntityMetadataHelper.GetForeignKeyProperty(type);
             string columnName = EntityMetadataHelper.GetColumnName(fkProp);
 
-            string query = $"SELECT * FROM [{tableName}] WHERE [{columnName}] = @val";
+            string query = $"SELECT * FROM [{tableName}] WHERE [{columnName}] = @val AND ([ExpireDate] IS NULL OR [ExpireDate] = '')";
             var param = new SqlParameter("@val", foreignValue);
 
             var dt = _dataHelper.ExecuteQuery(query, param);
@@ -131,6 +131,28 @@ namespace SqlDataExtention.Data
             }
         }
 
+        public List<T> SelectByColumn<T>(string columnName, object value) where T : new()
+        {
+            if (string.IsNullOrEmpty(columnName))
+                throw new ArgumentNullException(nameof(columnName));
+
+            Type type = typeof(T);
+            string tableName = EntityMetadataHelper.GetTableName(type);
+
+            // بررسی وجود ستون در کلاس
+            var prop = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                           .FirstOrDefault(p => EntityMetadataHelper.GetColumnName(p).Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+            if (prop == null)
+                throw new ArgumentException($"Column '{columnName}' not found in entity {type.Name}.");
+
+            string query = $"SELECT * FROM [{tableName}] WHERE [{columnName}] = @val AND ([ExpireDate] IS NULL OR [ExpireDate] = '')";
+            var param = new SqlParameter("@val", value ?? DBNull.Value);
+
+            var dt = _dataHelper.ExecuteQuery(query, param);
+            return _dataHelper.ConvertToList<T>(dt);
+        }
+
         // نسخه بدون filter برای فرزندان
         private void CallFillRelationsGenericDynamic(object obj)
         {
@@ -139,21 +161,6 @@ namespace SqlDataExtention.Data
                 .GetMethod(nameof(FillRelations_Filter), BindingFlags.NonPublic | BindingFlags.Instance)
                 .MakeGenericMethod(obj.GetType());
             method.Invoke(this, new object[] { obj, null }); // filter = null برای فرزندان
-        }
-
-        private bool IsOfTypeAndPassFilter<TFilter>(object obj, Func<TFilter, bool> filter)
-        {
-            if (filter == null) return true;
-            if (obj is TFilter tObj)
-                return filter(tObj);
-            return false;
-        }
-
-        private void CallFillRelationsGeneric<TCaller>(object obj, Func<TCaller, bool> filter) where TCaller : class
-        {
-            // اگر obj از نوع TCaller است، فراخوانی کنیم
-            if (obj is TCaller tObj)
-                FillRelations_Filter(tObj, filter);
         }
 
         #endregion
@@ -177,31 +184,6 @@ namespace SqlDataExtention.Data
         {
             return SelectAllWithRelations_Filter<T>(x => true);
         }
-        #endregion
-
-        #region --- Helpers ---
-
-        /// <summary>
-        /// ایجاد یک List<itemType> از IEnumerable<object> به‌صورت بازتابی
-        /// (از Enumerable.Cast<itemType>().ToList() استفاده می‌کند)
-        /// </summary>
-        private object CreateGenericListFromObjects(IEnumerable<object> objects, Type itemType)
-        {
-            if (objects == null) return null;
-
-            // Enumerable.Cast<itemType>(objects)
-            var castMethod = typeof(Enumerable).GetMethod("Cast", BindingFlags.Static | BindingFlags.Public)
-                .MakeGenericMethod(itemType);
-
-            // Enumerable.ToList<itemType>(IEnumerable<itemType>)
-            var toListMethod = typeof(Enumerable).GetMethod("ToList", BindingFlags.Static | BindingFlags.Public)
-                .MakeGenericMethod(itemType);
-
-            var casted = castMethod.Invoke(null, new object[] { objects });
-            var list = toListMethod.Invoke(null, new object[] { casted });
-            return list;
-        }
-
         #endregion
     }
 }

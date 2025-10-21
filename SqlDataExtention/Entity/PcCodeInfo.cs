@@ -19,7 +19,9 @@ namespace SqlDataExtention.Entity
 
         public string UserFullName {  get; set; }    
 
-        public int PersonalCode {  get; set; }
+        public int PersonnelCode {  get; set; }
+
+        public string Unit {  get; set; }
 
         public string Desc1 {  get; set; }
 

@@ -11,4 +11,8 @@
     <PackageReference Include="UI.for.WinForms.GridView" Version="2025.2.520" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SqlDataExtention\SqlDataExtention.csproj" />
+  </ItemGroup>
+
 </Project>

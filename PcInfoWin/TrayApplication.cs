@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PcInfoWin.Properties;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace PcInfoWin
     {
         private readonly NotifyIcon trayIcon;
         private readonly ContextMenuStrip trayMenu;
+
+        public static string IpAddress = string.Empty;
+        public static string MacAddress = string.Empty;
 
         public TrayApplication()
         {
@@ -49,8 +53,9 @@ namespace PcInfoWin
         {
             if (e.Button == MouseButtons.Left)
             {
-                trayIcon.BalloonTipTitle = "اطلاعات سیستم";
-                trayIcon.BalloonTipText = "PC_Code: 12345\nوضعیت: فعال";
+                trayIcon.BalloonTipText = "PC_Code: " + Settings.Default.PcCode;
+                trayIcon.BalloonTipText += "\nMac: " + MacAddress;
+                trayIcon.BalloonTipText += "\nIP: " + IpAddress;
                 trayIcon.BalloonTipIcon = ToolTipIcon.Info;
                 trayIcon.ShowBalloonTip(3000);
             }
@@ -58,9 +63,9 @@ namespace PcInfoWin
 
         private void ShowPcCodeForm(bool isEditMode)
         {
+            PcCodeForm.IsEditMode = isEditMode;
             using (var form = new PcCodeForm())
             {
-                form.IsEditMode = isEditMode;
                 form.ShowDialog();
             }
         }

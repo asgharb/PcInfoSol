@@ -16,7 +16,5 @@ namespace SqlDataExtention.Entity
         public string SerialNumber { get; set; }
         public int TotalRamSlots { get; set; }   // تعداد کل اسلات RAM
         public int UsedRamSlots { get; set; }    // تعداد اسلات‌های پر شده
-
-
     }
 }
