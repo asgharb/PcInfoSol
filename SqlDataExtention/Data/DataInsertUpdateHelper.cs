@@ -835,6 +835,5 @@ VALUES ({string.Join(", ", parameters)})";
                 return false;
             }
         }
-
     }
 }

@@ -5,30 +5,44 @@ using System.Management;
 
 namespace PcInfoWin.Provider
 {
-
     public class NetworkAdapterInfoProvider
     {
         public List<NetworkAdapterInfo> GetAllNetworkAdapters()
         {
             var adapters = new List<NetworkAdapterInfo>();
-            NetworkAdapterInfo motherboardLan = null;
 
             using (var searcher = new ManagementObjectSearcher(
-                       "SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL"))
+                       "SELECT * FROM Win32_NetworkAdapter WHERE PhysicalAdapter = true AND MACAddress IS NOT NULL"))
             {
                 foreach (ManagementObject obj in searcher.Get())
                 {
-                    bool isPhysical = (bool)(obj["PhysicalAdapter"] ?? false);
                     string name = obj["Name"]?.ToString() ?? "Unknown";
                     string mac = obj["MACAddress"]?.ToString() ?? "Unknown";
-                    string adapterType = obj["AdapterType"]?.ToString() ?? "";
-
-                    if (!isPhysical) continue;
-
-                    bool isLAN = adapterType.ToLower().Contains("ethernet");
+                    string adapterType = obj["AdapterType"]?.ToString()?.ToLower() ?? "";
                     bool isEnabled = (bool)(obj["NetEnabled"] ?? false);
 
-                    // دریافت IP
+                    // حذف کارت‌های مجازی، Bluetooth، Tunnel، WAN، Virtual و Loopback
+                    string lowerName = name.ToLower();
+                    if (lowerName.Contains("virtual") ||
+                        lowerName.Contains("vpn") ||
+                        lowerName.Contains("bluetooth") ||
+                        lowerName.Contains("loopback") ||
+                        lowerName.Contains("tunnel") ||
+                        lowerName.Contains("wan"))
+                    {
+                        continue;
+                    }
+
+                    // تشخیص نوع LAN یا Wi-Fi
+                    bool isLAN = false;
+                    if (adapterType.Contains("ethernet") || lowerName.Contains("ethernet") || lowerName.Contains("lan"))
+                        isLAN = true;
+                    else if (adapterType.Contains("wireless") || lowerName.Contains("wi-fi") || lowerName.Contains("wifi"))
+                        isLAN = false;
+                    else
+                        continue; // اگر نه LAN بود نه Wi-Fi، بی‌خیال
+
+                    // گرفتن IP آدرس
                     string ip = "";
                     using (var configSearcher = new ManagementObjectSearcher(
                                $"SELECT * FROM Win32_NetworkAdapterConfiguration WHERE MACAddress = '{mac}' AND IPEnabled = true"))
@@ -44,74 +58,22 @@ namespace PcInfoWin.Provider
                         }
                     }
 
-                    var adapter = new NetworkAdapterInfo
+                    adapters.Add(new NetworkAdapterInfo
                     {
                         Name = name,
                         MACAddress = mac,
                         IpAddress = ip,
-                        IsPhysical = isPhysical,
+                        //IsPhysical = true,
                         IsEnabled = isEnabled,
-                        IsLAN = isLAN,
-                        IsMotherboardLan = false
-                    };
-
-                    if (isLAN && motherboardLan == null)
-                    {
-                        // اولین LAN فیزیکی را کارت مادربرد در نظر می‌گیریم
-                        adapter.IsMotherboardLan = true;
-                        motherboardLan = adapter;
-                    }
-
-                    adapters.Add(adapter);
+                        IsLAN = isLAN
+                    });
                 }
             }
 
-            // مرتب‌سازی نهایی
+            // کارت‌های فعال بیایند اول
             return adapters
-                .OrderByDescending(a => a.IsMotherboardLan)              // مادربرد اول
-                .ThenByDescending(a => a.IsLAN && a.IsEnabled)          // LAN فعال بعد
-                .ThenByDescending(a => a.IsEnabled)                     // فعال بعد
+                .OrderByDescending(a => a.IsEnabled)
                 .ToList();
         }
-
     }
-
-    //public class NetworkAdapterInfoProvider
-    //{
-    //    public List<NetworkAdapterInfo> GetAllNetworkAdapters()
-    //    {
-    //        var adapters = new List<NetworkAdapterInfo>();
-
-    //        using (var searcher = new ManagementObjectSearcher(
-    //                   "SELECT * FROM Win32_NetworkAdapter WHERE MACAddress IS NOT NULL"))
-    //        {
-    //            foreach (ManagementObject obj in searcher.Get())
-    //            {
-    //                bool isPhysical = (bool)(obj["PhysicalAdapter"] ?? false);
-    //                bool isEnabled = (bool)(obj["NetEnabled"] ?? false);
-    //                string name = obj["Name"]?.ToString() ?? "Unknown";
-    //                string mac = obj["MACAddress"]?.ToString() ?? "Unknown";
-    //                string adapterType = obj["AdapterType"]?.ToString() ?? "";
-
-    //                // فیلتر کارت‌های مجازی
-    //                if (!isPhysical) continue;
-
-    //                bool isLAN = adapterType.ToLower().Contains("ethernet");
-
-    //                adapters.Add(new NetworkAdapterInfo
-    //                {
-    //                    Name = name,
-    //                    MACAddress = mac,
-    //                    IpAddress = "", // آدرس IP در اینجا پر نمی‌شود
-    //                    IsPhysical = isPhysical,
-    //                    IsEnabled = isEnabled,
-    //                    IsLAN = isLAN,
-    //                });
-    //            }
-    //        }
-
-    //        // اولویت: کارت LAN قبل از دیگر کارت‌ها
-    //        return adapters.OrderByDescending(a => a.IsLAN).ToList();
-    //    }
-    //}
 }

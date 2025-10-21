@@ -46,6 +46,8 @@ namespace PcInfoWin
         {
             try
             {
+                SqlDataExtention.Data.DataSelectHelper dataSelectHelper = new SqlDataExtention.Data.DataSelectHelper();
+
                 if (!IsEditMode)
                 {
                     Environment.Exit(0);
@@ -56,6 +58,11 @@ namespace PcInfoWin
                     {
                         if (!string.IsNullOrWhiteSpace(txtPcCode.Text))
                         {
+                            if(dataSelectHelper.GetAllPcCodes().Contains( txtPcCode.Text.Trim()))
+                            {
+                                MessageBox.Show("این PC_Code قبلا ثبت شده است. لطفا یک PC_Code دیگر وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
                             PcCode = txtPcCode.Text.Trim();
                             Settings.Default.PcCode = PcCode;
                             Settings.Default.PersonnelCode = string.IsNullOrWhiteSpace(txt_UserPersonnelCode.Text.Trim()) ? 0 : int.Parse(txt_UserPersonnelCode.Text.Trim());

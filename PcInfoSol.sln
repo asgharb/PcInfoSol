@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CarsList", "CarsList\CarsLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlDataExtention", "SqlDataExtention\SqlDataExtention.csproj", "{431281CC-EBAB-4D63-82F4-CDBE9BA65E1C}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPcInfoClient", "SetupPcInfoClient\SetupPcInfoClient.vdproj", "{BB5B1092-F426-98A0-3A5F-604FC2A1B6E8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,8 @@ Global
 		{431281CC-EBAB-4D63-82F4-CDBE9BA65E1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{431281CC-EBAB-4D63-82F4-CDBE9BA65E1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{431281CC-EBAB-4D63-82F4-CDBE9BA65E1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB5B1092-F426-98A0-3A5F-604FC2A1B6E8}.Debug|Any CPU.ActiveCfg = Debug
+		{BB5B1092-F426-98A0-3A5F-604FC2A1B6E8}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

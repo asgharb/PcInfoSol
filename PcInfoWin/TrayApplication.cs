@@ -29,8 +29,8 @@ namespace PcInfoWin
         {
             var icon = new NotifyIcon
             {
-                Icon = SystemIcons.Information, // آیکون ویندوز
-                Text = "برنامه من",
+                Icon = SystemIcons.Information,
+                Text = "Pc Info",
                 ContextMenuStrip = trayMenu
             };
 

@@ -185,5 +185,17 @@ namespace SqlDataExtention.Data
             return SelectAllWithRelations_Filter<T>(x => true);
         }
         #endregion
+
+        public List<string> GetAllPcCodes()
+        {
+            string query = "SELECT PcCode FROM PcCodeInf";
+            var dt = _dataHelper.ExecuteQuery(query);
+            var pcCodes = new List<string>();
+            foreach (System.Data.DataRow row in dt.Rows)
+            {
+                pcCodes.Add(row["PcCode"].ToString());
+            }
+            return pcCodes;
+        }
     }
 }

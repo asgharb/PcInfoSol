@@ -23,18 +23,13 @@ namespace PcInfoWin
 
             //SchemaGeneratorAdvanced schemaGeneratorAdvanced = new SchemaGeneratorAdvanced();
             //schemaGeneratorAdvanced.CreateSysmtemAllTabels ();
-            //bool success = dataUpdateHelper.InsertWithChildren<SystemInfo>(curreentInfo, out var mainKey);
 
             var selector = new DataSelectHelper();
             DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
 
-
             SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
-            //SystemInfo curreentInfo = null;
             int inProgramSystemInfoID = checkSettings();
             SystemInfo infoFromDB = new SystemInfo();
-            Settings.Default.SystemInfoID = -1;
-            Settings.Default.Save();
 
             if (Settings.Default.SystemInfoID > 0)
             {
@@ -51,18 +46,17 @@ namespace PcInfoWin
 
                     if (differences.Count == 0)
                     {
-                        Console.WriteLine("No difference was found.");
+                        //Console.WriteLine("No difference was found.");
                     }
                     else
                     {
-                        Console.WriteLine("Differences:");
-                        foreach (var diff in differences)
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine(diff);
-
-                            dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
-                        }
+                        //Console.WriteLine("Differences:");
+                        //foreach (var diff in differences)
+                        //{
+                        //    Console.WriteLine();
+                        //    Console.WriteLine(diff);
+                        //}
+                        dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
                     }
                 }
             }
@@ -94,9 +88,9 @@ namespace PcInfoWin
 
                     if (differences != null && differences.Count > 0)
                     {
-                        bool allMatch = (differences?.Any() ?? false) &&
-                                        differences.All(x => x.EntityType != null &&
-                                                             x.EntityType.FullName == "SqlDataExtention.Entity.PcCodeInfo");
+                        //bool allMatch = (differences?.Any() ?? false) &&
+                        //                differences.All(x => x.EntityType != null &&
+                        //                                     x.EntityType.FullName == "SqlDataExtention.Entity.PcCodeInfo");
 
                         dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
                         updateSetting(curreentInfo);
@@ -112,7 +106,7 @@ namespace PcInfoWin
                     }
                     if (string.IsNullOrWhiteSpace(Settings.Default.PcCode) && PcCodeForm.resultImportData)
                     {
-                        MessageBox.Show("خطا در ثبت اطلاعات: ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        //MessageBox.Show("خطا در ثبت اطلاعات: ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         Application.Exit();
                     }
 
@@ -122,11 +116,11 @@ namespace PcInfoWin
                     Settings.Default.Save();
                     if (success)
                     {
-                        Console.WriteLine($"Insert Complated: {mainKey}");
+                        //Console.WriteLine($"Insert Complated: {mainKey}");
                     }
                     else
                     {
-                        Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
+                        //Console.WriteLine("The insert operation encountered an Error and was Rolled Back.");
                     }
                 }
             }

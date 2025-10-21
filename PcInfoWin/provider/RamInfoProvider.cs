@@ -48,7 +48,7 @@ namespace PcInfoWin.Provider
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error reading RAM info: " + ex.Message);
+                //Console.WriteLine("Error reading RAM info: " + ex.Message);
             }
 
             return modules;

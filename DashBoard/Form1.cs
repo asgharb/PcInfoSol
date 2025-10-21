@@ -80,7 +80,7 @@ namespace DashBoard
                     RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
                     SystemInfoID = s.SystemInfoID,
                     PcCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PcCode ?? "-") : "-",
-                    IpAddress = s.NetworkAdapterInfo != null ? s.NetworkAdapterInfo.FirstOrDefault()?.GetPriorityIp(s.NetworkAdapterInfo) : null,
+                    IpAddress = s.NetworkAdapterInfo != null ? s.NetworkAdapterInfo?.Where(a => !string.IsNullOrWhiteSpace(a.IpAddress)) .OrderByDescending(a => a.IsLAN) .ThenByDescending(a => a.IsEnabled).Select(a => a.IpAddress.Trim()).FirstOrDefault() : null,
                     UserFullName = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].UserFullName ?? "-") : "-",
                     PersonnelCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PersonnelCode.ToString() ?? "-") : "-",
                     Desc1 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc1.ToString() : "-",
@@ -119,37 +119,6 @@ namespace DashBoard
         {
             gridControl1.MainView.PopulateColumns();
             (gridControl1.MainView as GridView).BestFitColumns();
-        }
-        /// <summary>
-        /// مقدار IP اولویت بندی شده برای یک System از روی لیست adapter ها
-        /// </summary>
-        private string GetPriorityIpForSystem(List<NetworkAdapterInfo> adapters)
-        {
-            if (adapters == null || adapters.Count == 0) return null;
-
-            // 1: LAN فعال و با IP معتبر، اولویت به IsMotherboardLan
-            var ip = adapters
-                .Where(a => a.IsLAN && a.IsEnabled && !string.IsNullOrWhiteSpace(a.IpAddress))
-                .OrderByDescending(a => a.IsMotherboardLan)
-                .Select(a => a.IpAddress)
-                .FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(ip)) return ip;
-
-            // 2: هر LAN با IP معتبر
-            ip = adapters
-                .Where(a => a.IsLAN && !string.IsNullOrWhiteSpace(a.IpAddress))
-                .OrderByDescending(a => a.IsMotherboardLan)
-                .Select(a => a.IpAddress)
-                .FirstOrDefault();
-            if (!string.IsNullOrWhiteSpace(ip)) return ip;
-
-            // 3: وایفای فعال با IP معتبر
-            ip = adapters
-                .Where(a => !a.IsLAN && a.IsEnabled && !string.IsNullOrWhiteSpace(a.IpAddress))
-                .Select(a => a.IpAddress)
-                .FirstOrDefault();
-
-            return ip;
         }
 
         /// <summary>

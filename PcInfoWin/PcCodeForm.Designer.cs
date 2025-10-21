@@ -42,13 +42,13 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.txt_Desc2 = new System.Windows.Forms.TextBox();
-            this.txt_Desc1 = new System.Windows.Forms.TextBox();
-            this.txt_UserPersonnelCode = new System.Windows.Forms.TextBox();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.txt_Unit = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
             this.txt_Desc3 = new System.Windows.Forms.TextBox();
+            this.txt_Desc2 = new System.Windows.Forms.TextBox();
+            this.txt_Desc1 = new System.Windows.Forms.TextBox();
+            this.txt_Unit = new System.Windows.Forms.TextBox();
+            this.txt_UserPersonnelCode = new System.Windows.Forms.TextBox();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -146,7 +146,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(767, 54);
+            this.panel1.Size = new System.Drawing.Size(593, 54);
             this.panel1.TabIndex = 4;
             // 
             // panel2
@@ -168,7 +168,7 @@
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 54);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(767, 369);
+            this.panel2.Size = new System.Drawing.Size(593, 369);
             this.panel2.TabIndex = 5;
             // 
             // label7
@@ -201,48 +201,6 @@
             this.label5.TabIndex = 0;
             this.label5.Text = "Description1";
             // 
-            // txt_Desc2
-            // 
-            this.txt_Desc2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Desc2.Location = new System.Drawing.Point(157, 272);
-            this.txt_Desc2.Name = "txt_Desc2";
-            this.txt_Desc2.Size = new System.Drawing.Size(414, 26);
-            this.txt_Desc2.TabIndex = 1;
-            // 
-            // txt_Desc1
-            // 
-            this.txt_Desc1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Desc1.Location = new System.Drawing.Point(157, 213);
-            this.txt_Desc1.Name = "txt_Desc1";
-            this.txt_Desc1.Size = new System.Drawing.Size(414, 26);
-            this.txt_Desc1.TabIndex = 1;
-            // 
-            // txt_UserPersonnelCode
-            // 
-            this.txt_UserPersonnelCode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_UserPersonnelCode.Location = new System.Drawing.Point(157, 104);
-            this.txt_UserPersonnelCode.Name = "txt_UserPersonnelCode";
-            this.txt_UserPersonnelCode.Size = new System.Drawing.Size(414, 26);
-            this.txt_UserPersonnelCode.TabIndex = 1;
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.btnOk);
-            this.panel3.Controls.Add(this.btnCancel);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel3.Location = new System.Drawing.Point(0, 423);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(767, 61);
-            this.panel3.TabIndex = 6;
-            // 
-            // txt_Unit
-            // 
-            this.txt_Unit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Unit.Location = new System.Drawing.Point(157, 155);
-            this.txt_Unit.Name = "txt_Unit";
-            this.txt_Unit.Size = new System.Drawing.Size(414, 26);
-            this.txt_Unit.TabIndex = 1;
-            // 
             // label8
             // 
             this.label8.AutoSize = true;
@@ -261,11 +219,53 @@
             this.txt_Desc3.Size = new System.Drawing.Size(414, 26);
             this.txt_Desc3.TabIndex = 1;
             // 
+            // txt_Desc2
+            // 
+            this.txt_Desc2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.txt_Desc2.Location = new System.Drawing.Point(157, 272);
+            this.txt_Desc2.Name = "txt_Desc2";
+            this.txt_Desc2.Size = new System.Drawing.Size(414, 26);
+            this.txt_Desc2.TabIndex = 1;
+            // 
+            // txt_Desc1
+            // 
+            this.txt_Desc1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.txt_Desc1.Location = new System.Drawing.Point(157, 213);
+            this.txt_Desc1.Name = "txt_Desc1";
+            this.txt_Desc1.Size = new System.Drawing.Size(414, 26);
+            this.txt_Desc1.TabIndex = 1;
+            // 
+            // txt_Unit
+            // 
+            this.txt_Unit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.txt_Unit.Location = new System.Drawing.Point(157, 155);
+            this.txt_Unit.Name = "txt_Unit";
+            this.txt_Unit.Size = new System.Drawing.Size(414, 26);
+            this.txt_Unit.TabIndex = 1;
+            // 
+            // txt_UserPersonnelCode
+            // 
+            this.txt_UserPersonnelCode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.txt_UserPersonnelCode.Location = new System.Drawing.Point(157, 104);
+            this.txt_UserPersonnelCode.Name = "txt_UserPersonnelCode";
+            this.txt_UserPersonnelCode.Size = new System.Drawing.Size(414, 26);
+            this.txt_UserPersonnelCode.TabIndex = 1;
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.btnOk);
+            this.panel3.Controls.Add(this.btnCancel);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel3.Location = new System.Drawing.Point(0, 423);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(593, 61);
+            this.panel3.TabIndex = 6;
+            // 
             // PcCodeForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(767, 484);
+            this.ClientSize = new System.Drawing.Size(593, 484);
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
