@@ -188,7 +188,7 @@ namespace SqlDataExtention.Data
 
         public List<string> GetAllPcCodes()
         {
-            string query = "SELECT PcCode FROM PcCodeInf";
+            string query = "SELECT PcCode FROM PcCodeInfo";
             var dt = _dataHelper.ExecuteQuery(query);
             var pcCodes = new List<string>();
             foreach (System.Data.DataRow row in dt.Rows)

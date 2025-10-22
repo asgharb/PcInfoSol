@@ -21,6 +21,208 @@ namespace PcInfoWin
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            if (!CheckSettings())
+            {
+                MessageBox.Show("اجرای برنامه با خطا مواجه شده به واحد انفورماتیک اطلاع بدید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Environment.Exit(0);
+            }
+
+            var dataHelper = new DataHelper();
+            bool isConnected = dataHelper.TestConnection();
+
+            if (isConnected)
+            {
+                var selector = new DataSelectHelper();
+                DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
+
+                SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
+                SystemInfo infoFromDB = new SystemInfo();
+
+
+                List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
+                if (adapterInfo != null && adapterInfo.Count > 0)
+                {
+                    infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(adapterInfo[0].SystemInfoRef);
+
+
+                    curreentInfo.SystemInfoID = infoFromDB.SystemInfoID;
+                    curreentInfo.pcCodeInfo[0].PcCodeInfoID = infoFromDB.pcCodeInfo[0].PcCodeInfoID;
+                    curreentInfo.pcCodeInfo[0].SystemInfoRef = infoFromDB.pcCodeInfo[0].SystemInfoRef;
+                    curreentInfo.pcCodeInfo[0].PcCode = infoFromDB.pcCodeInfo[0].PcCode;
+                    curreentInfo.pcCodeInfo[0].PersonnelCode = infoFromDB.pcCodeInfo[0].PersonnelCode;
+                    curreentInfo.pcCodeInfo[0].UserFullName = infoFromDB.pcCodeInfo[0].UserFullName;
+                    curreentInfo.pcCodeInfo[0].Unit = infoFromDB.pcCodeInfo[0].Unit;
+                    curreentInfo.pcCodeInfo[0].Desc1 = infoFromDB.pcCodeInfo[0].Desc1;
+                    curreentInfo.pcCodeInfo[0].Desc2 = infoFromDB.pcCodeInfo[0].Desc2;
+                    curreentInfo.pcCodeInfo[0].Desc3 = infoFromDB.pcCodeInfo[0].Desc3;
+                    curreentInfo.pcCodeInfo[0].InsertDate = infoFromDB.pcCodeInfo[0].InsertDate;
+
+                    var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
+
+
+                    if (differences != null && differences.Count > 0)
+                    {
+                        dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
+                    }
+                }
+                else
+                {
+                    PcCodeForm.IsEditMode = true;
+                    using (var form = new PcCodeForm())
+                    {
+                        form.ShowDialog();
+                    }
+                    if (string.IsNullOrWhiteSpace(PcCodeForm._pcCodeInfo.PcCode) && !PcCodeForm.resultImportData)
+                    {
+                        Environment.Exit(0);
+                    }
+
+                    updateCurreentInfo(curreentInfo);
+                    bool success = dataUpdateHelper.InsertWithChildren<SystemInfo>(curreentInfo, out var mainKey);
+
+                    if (success)
+                    {
+                        TrayApplication.PcCode = curreentInfo.pcCodeInfo[0].PcCode;
+                        TrayApplication.IpAddress = curreentInfo.NetworkAdapterInfo[0].IpAddress;
+                        TrayApplication.MacAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
+                        TrayApplication.Desc1 = curreentInfo.pcCodeInfo[0].Desc1;
+
+
+                        Settings.Default.PcCode = curreentInfo.pcCodeInfo[0].PcCode;
+                        Settings.Default.IpAddress = curreentInfo.NetworkAdapterInfo[0].IpAddress;
+                        Settings.Default.MacAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
+                        Settings.Default.Desc1 = curreentInfo.pcCodeInfo[0].Desc1;
+
+                        Settings.Default.Save();
+                    }
+                    else
+                    {
+                        MessageBox.Show("در درج اطلاعات با خطا مواجه شدیم.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Environment.Exit(0);
+                    }
+                }
+            }
+            else
+            {
+                TrayApplication.PcCode = Settings.Default.PcCode;
+                TrayApplication.IpAddress = Settings.Default.IpAddress;
+                TrayApplication.MacAddress = Settings.Default.MacAddress;
+                TrayApplication.Desc1 = Settings.Default.Desc1;
+            }
+            using (var trayApp = new TrayApplication())
+            {
+                Application.Run();
+            }
+        }
+
+
+        public static bool CheckSettings()
+        {
+            try
+            {
+                var settings = Properties.Settings.Default;
+
+                // لیست کلیدها و مقادیر پیش‌فرض اولیه برای زمانی که کلید وجود ندارد
+                var defaultValues = new Dictionary<string, string>
+        {
+            { "PcCode", "0000" },
+            { "IpAddress", "0.0.0.0" },
+            { "MacAddress", "00:00:00:00:00:00" },
+            { "Desc1", "" }
+        };
+
+                bool updated = false;
+
+                foreach (var item in defaultValues)
+                {
+                    var key = item.Key;
+                    var defaultValue = item.Value;
+
+                    // بررسی وجود کلید در تنظیمات
+                    var property = settings.Properties[key];
+
+                    if (property == null)
+                    {
+                        // فقط اگر وجود نداشت، بسازش
+                        settings.Properties.Add(
+                            new System.Configuration.SettingsProperty(key)
+                            {
+                                DefaultValue = defaultValue,
+                                IsReadOnly = false,
+                                PropertyType = typeof(string),
+                                Provider = settings.Providers["LocalFileSettingsProvider"],
+                                SerializeAs = System.Configuration.SettingsSerializeAs.String
+                            });
+
+                        // مقدار اولیه (فقط برای کلید جدید)
+                        settings[key] = defaultValue;
+                        updated = true;
+                    }
+                }
+
+                // فقط در صورت اضافه شدن کلید جدید ذخیره شود
+                if (updated)
+                    settings.Save();
+
+                return true; // یعنی حالا همه کلیدها وجود دارند
+            }
+            catch (ConfigurationErrorsException confEx)
+            {
+                // در صورت خرابی فایل config
+                if (File.Exists(confEx.Filename))
+                    File.Delete(confEx.Filename);
+
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static void updateCurreentInfo(SystemInfo curreentInfo)
+        {
+            curreentInfo.pcCodeInfo[0].PcCode = PcCodeForm._pcCodeInfo.PcCode;
+            curreentInfo.pcCodeInfo[0].UserFullName = PcCodeForm._pcCodeInfo.UserFullName;
+            curreentInfo.pcCodeInfo[0].PersonnelCode = PcCodeForm._pcCodeInfo.PersonnelCode;
+            curreentInfo.pcCodeInfo[0].Unit = PcCodeForm._pcCodeInfo.Unit;
+            curreentInfo.pcCodeInfo[0].Desc1 = PcCodeForm._pcCodeInfo.Desc1;
+            curreentInfo.pcCodeInfo[0].Desc2 = PcCodeForm._pcCodeInfo.Desc2;
+            curreentInfo.pcCodeInfo[0].Desc3 = PcCodeForm._pcCodeInfo.Desc3;
+        }
+    }
+
+}
+
+
+/*
+using PcInfoWin.Properties;
+using SqlDataExtention.Data;
+using SqlDataExtention.Utils;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
+using System.Windows.Forms;
+using SqlDataExtention.Entity.Main;
+using SqlDataExtention.Entity;
+using System.Linq;
+
+namespace PcInfoWin
+{
+    internal static class Program
+    {
+
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Settings.Default.SystemInfoID = -1;
+            Settings.Default.PersonnelCode = 0;
+            Settings.Default.PcCode = "0"; 
+            Settings.Default.Save();
+
             //SchemaGeneratorAdvanced schemaGeneratorAdvanced = new SchemaGeneratorAdvanced();
             //schemaGeneratorAdvanced.CreateSysmtemAllTabels ();
 
@@ -37,7 +239,6 @@ namespace PcInfoWin
 
                 curreentInfo.SystemInfoID = Settings.Default.SystemInfoID;
                 updateCurreentInfoFromSetting(curreentInfo);
-
 
 
                 if (infoFromDB != null)
@@ -104,10 +305,10 @@ namespace PcInfoWin
                     {
                         form.ShowDialog();
                     }
-                    if (string.IsNullOrWhiteSpace(Settings.Default.PcCode) && PcCodeForm.resultImportData)
+                    if (string.IsNullOrWhiteSpace(Settings.Default.PcCode) && !PcCodeForm.resultImportData)
                     {
                         //MessageBox.Show("خطا در ثبت اطلاعات: ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        Application.Exit();
+                        Environment.Exit(0);
                     }
 
                     updateCurreentInfoFromSetting(curreentInfo);
@@ -178,3 +379,5 @@ namespace PcInfoWin
     }
 
 }
+
+ */

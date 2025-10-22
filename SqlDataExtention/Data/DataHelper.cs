@@ -31,6 +31,23 @@ namespace SqlDataExtention.Data
             var conn = new SqlConnection(_connectionString);
             return conn;
         }
+
+        public bool TestConnection()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    return conn.State == ConnectionState.Open;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public DataTable ExecuteQuery(string query, params SqlParameter[] parameters)
         {
             using (var conn = GetConnection())
@@ -60,9 +77,6 @@ namespace SqlDataExtention.Data
             }
         }
 
-        /// <summary>
-        /// اجرای یک کوئری که مقدار تک سلولی باز می‌گرداند (مثل OUTPUT INSERTED.Id)
-        /// </summary>
         public object ExecuteScalar(string query, params SqlParameter[] parameters)
         {
             using (var conn = GetConnection())
@@ -74,7 +88,6 @@ namespace SqlDataExtention.Data
                 return cmd.ExecuteScalar();
             }
         }
-
 
         public List<T> ConvertToList<T>(DataTable table) where T : new()
         {

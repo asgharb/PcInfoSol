@@ -14,8 +14,10 @@ namespace PcInfoWin
         private readonly NotifyIcon trayIcon;
         private readonly ContextMenuStrip trayMenu;
 
+        public static string PcCode = string.Empty;
         public static string IpAddress = string.Empty;
         public static string MacAddress = string.Empty;
+        public static string Desc1 = string.Empty;
 
         public TrayApplication()
         {
@@ -53,9 +55,10 @@ namespace PcInfoWin
         {
             if (e.Button == MouseButtons.Left)
             {
-                trayIcon.BalloonTipText = "PC_Code: " + Settings.Default.PcCode;
+                trayIcon.BalloonTipText = "PC_Code: " + PcCode;
                 trayIcon.BalloonTipText += "\nMac: " + MacAddress;
                 trayIcon.BalloonTipText += "\nIP: " + IpAddress;
+                trayIcon.BalloonTipText += "\nDescription: " + Desc1;
                 trayIcon.BalloonTipIcon = ToolTipIcon.Info;
                 trayIcon.ShowBalloonTip(3000);
             }

@@ -25,7 +25,7 @@ namespace DashBoard
         List<SystemInfo> allSystems;
 
         // لیست ستون‌های قابل ویرایش (قابل تغییر در زمان اجرا با SetEditableColumns)
-        private List<string> editableColumns = new List<string> { "PcCode", "UserFullName", "PersonnelCode", "Desc1", "Desc2", "Desc3" };
+        private List<string> editableColumns = new List<string> { "PcCode", "UserFullName", "PersonnelCode", "unit","Desc1", "Desc2", "Desc3","Desc4", "Desc5", "Desc6", "Desc7" };
 
         // master view reference
         private GridView masterView;
@@ -64,57 +64,118 @@ namespace DashBoard
 
         private void loadGrid()
         {
-            gridControl1.DataSource = null;
-            gridControl1.DataMember = null;
+            try
+            {
+                gridControl1.DataSource = null;
+                gridControl1.DataMember = null;
 
-            DataSet ds = new DataSet();
-
-            var helper = new DataSelectHelperNoFilter();
-            allSystems = helper.SelectAllFullSystemInfo();
-
-
-            // ایجاد یک کلاس داینامیک یا anonymous که همه فیلدهای تک را هم به لیست تبدیل کند
-            var transformedSystems = allSystems
-                .Select((s, index) => new
-                {
-                    RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
-                    SystemInfoID = s.SystemInfoID,
-                    PcCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PcCode ?? "-") : "-",
-                    IpAddress = s.NetworkAdapterInfo != null ? s.NetworkAdapterInfo?.Where(a => !string.IsNullOrWhiteSpace(a.IpAddress)) .OrderByDescending(a => a.IsLAN) .ThenByDescending(a => a.IsEnabled).Select(a => a.IpAddress.Trim()).FirstOrDefault() : null,
-                    UserFullName = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].UserFullName ?? "-") : "-",
-                    PersonnelCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PersonnelCode.ToString() ?? "-") : "-",
-                    Desc1 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc1.ToString() : "-",
-                    Desc2 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc2.ToString() : "-",
-                    Desc3 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc3.ToString() : "-",
-                    InsertDate = s.InsertDate,
-                    ExpireDate = s.ExpireDate,
+                DataSet ds = new DataSet();
 
 
-                    pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
-                    RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
-                    RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
-                    cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
-                    gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
-                    DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
-                    NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
-                    monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
-                    motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
-                    systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
-                    OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
+                // ایجاد یک کلاس داینامیک یا anonymous که همه فیلدهای تک را هم به لیست تبدیل کند
+                //var transformedSystems = allSystems
+                //    .Select((s, index) => new
+                //    {
+                //        RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
+                //        SystemInfoID = s.SystemInfoID,
+                //        PcCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PcCode ?? "-") : "-",
+                //        IpAddress = s.NetworkAdapterInfo != null ? s.NetworkAdapterInfo?.Where(a => !string.IsNullOrWhiteSpace(a.IpAddress)).OrderByDescending(a => a.IsLAN).ThenByDescending(a => a.IsEnabled).Select(a => a.IpAddress.Trim()).FirstOrDefault() : null,
+                //        UserFullName = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].UserFullName ?? "-") : "-",
+                //        PersonnelCode = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? (s.pcCodeInfo[s.pcCodeInfo.Count - 1].PersonnelCode.ToString() ?? "-") : "-",
+                //        Desc1 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc1.ToString() : "-",
+                //        Desc2 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc2.ToString() : "-",
+                //        Desc3 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc3.ToString() : "-",
+                //        Desc4 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc4.ToString() : "-",
+                //        Desc5 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc5.ToString() : "-",
+                //        Desc6 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc6.ToString() : "-",
+                //        Desc7 = (s.pcCodeInfo != null && s.pcCodeInfo.Count > 0) ? s.pcCodeInfo.Last().Desc7.ToString() : "-",
+                //        InsertDate = s.InsertDate,
+                //        ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
 
-                })
-                .ToList();
+
+                //        pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
+                //        RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
+                //        RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
+                //        cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
+                //        gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
+                //        DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
+                //        NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
+                //        monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
+                //        motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
+                //        systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
+                //        OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
+
+                //    })
+                //    .ToList();
+
+                var helper = new DataSelectHelperNoFilter();
+                allSystems = helper.SelectAllFullSystemInfo();
+
+                var transformedSystems = allSystems
+                    .Select((s, index) => new
+                    {
+                        RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
+                        SystemInfoID = s.SystemInfoID,
+                        PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
+                        IpAddress = s.NetworkAdapterInfo != null
+                                    ? s.NetworkAdapterInfo
+                                        .Where(a => !string.IsNullOrWhiteSpace(a.IpAddress))
+                                        .OrderByDescending(a => a.IsLAN)
+                                        .ThenByDescending(a => a.IsEnabled)
+                                        .Select(a => a.IpAddress.Trim())
+                                        .FirstOrDefault()
+                                    : null,
+                        UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),
+                        PersonnelCode = GetSafeDesc(s.pcCodeInfo, x => x.PersonnelCode.ToString()),
+                        Unit = GetSafeDesc(s.pcCodeInfo, x => x.Unit),
+                        Desc1 = GetSafeDesc(s.pcCodeInfo, x => x.Desc1),
+                        Desc2 = GetSafeDesc(s.pcCodeInfo, x => x.Desc2),
+                        Desc3 = GetSafeDesc(s.pcCodeInfo, x => x.Desc3),
+                        Desc4 = GetSafeDesc(s.pcCodeInfo, x => x.Desc4),
+                        Desc5 = GetSafeDesc(s.pcCodeInfo, x => x.Desc5),
+                        Desc6 = GetSafeDesc(s.pcCodeInfo, x => x.Desc6),
+                        Desc7 = GetSafeDesc(s.pcCodeInfo, x => x.Desc7),
+                        InsertDate = s.InsertDate,
+                        ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
+
+                        pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
+                        RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
+                        RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
+                        cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
+                        gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
+                        DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
+                        NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
+                        monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
+                        motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
+                        systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
+                        OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
+                    })
+                    .ToList();
+
+                DataTable dtSystemInfo = ToDataTable(transformedSystems);
+                dtSystemInfo.TableName = "SystemInfo";
+                ds.Tables.Add(dtSystemInfo);
 
 
-
-            DataTable dtSystemInfo = ToDataTable(transformedSystems);
-            dtSystemInfo.TableName = "SystemInfo";
-            ds.Tables.Add(dtSystemInfo);
-
-
-            gridControl1.DataSource = ds;
-            gridControl1.DataMember = "SystemInfo";
+                gridControl1.DataSource = ds;
+                gridControl1.DataMember = "SystemInfo";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("خطا در بارگذاری داده‌ها: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
+        private string GetSafeDesc(IList<PcCodeInfo> list, Func<PcCodeInfo, string> selector)
+        {
+            if (list == null || list.Count == 0)
+                return "-";
+
+            var value = selector(list.Last());
+            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+        }
+
+
         void gridControl1_DataSourceChanged(object sender, EventArgs e)
         {
             gridControl1.MainView.PopulateColumns();
