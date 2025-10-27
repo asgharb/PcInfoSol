@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PcCodeForm));
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.txtPassword = new System.Windows.Forms.TextBox();
@@ -58,7 +59,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.label1.Location = new System.Drawing.Point(12, 22);
+            this.label1.Location = new System.Drawing.Point(3, 22);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(67, 16);
             this.label1.TabIndex = 0;
@@ -68,7 +69,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.label2.Location = new System.Drawing.Point(12, 12);
+            this.label2.Location = new System.Drawing.Point(3, 12);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(63, 16);
             this.label2.TabIndex = 0;
@@ -77,7 +78,7 @@
             // txtPassword
             // 
             this.txtPassword.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txtPassword.Location = new System.Drawing.Point(114, 16);
+            this.txtPassword.Location = new System.Drawing.Point(103, 16);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(232, 26);
             this.txtPassword.TabIndex = 1;
@@ -86,14 +87,15 @@
             // txtPcCode
             // 
             this.txtPcCode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txtPcCode.Location = new System.Drawing.Point(114, 6);
+            this.txtPcCode.Location = new System.Drawing.Point(103, 6);
             this.txtPcCode.Name = "txtPcCode";
             this.txtPcCode.Size = new System.Drawing.Size(232, 26);
             this.txtPcCode.TabIndex = 2;
             // 
             // btnOk
             // 
-            this.btnOk.Location = new System.Drawing.Point(114, 19);
+            this.btnOk.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.btnOk.Location = new System.Drawing.Point(103, 17);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(110, 30);
             this.btnOk.TabIndex = 9;
@@ -103,7 +105,7 @@
             // 
             // btnCancel
             // 
-            this.btnCancel.Location = new System.Drawing.Point(253, 19);
+            this.btnCancel.Location = new System.Drawing.Point(252, 18);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(110, 30);
             this.btnCancel.TabIndex = 10;
@@ -115,7 +117,7 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.label3.Location = new System.Drawing.Point(12, 64);
+            this.label3.Location = new System.Drawing.Point(3, 64);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(94, 16);
             this.label3.TabIndex = 0;
@@ -124,7 +126,7 @@
             // txt_UserFullName
             // 
             this.txt_UserFullName.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_UserFullName.Location = new System.Drawing.Point(114, 59);
+            this.txt_UserFullName.Location = new System.Drawing.Point(103, 58);
             this.txt_UserFullName.Name = "txt_UserFullName";
             this.txt_UserFullName.Size = new System.Drawing.Size(232, 26);
             this.txt_UserFullName.TabIndex = 3;
@@ -215,25 +217,25 @@
             // txt_Desc3
             // 
             this.txt_Desc3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Desc3.Location = new System.Drawing.Point(114, 237);
+            this.txt_Desc3.Location = new System.Drawing.Point(103, 237);
             this.txt_Desc3.Name = "txt_Desc3";
-            this.txt_Desc3.Size = new System.Drawing.Size(694, 26);
+            this.txt_Desc3.Size = new System.Drawing.Size(722, 26);
             this.txt_Desc3.TabIndex = 8;
             // 
             // txt_Desc2
             // 
             this.txt_Desc2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Desc2.Location = new System.Drawing.Point(114, 179);
+            this.txt_Desc2.Location = new System.Drawing.Point(103, 179);
             this.txt_Desc2.Name = "txt_Desc2";
-            this.txt_Desc2.Size = new System.Drawing.Size(694, 26);
+            this.txt_Desc2.Size = new System.Drawing.Size(722, 26);
             this.txt_Desc2.TabIndex = 7;
             // 
             // txt_Desc1
             // 
             this.txt_Desc1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Desc1.Location = new System.Drawing.Point(114, 119);
+            this.txt_Desc1.Location = new System.Drawing.Point(103, 119);
             this.txt_Desc1.Name = "txt_Desc1";
-            this.txt_Desc1.Size = new System.Drawing.Size(694, 26);
+            this.txt_Desc1.Size = new System.Drawing.Size(722, 26);
             this.txt_Desc1.TabIndex = 6;
             // 
             // txt_Unit
@@ -241,7 +243,7 @@
             this.txt_Unit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
             this.txt_Unit.Location = new System.Drawing.Point(641, 58);
             this.txt_Unit.Name = "txt_Unit";
-            this.txt_Unit.Size = new System.Drawing.Size(167, 26);
+            this.txt_Unit.Size = new System.Drawing.Size(184, 26);
             this.txt_Unit.TabIndex = 5;
             // 
             // txt_UserPersonnelCode
@@ -271,7 +273,9 @@
             this.Controls.Add(this.panel3);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "PcCodeForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PcCodeForm";
             this.Load += new System.EventHandler(this.PcCodeForm_Load);
             this.panel1.ResumeLayout(false);

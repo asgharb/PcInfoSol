@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_1A2E8BE47884433EAC899EC14B5AFA01"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_43A8DA9141E8B1A757EE964C9687693E"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
         "MsmSig" = "8:_UNDEFINED"
@@ -35,6 +29,12 @@
         {
         "MsmKey" = "8:_75361BF643A491C72475365B6F167248"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7D1565878620418E8D32071FB6C59249"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -130,12 +130,6 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FB03D969D3A2C9DFFDE502C1252EAA93"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -211,6 +205,12 @@
         "OwnerKey" = "8:_A6B876720389B6C5AD1BD2C58EB73667"
         "MsmSig" = "8:_UNDEFINED"
         }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FB03D969D3A2C9DFFDE502C1252EAA93"
+        "MsmSig" = "8:_UNDEFINED"
+        }
     }
     "Configurations"
     {
@@ -229,6 +229,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -245,6 +261,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
     }
     "Deployable"
@@ -274,26 +306,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A2E8BE47884433EAC899EC14B5AFA01"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\..\\Desktop\\PcInfo.ico"
-            "TargetName" = "8:PcInfo.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_43A8DA9141E8B1A757EE964C9687693E"
             {
             "AssemblyRegister" = "3:1"
@@ -385,6 +397,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7D1565878620418E8D32071FB6C59249"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\pc.ico"
+            "TargetName" = "8:pc.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_824D70A8BF8F5242279E2917D5934AC8"
@@ -752,9 +784,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:SetupPcInfoClient"
+        "ProductName" = "8:PcInfoClient"
         "ProductCode" = "8:{5D8C7DC4-DDC8-4236-A84B-D74BB3157227}"
-        "PackageCode" = "8:{7565DB13-9305-4E79-8F84-EC1B29A85F5C}"
+        "PackageCode" = "8:{EF99F004-B6F9-4E63-BDA2-2802E7381D9E}"
         "UpgradeCode" = "8:{5CEDE846-DE92-4CF4-BBE3-6BB70D2AC903}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -762,12 +794,12 @@
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
         "ProductVersion" = "8:1.0.0"
-        "Manufacturer" = "8:Default Company Name"
+        "Manufacturer" = "8:DournaBatteryCo"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:SetupPcInfoClient"
+        "Title" = "8:PcInfoClient"
         "Subject" = "8:"
-        "ARPCONTACT" = "8:Default Company Name"
+        "ARPCONTACT" = "8:IT"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
@@ -874,23 +906,9 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5E6A59D4370C4638B79AB8861AEFFF35"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_1D1C983410014EA0A1B109B0C610F01F"
             {
-            "Name" = "8:PcInfo"
-            "Arguments" = "8:"
-            "Description" = "8:"
-            "ShowCmd" = "3:1"
-            "IconIndex" = "3:0"
-            "Transitive" = "11:FALSE"
-            "Target" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
-            "Folder" = "8:_27D8DA22F05A4378967E5B3E9C09EBCC"
-            "WorkingFolder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
-            "Icon" = "8:_1A2E8BE47884433EAC899EC14B5AFA01"
-            "Feature" = "8:"
-            }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_717E3D0471454BA5905561BD50CE2C41"
-            {
-            "Name" = "8:PcInfo"
+            "Name" = "8:Pc Info"
             "Arguments" = "8:"
             "Description" = "8:"
             "ShowCmd" = "3:1"
@@ -899,7 +917,21 @@
             "Target" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
             "Folder" = "8:_B0CF31281B9449CEBF0FB5E0AF57CF29"
             "WorkingFolder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
-            "Icon" = "8:_1A2E8BE47884433EAC899EC14B5AFA01"
+            "Icon" = "8:_7D1565878620418E8D32071FB6C59249"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_760742E1414F4DDD929ACF55AB99C58D"
+            {
+            "Name" = "8:Pc Info"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
+            "Folder" = "8:_27D8DA22F05A4378967E5B3E9C09EBCC"
+            "WorkingFolder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
+            "Icon" = "8:_7D1565878620418E8D32071FB6C59249"
             "Feature" = "8:"
             }
         }
@@ -1303,7 +1335,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DCED578BD9CF4AECB40E0B2A8D7FD248"
             {
-            "SourcePath" = "8:..\\PcInfoWin\\obj\\Release\\PcInfoWin.exe"
+            "SourcePath" = "8:..\\PcInfoWin\\obj\\Debug\\PcInfoWin.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"

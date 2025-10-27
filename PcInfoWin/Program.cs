@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using SqlDataExtention.Entity.Main;
 using SqlDataExtention.Entity;
 using System.Linq;
+using PcInfoWin.Extention;
 
 namespace PcInfoWin
 {
@@ -20,6 +21,8 @@ namespace PcInfoWin
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            showSplashScreen();
 
             if (!CheckSettings())
             {
@@ -38,36 +41,25 @@ namespace PcInfoWin
                 SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
                 SystemInfo infoFromDB = new SystemInfo();
 
-
                 List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
                 if (adapterInfo != null && adapterInfo.Count > 0)
                 {
                     infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(adapterInfo[0].SystemInfoRef);
 
-
-                    curreentInfo.SystemInfoID = infoFromDB.SystemInfoID;
-                    curreentInfo.pcCodeInfo[0].PcCodeInfoID = infoFromDB.pcCodeInfo[0].PcCodeInfoID;
-                    curreentInfo.pcCodeInfo[0].SystemInfoRef = infoFromDB.pcCodeInfo[0].SystemInfoRef;
-                    curreentInfo.pcCodeInfo[0].PcCode = infoFromDB.pcCodeInfo[0].PcCode;
-                    curreentInfo.pcCodeInfo[0].PersonnelCode = infoFromDB.pcCodeInfo[0].PersonnelCode;
-                    curreentInfo.pcCodeInfo[0].UserFullName = infoFromDB.pcCodeInfo[0].UserFullName;
-                    curreentInfo.pcCodeInfo[0].Unit = infoFromDB.pcCodeInfo[0].Unit;
-                    curreentInfo.pcCodeInfo[0].Desc1 = infoFromDB.pcCodeInfo[0].Desc1;
-                    curreentInfo.pcCodeInfo[0].Desc2 = infoFromDB.pcCodeInfo[0].Desc2;
-                    curreentInfo.pcCodeInfo[0].Desc3 = infoFromDB.pcCodeInfo[0].Desc3;
-                    curreentInfo.pcCodeInfo[0].InsertDate = infoFromDB.pcCodeInfo[0].InsertDate;
+                    ExtentionMethode.updateCurreentInfoFromDBInfo(curreentInfo, infoFromDB);
 
                     var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
-
 
                     if (differences != null && differences.Count > 0)
                     {
                         dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
                     }
+                    ExtentionMethode.updateSettingsDefaultFromCurreentInfo(curreentInfo);
+                    ExtentionMethode.updateBalonInfoFromSettings();
                 }
                 else
                 {
-                    PcCodeForm.IsEditMode = true;
+                    PcCodeForm.IsNewMode = true;
                     using (var form = new PcCodeForm())
                     {
                         form.ShowDialog();
@@ -77,23 +69,16 @@ namespace PcInfoWin
                         Environment.Exit(0);
                     }
 
-                    updateCurreentInfo(curreentInfo);
+                    ExtentionMethode.updateCurreentInfoFromUserInput(curreentInfo);
+
                     bool success = dataUpdateHelper.InsertWithChildren<SystemInfo>(curreentInfo, out var mainKey);
 
                     if (success)
                     {
-                        TrayApplication.PcCode = curreentInfo.pcCodeInfo[0].PcCode;
-                        TrayApplication.IpAddress = curreentInfo.NetworkAdapterInfo[0].IpAddress;
-                        TrayApplication.MacAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
-                        TrayApplication.Desc1 = curreentInfo.pcCodeInfo[0].Desc1;
-
-
-                        Settings.Default.PcCode = curreentInfo.pcCodeInfo[0].PcCode;
-                        Settings.Default.IpAddress = curreentInfo.NetworkAdapterInfo[0].IpAddress;
-                        Settings.Default.MacAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
-                        Settings.Default.Desc1 = curreentInfo.pcCodeInfo[0].Desc1;
-
-                        Settings.Default.Save();
+                        ExtentionMethode.updateSettingsDefaultFromCurreentInfo(curreentInfo);
+                        ExtentionMethode.updateBalonInfoFromSettings();
+                        PcCodeForm.IsNewMode=false;
+                        MessageBox.Show("با موفقیت درج شد", "Info", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                     else
                     {
@@ -101,13 +86,11 @@ namespace PcInfoWin
                         Environment.Exit(0);
                     }
                 }
+                PcCodeForm._pcCodeInfo = curreentInfo.pcCodeInfo[0];
             }
             else
             {
-                TrayApplication.PcCode = Settings.Default.PcCode;
-                TrayApplication.IpAddress = Settings.Default.IpAddress;
-                TrayApplication.MacAddress = Settings.Default.MacAddress;
-                TrayApplication.Desc1 = Settings.Default.Desc1;
+                ExtentionMethode.updateBalonInfoFromSettings();
             }
             using (var trayApp = new TrayApplication())
             {
@@ -180,18 +163,14 @@ namespace PcInfoWin
             }
         }
 
-        public static void updateCurreentInfo(SystemInfo curreentInfo)
+        public static void showSplashScreen()
         {
-            curreentInfo.pcCodeInfo[0].PcCode = PcCodeForm._pcCodeInfo.PcCode;
-            curreentInfo.pcCodeInfo[0].UserFullName = PcCodeForm._pcCodeInfo.UserFullName;
-            curreentInfo.pcCodeInfo[0].PersonnelCode = PcCodeForm._pcCodeInfo.PersonnelCode;
-            curreentInfo.pcCodeInfo[0].Unit = PcCodeForm._pcCodeInfo.Unit;
-            curreentInfo.pcCodeInfo[0].Desc1 = PcCodeForm._pcCodeInfo.Desc1;
-            curreentInfo.pcCodeInfo[0].Desc2 = PcCodeForm._pcCodeInfo.Desc2;
-            curreentInfo.pcCodeInfo[0].Desc3 = PcCodeForm._pcCodeInfo.Desc3;
+            SplashScreen slScreen = new SplashScreen();
+            slScreen.StartPosition = FormStartPosition.CenterParent;
+            slScreen.ShowDialog();
         }
-    }
 
+    }
 }
 
 

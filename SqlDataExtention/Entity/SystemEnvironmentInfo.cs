@@ -14,11 +14,8 @@ namespace SqlDataExtention.Entity
         public string ComputerName { get; set; }
         public string UserName { get; set; }
         public string Domain { get; set; }
-        public string OperatingSystem { get; set; }
         public string OsVersion { get; set; }
-        public string CurrentUserFullName {  get; set; }
-        public int CurrentUserPersonnelCode { get; set; } =0;
-        public string Description { get; set; }
+        public bool IsRealVNCInstalled { get; set; }
 
 
 

@@ -1,6 +1,6 @@
 ﻿using SqlDataExtention.Entity;
 using System;
-using System.Runtime.InteropServices;
+using PcInfoWin.Provider;
 
 namespace PcInfoWin.Provider
 {
@@ -13,8 +13,8 @@ namespace PcInfoWin.Provider
                 ComputerName = Environment.MachineName,
                 UserName = Environment.UserName,
                 Domain = Environment.UserDomainName,
-                OperatingSystem = RuntimeInformation.OSDescription,
                 OsVersion = Environment.OSVersion.VersionString,
+                IsRealVNCInstalled= FindProgram.IsProgramInstalled()
             };
             return info;
         }

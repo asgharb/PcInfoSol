@@ -106,5 +106,17 @@ namespace PcInfoWin.Properties {
                 this["IpAddress"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SystemInfoID {
+            get {
+                return ((int)(this["SystemInfoID"]));
+            }
+            set {
+                this["SystemInfoID"] = value;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
 ﻿using PcInfoWin.Properties;
+using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -31,7 +33,7 @@ namespace PcInfoWin
         {
             var icon = new NotifyIcon
             {
-                Icon = SystemIcons.Information,
+                Icon = Properties.Resources.pc,
                 Text = "Pc Info",
                 ContextMenuStrip = trayMenu
             };
@@ -64,12 +66,28 @@ namespace PcInfoWin
             }
         }
 
-        private void ShowPcCodeForm(bool isEditMode)
+        private void ShowPcCodeForm(bool editMode)
         {
-            PcCodeForm.IsEditMode = isEditMode;
+            PcCodeForm.IsEditMode = editMode;
             using (var form = new PcCodeForm())
             {
                 form.ShowDialog();
+            }
+            if (PcCodeForm.IsEditMode && !PcCodeForm.IsNewMode && PcCodeForm.resultImportData)
+            {
+                var helper = new DataInsertUpdateHelper();
+
+                int systemInfoRef = Settings.Default.SystemInfoID;
+
+                bool result = helper.ExpireAndInsertPcCodeInfo(systemInfoRef, PcCodeForm._pcCodeInfo);
+                if (result)
+                {
+                    MessageBox.Show("عملیات با موفقیت انجام شد.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("عملیات با خطا مواجه شد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
