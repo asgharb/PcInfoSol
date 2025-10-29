@@ -32,12 +32,12 @@
             ribbonControl1 = new DevExpress.XtraBars.Ribbon.RibbonControl();
             barButtonItem1 = new DevExpress.XtraBars.BarButtonItem();
             barButtonItem2 = new DevExpress.XtraBars.BarButtonItem();
+            btnSendMsg = new DevExpress.XtraBars.BarButtonItem();
             ribbonPageCategory1 = new DevExpress.XtraBars.Ribbon.RibbonPageCategory();
             ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             gridControl1 = new DevExpress.XtraGrid.GridControl();
             gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
-            barButtonItem3 = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)ribbonControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridView1).BeginInit();
@@ -46,13 +46,13 @@
             // ribbonControl1
             // 
             ribbonControl1.ExpandCollapseItem.Id = 0;
-            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, barButtonItem2, barButtonItem3 });
+            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, barButtonItem2, btnSendMsg });
             ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            ribbonControl1.MaxItemId = 5;
+            ribbonControl1.MaxItemId = 6;
             ribbonControl1.Name = "ribbonControl1";
             ribbonControl1.PageCategories.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageCategory[] { ribbonPageCategory1 });
             ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1 });
-            ribbonControl1.Size = new System.Drawing.Size(1383, 146);
+            ribbonControl1.Size = new System.Drawing.Size(1377, 146);
             // 
             // barButtonItem1
             // 
@@ -74,6 +74,15 @@
             barButtonItem2.ItemAppearance.Pressed.Options.UseFont = true;
             barButtonItem2.Name = "barButtonItem2";
             // 
+            // btnSendMsg
+            // 
+            btnSendMsg.Caption = "Message";
+            btnSendMsg.Id = 5;
+            btnSendMsg.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("btnSendMsg.ImageOptions.Image");
+            btnSendMsg.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("btnSendMsg.ImageOptions.LargeImage");
+            btnSendMsg.Name = "btnSendMsg";
+            btnSendMsg.ItemClick += btnSendMsg_ItemClick;
+            // 
             // ribbonPageCategory1
             // 
             ribbonPageCategory1.Name = "ribbonPageCategory1";
@@ -88,7 +97,7 @@
             // ribbonPageGroup1
             // 
             ribbonPageGroup1.ItemLinks.Add(barButtonItem2);
-            ribbonPageGroup1.ItemLinks.Add(barButtonItem3);
+            ribbonPageGroup1.ItemLinks.Add(btnSendMsg);
             ribbonPageGroup1.Name = "ribbonPageGroup1";
             // 
             // gridControl1
@@ -98,7 +107,7 @@
             gridControl1.MainView = gridView1;
             gridControl1.MenuManager = ribbonControl1;
             gridControl1.Name = "gridControl1";
-            gridControl1.Size = new System.Drawing.Size(1383, 672);
+            gridControl1.Size = new System.Drawing.Size(1377, 669);
             gridControl1.TabIndex = 1;
             gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
             // 
@@ -106,15 +115,6 @@
             // 
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
-            // 
-            // barButtonItem3
-            // 
-            barButtonItem3.Caption = "Excel";
-            barButtonItem3.Id = 4;
-            barButtonItem3.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("barButtonItem3.ImageOptions.Image");
-            barButtonItem3.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("barButtonItem3.ImageOptions.LargeImage");
-            barButtonItem3.Name = "barButtonItem3";
-            barButtonItem3.ItemClick += barButtonItem3_ItemClick;
             // 
             // Form1
             // 
@@ -126,9 +126,10 @@
             Appearance.Options.UseForeColor = true;
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1383, 818);
+            ClientSize = new System.Drawing.Size(1377, 815);
             Controls.Add(gridControl1);
             Controls.Add(ribbonControl1);
+            Font = new System.Drawing.Font("Segoe UI", 8.25F);
             Name = "Form1";
             Ribbon = ribbonControl1;
             Text = "PcInfo";
@@ -151,7 +152,7 @@
         private DevExpress.XtraGrid.Views.Grid.GridView gridView1;
         private DevExpress.XtraBars.BarButtonItem barButtonItem1;
         private DevExpress.XtraBars.BarButtonItem barButtonItem2;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem3;
+        private DevExpress.XtraBars.BarButtonItem btnSendMsg;
     }
 }
 

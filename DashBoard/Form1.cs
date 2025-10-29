@@ -11,12 +11,14 @@ using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using SqlDataExtention.Entity.Main;
 using System;
-using ClosedXML.Excel;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace DashBoard
@@ -265,6 +267,7 @@ namespace DashBoard
                         ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
 
                         pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
+                        systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
                         RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
                         RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
                         cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
@@ -273,7 +276,6 @@ namespace DashBoard
                         NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
                         monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
                         motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
-                        systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
                         OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
                     })
                     .ToList();
@@ -840,14 +842,26 @@ namespace DashBoard
                 // مثال: SetValue(systemInfoId, active); // یا متد ExpireAndInsert در DataInsertUpdateHelper
 
                 // بروزرسانی UI/حافظه
-                SetValue(systemInfoId, active);
-                initGridControl(); // اگر این متد رفرش گرید را انجام می‌دهد
-
-                MessageBox.Show(
+                if (SetValue(systemInfoId, active))
+                {
+                    MessageBox.Show(
                     $"Column: {e.Column.FieldName}\nNew Value: {newValue}",
                     "ویرایش ذخیره شد",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
+
+                }
+                else
+                {
+                    MessageBox.Show(
+                    $"خطا در ذخیره تغییرات در پایگاه داده.",
+                    "خطا",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                }
+                initGridControl(); // اگر این متد رفرش گرید را انجام می‌دهد
+
+
             }
             catch (Exception ex)
             {
@@ -856,10 +870,10 @@ namespace DashBoard
             Cursor.Current = Cursors.Default;
         }
 
-        private void SetValue(int systemInfoRef, PcCodeInfo NewPcCodeInfo)
+        private bool SetValue(int systemInfoRef, PcCodeInfo NewPcCodeInfo)
         {
             DataInsertUpdateHelper helper = new DataInsertUpdateHelper();
-            helper.ExpireAndInsertPcCodeInfo(systemInfoRef, NewPcCodeInfo);
+            return helper.ExpireAndInsertPcCodeInfo(systemInfoRef, NewPcCodeInfo);
 
         }
 
@@ -869,7 +883,7 @@ namespace DashBoard
             DataSet ds = new DataSet();
 
 
-     
+
 
             var helper = new DataSelectHelperNoFilter();
             allSystems = helper.SelectAllFullSystemInfo();
@@ -973,6 +987,12 @@ namespace DashBoard
             // ذخیره فایل
             workbook.SaveAs("SystemInfo_MasterDetail.xlsx");
             Cursor.Current = Cursors.Default;
+        }
+
+        private void btnSendMsg_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            FrmSendMsg frmSendMsg= new FrmSendMsg();
+            frmSendMsg.ShowDialog();
         }
 
         /// <summary>

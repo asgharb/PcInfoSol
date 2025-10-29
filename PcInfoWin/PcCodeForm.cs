@@ -76,6 +76,13 @@ namespace PcInfoWin
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+
+            if (string.IsNullOrWhiteSpace(txtPassword.Text) || txtPassword.Text != password)
+            {
+                MessageBox.Show("رمز عبور اشتباه است.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             DialogResult result = MessageBox.Show(
                 "آیا مطمئن هستید که می‌خواهید ادامه دهید؟",
                 "تأیید عملیات",
@@ -87,49 +94,43 @@ namespace PcInfoWin
             {
                 try
                 {
-                    SqlDataExtention.Data.DataSelectHelper dataSelectHelper = new SqlDataExtention.Data.DataSelectHelper();
-
                     if (!IsEditMode && !IsNewMode)
                     {
                         Application.Exit();
                     }
                     else
                     {
-                        if (!string.IsNullOrWhiteSpace(txtPassword.Text) && txtPassword.Text == password)
-                        {
-                            if (!string.IsNullOrWhiteSpace(txtPcCode.Text))
-                            {
-                                if ((dataSelectHelper.GetAllPcCodes() ?? new List<string>()).Contains(txtPcCode.Text.Trim()))
-                                {
-                                    if (IsNewMode || (IsEditMode && txtPcCode.Text.Trim() != _pcCodeInfo.PcCode))
-                                    {
-                                        MessageBox.Show("این PC_Code قبلا ثبت شده است. لطفا یک PC_Code دیگر وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                        return;
-                                    }
-                                }
-                                PcCode = txtPcCode.Text.Trim();
-                                _pcCodeInfo.PcCode = PcCode;
-                                _pcCodeInfo.PersonnelCode = string.IsNullOrWhiteSpace(txt_UserPersonnelCode.Text.Trim()) ? 0 : int.Parse(txt_UserPersonnelCode.Text.Trim());
-                                _pcCodeInfo.UserFullName = txt_UserFullName.Text.Trim();
-                                _pcCodeInfo.Unit = txt_Unit.Text.Trim();
-                                _pcCodeInfo.Desc1 = txt_Desc1.Text.Trim();
-                                _pcCodeInfo.Desc2 = txt_Desc2.Text.Trim();
-                                _pcCodeInfo.Desc3 = txt_Desc3.Text.Trim();
+                        SqlDataExtention.Data.DataSelectHelper dataSelectHelper = new SqlDataExtention.Data.DataSelectHelper();
 
-                                resultImportData = true;
-                                this.DialogResult = DialogResult.OK;
-                                this.Close();
-                            }
-                            else
+                        if (!string.IsNullOrWhiteSpace(txtPcCode.Text))
+                        {
+                            if ((dataSelectHelper.GetAllPcCodes() ?? new List<string>()).Contains(txtPcCode.Text.Trim()))
                             {
-                                MessageBox.Show("لطفا PC_Code را وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                resultImportData = false;
+                                if (IsNewMode || (IsEditMode && txtPcCode.Text.Trim() != _pcCodeInfo.PcCode))
+                                {
+                                    MessageBox.Show("این PC_Code قبلا ثبت شده است. لطفا یک PC_Code دیگر وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    return;
+                                }
                             }
+                            PcCode = txtPcCode.Text.Trim();
+                            _pcCodeInfo.PcCode = PcCode;
+                            _pcCodeInfo.PersonnelCode = string.IsNullOrWhiteSpace(txt_UserPersonnelCode.Text.Trim()) ? 0 : int.Parse(txt_UserPersonnelCode.Text.Trim());
+                            _pcCodeInfo.UserFullName = txt_UserFullName.Text.Trim();
+                            _pcCodeInfo.Unit = txt_Unit.Text.Trim();
+                            _pcCodeInfo.Desc1 = txt_Desc1.Text.Trim();
+                            _pcCodeInfo.Desc2 = txt_Desc2.Text.Trim();
+                            _pcCodeInfo.Desc3 = txt_Desc3.Text.Trim();
+
+                            resultImportData = true;
+                            this.DialogResult = DialogResult.OK;
+                            this.Close();
                         }
                         else
                         {
-                            MessageBox.Show("رمز عبور اشتباه است.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show("لطفا PC_Code را وارد کنید.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            resultImportData = false;
                         }
+
                     }
                 }
                 catch (Exception ex)

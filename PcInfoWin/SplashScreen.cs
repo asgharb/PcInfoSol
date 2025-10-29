@@ -26,7 +26,7 @@ namespace PcInfoWin
         private void SplashScreen_Load(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
-            this.Opacity = 0.5;
+            this.Opacity = 0.7;
         }
     }
 }

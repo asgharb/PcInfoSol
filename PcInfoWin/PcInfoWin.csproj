@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extention\ExtentionMethode.cs" />
+    <Compile Include="Message\Receiver.cs" />
     <Compile Include="PcCodeForm.cs">
       <SubType>Form</SubType>
     </Compile>
