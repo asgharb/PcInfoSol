@@ -34,7 +34,9 @@ namespace SqlDataExtention.Entity.Main
         [Ignore]
         public List<OpticalDriveInfo> OpticalDriveInfo { get; set; } 
         [Ignore]
-        public List<MonitorInfo> monitorInfo { get; set; } 
+        public List<MonitorInfo> monitorInfo { get; set; }
+        [Ignore]
+        public UpdateInfo updateInfo { get; set; }
 
         public DateTime InsertDate { get; set; } = DateTime.Now;
         public DateTime? ExpireDate { get; set; }

@@ -26,7 +26,7 @@
     <Setting Name="SystemInfoID" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
-    <Setting Name="LastVersion" Type="System.String" Scope="User">
+    <Setting Name="PathUpdate" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

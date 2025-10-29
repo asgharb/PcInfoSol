@@ -5,6 +5,7 @@ using System.Text;
 using SqlDataExtention.Entity.Main;
 using PcInfoWin.Provider;
 using SqlDataExtention.Entity;
+using PcInfoWin.Properties;
 
 namespace PcInfoWin
 {
@@ -53,6 +54,15 @@ namespace PcInfoWin
             // ---------- Monitor ----------
             var monitorProvider = new MonitorInfoProvider();
             systemInfo.monitorInfo = monitorProvider.GetAllMonitors();
+
+            // ---------- UpdateInfo ----------
+            var updateInfo = new UpdateInfo(
+                (!string.IsNullOrEmpty(Settings.Default.PathUpdate) && Settings.Default.PathUpdate.Length >= 5)
+                    ? Settings.Default.PathUpdate
+                    : Program.defaultUpdatePath
+            );
+
+            systemInfo.updateInfo = updateInfo;
 
 
             PcCodeInfo pcCodeInfo = new PcCodeInfo();

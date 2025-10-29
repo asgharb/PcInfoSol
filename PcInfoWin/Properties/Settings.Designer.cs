@@ -122,12 +122,12 @@ namespace PcInfoWin.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LastVersion {
+        public string PathUpdate {
             get {
-                return ((string)(this["LastVersion"]));
+                return ((string)(this["PathUpdate"]));
             }
             set {
-                this["LastVersion"] = value;
+                this["PathUpdate"] = value;
             }
         }
     }

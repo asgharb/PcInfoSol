@@ -35,6 +35,8 @@ namespace PcInfoWin.Extention
             curreentInfo.pcCodeInfo[0].Desc2 = infoFromDB.pcCodeInfo[0].Desc2;
             curreentInfo.pcCodeInfo[0].Desc3 = infoFromDB.pcCodeInfo[0].Desc3;
             curreentInfo.pcCodeInfo[0].InsertDate = infoFromDB.pcCodeInfo[0].InsertDate;
+            curreentInfo.updateInfo.UpdatePath = infoFromDB.updateInfo.UpdatePath;
+
         }
 
 
@@ -45,6 +47,7 @@ namespace PcInfoWin.Extention
             Settings.Default.IpAddress = curreentInfo.NetworkAdapterInfo[0].IpAddress;
             Settings.Default.MacAddress = curreentInfo.NetworkAdapterInfo[0].MACAddress;
             Settings.Default.Desc1 = curreentInfo.pcCodeInfo[0].Desc1;
+            Settings.Default.PathUpdate = curreentInfo.updateInfo.UpdatePath;
             Settings.Default.Save();
         }
         public static void updateBalonInfoFromSettings()

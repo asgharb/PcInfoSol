@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_43A8DA9141E8B1A757EE964C9687693E"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
         "MsmSig" = "8:_UNDEFINED"
@@ -131,6 +137,12 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -306,6 +318,37 @@
         }
         "File"
         {
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0E0CCDE44BEC4BD592584E3899EB17DA"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:PcInfoAutoUpdater, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_0E0CCDE44BEC4BD592584E3899EB17DA"
+                    {
+                    "Name" = "8:PcInfoAutoUpdater.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\PcInfoAutoUpdater\\bin\\Release\\PcInfoAutoUpdater.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_43A8DA9141E8B1A757EE964C9687693E"
             {
             "AssemblyRegister" = "3:1"
@@ -786,7 +829,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PcInfoClient"
         "ProductCode" = "8:{5D8C7DC4-DDC8-4236-A84B-D74BB3157227}"
-        "PackageCode" = "8:{EF99F004-B6F9-4E63-BDA2-2802E7381D9E}"
+        "PackageCode" = "8:{5F2AD5C6-F31E-4F6E-9298-EC18B33046F2}"
         "UpgradeCode" = "8:{5CEDE846-DE92-4CF4-BBE3-6BB70D2AC903}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

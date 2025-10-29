@@ -6,7 +6,6 @@ namespace SqlDataExtention.Entity
     [Table("GpuInfo")]
     public class GpuInfo : BaseEntity
     {
-        // کلید اصلی با نام کلاس + ID
         [Key]
         [DbGenerated]
         [Column("GpuInfoID")]
