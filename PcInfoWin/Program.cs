@@ -17,7 +17,7 @@ namespace PcInfoWin
 {
     internal static class Program
     {
-        public static string defaultUpdatePath= @"\\172.20.7.53\soft\PcInfo\Release";
+        public static string defaultUpdatePath = @"\\172.20.7.53\soft\PcInfo\Release";
 
         [STAThread]
         static void Main()
@@ -26,9 +26,11 @@ namespace PcInfoWin
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            MessageBox.Show("Ver :"+ Assembly.GetExecutingAssembly().GetName().Version.ToString(), "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-
+            WirteVersion();
             CheckForUpdate();
+
 
             try
             {
@@ -191,9 +193,31 @@ namespace PcInfoWin
             slScreen.ShowDialog();
         }
 
+        public static void WirteVersion()
+        {
+            try
+            {
+                string versionFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "version.txt");
+
+                if (File.Exists(versionFile))
+                    File.Delete(versionFile);
+
+                string version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+                File.WriteAllText(versionFile, version);
+
+                Console.WriteLine("Version file updated: " + version);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error writing version file: " + ex.Message);
+            }
+        }
 
         public static void CheckForUpdate()
         {
+            MessageBox.Show("Start CheckForUpdate .........................", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             try
             {
                 string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
@@ -203,19 +227,20 @@ namespace PcInfoWin
                     updatePath = Settings.Default.PathUpdate;
                 }
 
-                MessageBox.Show("11111111111111111111", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
                 string versionFile = Path.Combine(updatePath, "version.txt");
 
                 if (!File.Exists(versionFile)) return;
 
                 string newVersion = File.ReadAllText(versionFile).Trim();
 
-                MessageBox.Show("22222222222222222222222222222222", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Exists..........................", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 if (newVersion != currentVersion)
                 {
-                    MessageBox.Show("currentVersion:" + currentVersion, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    MessageBox.Show("newVersion:"+ newVersion, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    // مسیر فایل Updater.exe
+                    MessageBox.Show("currentVersion:" + currentVersion, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("newVersion:" + newVersion, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    MessageBox.Show("Strart AutoUpdaterePath..........................", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     string AutoUpdaterePath = Path.Combine(Application.StartupPath, "PcInfoAutoUpdater.exe");
                     Process.Start(AutoUpdaterePath, $"\"{updatePath}\"");
 
@@ -225,6 +250,6 @@ namespace PcInfoWin
             catch { }
         }
 
+
     }
 }
-

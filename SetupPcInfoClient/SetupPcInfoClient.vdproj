@@ -57,7 +57,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_90FE9371A6CBF9DB267258E914EFE7A4"
+        "MsmKey" = "8:_9737AA935ECCC255EF41E899B94FD7DA"
         "OwnerKey" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -142,13 +142,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
+        "OwnerKey" = "8:_9737AA935ECCC255EF41E899B94FD7DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_90FE9371A6CBF9DB267258E914EFE7A4"
+        "OwnerKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -493,14 +493,14 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_90FE9371A6CBF9DB267258E914EFE7A4"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_9737AA935ECCC255EF41E899B94FD7DA"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:SqlDataExtention, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_90FE9371A6CBF9DB267258E914EFE7A4"
+                    "_9737AA935ECCC255EF41E899B94FD7DA"
                     {
                     "Name" = "8:SqlDataExtention.dll"
                     "Attributes" = "3:512"
@@ -802,7 +802,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_F99C2C9D659444E0B52AB9ADB349CBF6"
             {
-            "DefaultLocation" = "8:D:\\MyCompany\\[ProductName]"
+            "DefaultLocation" = "8:D:\\DournaCo\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -829,11 +829,11 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PcInfoClient"
         "ProductCode" = "8:{5D8C7DC4-DDC8-4236-A84B-D74BB3157227}"
-        "PackageCode" = "8:{5F2AD5C6-F31E-4F6E-9298-EC18B33046F2}"
+        "PackageCode" = "8:{7D0E674D-1BA0-41FF-ABA5-99DA47BAF51B}"
         "UpgradeCode" = "8:{5CEDE846-DE92-4CF4-BBE3-6BB70D2AC903}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:1.0.0"
@@ -846,7 +846,7 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:"
+        "ARPPRODUCTICON" = "8:_7D1565878620418E8D32071FB6C59249"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"

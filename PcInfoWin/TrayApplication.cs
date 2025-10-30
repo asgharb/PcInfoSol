@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -34,7 +35,7 @@ namespace PcInfoWin
             var icon = new NotifyIcon
             {
                 Icon = Properties.Resources.pc,
-                Text = "Pc Info",
+                Text = "PcInfo V:" +  Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 ContextMenuStrip = trayMenu
             };
 

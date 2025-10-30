@@ -13,7 +13,7 @@ namespace PcInfoAutoUpdater
             try
             {
                 // مسیر نصب فعلی
-                string installPath = @"D:\Program Files\Pcinfo";
+                string installPath = @"D:\DournaCo\PcInfoClient";
                 // مسیر نسخه جدید در پوشه شبکه
                 string updatePath = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))? args[0]: @"\\172.20.7.53\soft\PcInfo\Release";
 
@@ -56,6 +56,13 @@ namespace PcInfoAutoUpdater
         {
             foreach (string file in Directory.GetFiles(sourceDir, "*.*", SearchOption.AllDirectories))
             {
+                // نام فایل فعلی بدون مسیر
+                string fileName = Path.GetFileName(file);
+
+                // اگر فایل جزو استثناهاست، ردش کن
+                if (string.Equals(fileName, "PcInfoAutoUpdater.exe", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 string relativePath = file.Substring(sourceDir.Length).TrimStart('\\');
                 string targetFile = Path.Combine(destDir, relativePath);
                 string targetDir = Path.GetDirectoryName(targetFile);
@@ -66,6 +73,7 @@ namespace PcInfoAutoUpdater
                 File.Copy(file, targetFile, true);
             }
         }
+
     }
 }
 
