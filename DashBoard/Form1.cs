@@ -239,11 +239,14 @@ namespace DashBoard
                 var helper = new DataSelectHelperNoFilter();
                 allSystems = helper.SelectAllFullSystemInfo();
 
+
+
+
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
-                        RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
-                        SystemInfoID = s.SystemInfoID,
+                        No = index + 1,   // شماره ردیف خودکار (شروع از 1)
+                        //SystemInfoID = s.SystemInfoID,
                         PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
                         IpAddress = s.NetworkAdapterInfo != null
                                     ? s.NetworkAdapterInfo
@@ -263,8 +266,10 @@ namespace DashBoard
                         Desc5 = GetSafeDesc(s.pcCodeInfo, x => x.Desc5),
                         Desc6 = GetSafeDesc(s.pcCodeInfo, x => x.Desc6),
                         Desc7 = GetSafeDesc(s.pcCodeInfo, x => x.Desc7),
+                        VNC = s.systemEnvironmentInfo.IsRealVNCInstalled,
                         InsertDate = s.InsertDate,
-                        ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
+                        //ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
+
 
                         pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
                         systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
@@ -280,18 +285,30 @@ namespace DashBoard
                     })
                     .ToList();
 
+
+
                 DataTable dtSystemInfo = ToDataTable(transformedSystems);
                 dtSystemInfo.TableName = "SystemInfo";
                 ds.Tables.Add(dtSystemInfo);
 
-
                 gridControl1.DataSource = ds;
                 gridControl1.DataMember = "SystemInfo";
+
+                gridView1.RowHeight = 35;
+
+
+                gridView1.RowStyle += gridView1_RowStyle;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("خطا در بارگذاری داده‌ها: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+
+        void gridView1_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
+        {
+            e.Appearance.BackColor = e.RowHandle % 2 == 0 ? Color.LightGray : Color.WhiteSmoke;
         }
 
         private string GetSafeDesc(IList<PcCodeInfo> list, Func<PcCodeInfo, string> selector)
@@ -991,7 +1008,7 @@ namespace DashBoard
 
         private void btnSendMsg_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            FrmSendMsg frmSendMsg= new FrmSendMsg();
+            FrmSendMsg frmSendMsg = new FrmSendMsg();
             frmSendMsg.ShowDialog();
         }
 

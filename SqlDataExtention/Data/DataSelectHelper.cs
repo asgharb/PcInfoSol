@@ -27,6 +27,14 @@ namespace SqlDataExtention.Data
             return _dataHelper.ConvertToList<T>(dt);
         }
 
+        public List<T> SelectAllWitoutConditonal<T>() where T : new()
+        {
+            string tableName = EntityMetadataHelper.GetTableName(typeof(T));
+            string query = $"SELECT * FROM [{tableName}]";
+            var dt = _dataHelper.ExecuteQuery(query);
+            return _dataHelper.ConvertToList<T>(dt);
+        }
+
         public T SelectByPrimaryKey<T>(object keyValue) where T : new()
         {
             Type type = typeof(T);

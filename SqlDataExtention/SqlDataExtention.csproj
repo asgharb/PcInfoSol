@@ -52,6 +52,7 @@
     <Compile Include="Data\SqlTypeHelper.cs" />
     <Compile Include="Entity\Base\BaseEntity.cs" />
     <Compile Include="Entity\CpuInfo.cs" />
+    <Compile Include="Entity\Department.cs" />
     <Compile Include="Entity\DiskInfo.cs" />
     <Compile Include="Entity\GpuInfo.cs" />
     <Compile Include="Entity\LogEntry.cs" />

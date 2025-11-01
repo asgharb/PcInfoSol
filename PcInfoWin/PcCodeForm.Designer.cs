@@ -47,9 +47,9 @@
             this.txt_Desc3 = new System.Windows.Forms.TextBox();
             this.txt_Desc2 = new System.Windows.Forms.TextBox();
             this.txt_Desc1 = new System.Windows.Forms.TextBox();
-            this.txt_Unit = new System.Windows.Forms.TextBox();
             this.txt_UserPersonnelCode = new System.Windows.Forms.TextBox();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.cmbUnit = new System.Windows.Forms.ComboBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -154,6 +154,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.cmbUnit);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Controls.Add(this.label7);
@@ -165,7 +166,6 @@
             this.panel2.Controls.Add(this.txt_Desc3);
             this.panel2.Controls.Add(this.txt_Desc2);
             this.panel2.Controls.Add(this.txt_Desc1);
-            this.panel2.Controls.Add(this.txt_Unit);
             this.panel2.Controls.Add(this.txt_UserPersonnelCode);
             this.panel2.Controls.Add(this.txt_UserFullName);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -238,14 +238,6 @@
             this.txt_Desc1.Size = new System.Drawing.Size(722, 26);
             this.txt_Desc1.TabIndex = 6;
             // 
-            // txt_Unit
-            // 
-            this.txt_Unit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.txt_Unit.Location = new System.Drawing.Point(641, 58);
-            this.txt_Unit.Name = "txt_Unit";
-            this.txt_Unit.Size = new System.Drawing.Size(184, 26);
-            this.txt_Unit.TabIndex = 5;
-            // 
             // txt_UserPersonnelCode
             // 
             this.txt_UserPersonnelCode.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
@@ -264,6 +256,15 @@
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(837, 58);
             this.panel3.TabIndex = 6;
+            // 
+            // cmbUnit
+            // 
+            this.cmbUnit.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.cmbUnit.FormattingEnabled = true;
+            this.cmbUnit.Location = new System.Drawing.Point(648, 60);
+            this.cmbUnit.Name = "cmbUnit";
+            this.cmbUnit.Size = new System.Drawing.Size(177, 28);
+            this.cmbUnit.TabIndex = 9;
             // 
             // PcCodeForm
             // 
@@ -308,7 +309,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.TextBox txt_Desc2;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.TextBox txt_Unit;
         private System.Windows.Forms.TextBox txt_Desc3;
+        private System.Windows.Forms.ComboBox cmbUnit;
     }
 }

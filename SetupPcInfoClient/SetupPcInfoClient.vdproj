@@ -142,13 +142,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9737AA935ECCC255EF41E899B94FD7DA"
+        "OwnerKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0E0CCDE44BEC4BD592584E3899EB17DA"
+        "OwnerKey" = "8:_9737AA935ECCC255EF41E899B94FD7DA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -778,6 +778,17 @@
         }
         "Folder"
         {
+            "{1525181F-901A-416C-8A58-119130FE478E}:_21978B595DAD4EEE89CCD9265D1B7CA0"
+            {
+            "Name" = "8:#1928"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:StartupFolder"
+                "Folders"
+                {
+                }
+            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_27D8DA22F05A4378967E5B3E9C09EBCC"
             {
             "Name" = "8:#1916"
@@ -973,6 +984,20 @@
             "Transitive" = "11:FALSE"
             "Target" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
             "Folder" = "8:_27D8DA22F05A4378967E5B3E9C09EBCC"
+            "WorkingFolder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
+            "Icon" = "8:_7D1565878620418E8D32071FB6C59249"
+            "Feature" = "8:"
+            }
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_DE5FFDA28D4942EA9B8D023D14082857"
+            {
+            "Name" = "8:PcInfo"
+            "Arguments" = "8:"
+            "Description" = "8:"
+            "ShowCmd" = "3:1"
+            "IconIndex" = "3:0"
+            "Transitive" = "11:FALSE"
+            "Target" = "8:_DCED578BD9CF4AECB40E0B2A8D7FD248"
+            "Folder" = "8:_21978B595DAD4EEE89CCD9265D1B7CA0"
             "WorkingFolder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"
             "Icon" = "8:_7D1565878620418E8D32071FB6C59249"
             "Feature" = "8:"
@@ -1378,7 +1403,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_DCED578BD9CF4AECB40E0B2A8D7FD248"
             {
-            "SourcePath" = "8:..\\PcInfoWin\\obj\\Debug\\PcInfoWin.exe"
+            "SourcePath" = "8:..\\PcInfoWin\\obj\\Release\\PcInfoWin.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_F99C2C9D659444E0B52AB9ADB349CBF6"

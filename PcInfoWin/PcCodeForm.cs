@@ -1,8 +1,10 @@
 ﻿using PcInfoWin.Properties;
+using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PcInfoWin
 {
@@ -22,6 +24,10 @@ namespace PcInfoWin
         private bool _userClosing = false;
         private void PcCodeForm_Load(object sender, EventArgs e)
         {
+            DataSelectHelper dataSelectHelper = new DataSelectHelper();
+            cmbUnit.DataSource = dataSelectHelper.SelectAllWitoutConditonal<Department>();
+            cmbUnit.DisplayMember = "Name";
+            cmbUnit.ValueMember = "Id";
             if (IsEditMode)
             {
                 txtPcCode.Text = _pcCodeInfo.PcCode;
@@ -30,8 +36,9 @@ namespace PcInfoWin
                 txt_Desc3.Text = _pcCodeInfo.Desc3;
                 txt_UserFullName.Text = _pcCodeInfo.UserFullName;
                 txt_UserPersonnelCode.Text = _pcCodeInfo.PersonnelCode.ToString();
-                txt_Unit.Text = _pcCodeInfo.Unit;
+                cmbUnit.SelectedIndex = cmbUnit.FindStringExact(_pcCodeInfo.Unit);
             }
+
         }
         public PcCodeForm()
         {
@@ -116,7 +123,7 @@ namespace PcInfoWin
                             _pcCodeInfo.PcCode = PcCode;
                             _pcCodeInfo.PersonnelCode = string.IsNullOrWhiteSpace(txt_UserPersonnelCode.Text.Trim()) ? 0 : int.Parse(txt_UserPersonnelCode.Text.Trim());
                             _pcCodeInfo.UserFullName = txt_UserFullName.Text.Trim();
-                            _pcCodeInfo.Unit = txt_Unit.Text.Trim();
+                            _pcCodeInfo.Unit = ((Department)cmbUnit.SelectedItem).Name;
                             _pcCodeInfo.Desc1 = txt_Desc1.Text.Trim();
                             _pcCodeInfo.Desc2 = txt_Desc2.Text.Trim();
                             _pcCodeInfo.Desc3 = txt_Desc3.Text.Trim();
