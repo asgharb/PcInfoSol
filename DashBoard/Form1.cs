@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using DashBoard.Data;
+using DashBoard.Extention;
 using DevExpress.LookAndFeel;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
@@ -7,19 +8,20 @@ using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using SqlDataExtention.Entity.Main;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
+
 
 namespace DashBoard
 {
@@ -30,7 +32,20 @@ namespace DashBoard
 
         // لیست ستون‌های قابل ویرایش (قابل تغییر در زمان اجرا با SetEditableColumns)
         private List<string> editableColumns = new List<string> { "PcCode", "UserFullName", "PersonnelCode", "unit", "Desc1", "Desc2", "Desc3", "Desc4", "Desc5", "Desc6", "Desc7" };
-
+        private readonly Dictionary<string, string> columnDisplayNames = new Dictionary<string, string>
+{
+    { "PcCode", "کد سیستم (PcCode)" },
+    { "UserFullName", "نام کاربر (UserFullName)" },
+    { "PersonnelCode", "کد پرسنلی (PersonnelCode)" },
+    { "Desc1", "(Desc1)" },
+    { "Desc2", "(Desc2)" },
+    { "Desc3", "(Desc3)" },
+    { "Desc4", "(Desc4)" },
+    { "Desc5", "(Desc5)" },
+    { "Desc6", "(Desc6)" },
+    { "Desc7", "(Desc7)" },
+    { "unit", "(واحد)" }
+};
         // master view reference
         private GridView masterView;
 
@@ -42,20 +57,6 @@ namespace DashBoard
         private void Form1_Load(object sender, EventArgs e)
         {
             initGridControl();
-
-            //// 1) اسکین تیره انتخاب کنید:
-            //DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("Office 2016 Black");
-            //// (یا اسکینی که در DevExpress دارید و تیره است – مثلا "Darkroom", "DevExpress Dark", بسته به نسخه)
-
-            //// 2) برای RibbonControl، رنگ‌­بندی را تغییر دهید:
-            //this.ribbonControl1.ColorScheme = DevExpress.XtraBars.Ribbon.RibbonControlColorScheme.DarkBlue;
-            //// یا اگر بخواهید «مشکی» بیشتر: ممکن است اسکین «Office 2016 Black» همه‌ی رنگ‌ها را تیره کند
-
-            //// 3) برای فرم پس‌زمینه را مشکی کنید:
-            //this.Appearance.BackColor = Color.Black;
-            //this.Appearance.Options.UseBackColor = true;
-
-
         }
 
         private void initGridControl()
@@ -78,6 +79,7 @@ namespace DashBoard
             }
 
             SetupGridForPcCodeEditing();
+            gridView1.DoubleClick += gridView1_DoubleClick;
 
             //gridView1.Appearance.FocusedRow.BackColor = System.Drawing.Color.Green;
             //gridView1.Appearance.FocusedRow.ForeColor = System.Drawing.Color.White;
@@ -240,13 +242,11 @@ namespace DashBoard
                 allSystems = helper.SelectAllFullSystemInfo();
 
 
-
-
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
                         No = index + 1,   // شماره ردیف خودکار (شروع از 1)
-                        //SystemInfoID = s.SystemInfoID,
+                        SystemInfoID = s.SystemInfoID,
                         PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
                         IpAddress = s.NetworkAdapterInfo != null
                                     ? s.NetworkAdapterInfo
@@ -268,20 +268,18 @@ namespace DashBoard
                         Desc7 = GetSafeDesc(s.pcCodeInfo, x => x.Desc7),
                         VNC = s.systemEnvironmentInfo.IsRealVNCInstalled,
                         InsertDate = s.InsertDate,
-                        //ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
+                        pcCodeInfo = Utils.ToDtoList(s.pcCodeInfo),
+                        systemEnvironmentInfo = Utils.ToDtoListSingle(s.systemEnvironmentInfo),
+                        RamSummaryInfo = Utils.ToDtoListSingle(s.RamSummaryInfo),
+                        RamModuleInfo = Utils.ToDtoList(s.RamModuleInfo),
+                        cpuInfo = Utils.ToDtoListSingle(s.cpuInfo),
+                        gpuInfo = Utils.ToDtoListSingle(s.gpuInfo),
+                        DiskInfo = Utils.ToDtoList(s.DiskInfo),
+                        NetworkAdapterInfo = Utils.ToDtoList(s.NetworkAdapterInfo),
+                        monitorInfo = Utils.ToDtoList(s.monitorInfo),
+                        motherboardInfo = Utils.ToDtoListSingle(s.motherboardInfo),
+                        OpticalDriveInfo = Utils.ToDtoList(s.OpticalDriveInfo),
 
-
-                        pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
-                        systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
-                        RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
-                        RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
-                        cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
-                        gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
-                        DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
-                        NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
-                        monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
-                        motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
-                        OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
                     })
                     .ToList();
 
@@ -289,13 +287,41 @@ namespace DashBoard
 
                 DataTable dtSystemInfo = ToDataTable(transformedSystems);
                 dtSystemInfo.TableName = "SystemInfo";
+                //dtSystemInfo.Columns.Add("VNCConnect", typeof(string));
                 ds.Tables.Add(dtSystemInfo);
 
                 gridControl1.DataSource = ds;
                 gridControl1.DataMember = "SystemInfo";
 
-                gridView1.RowHeight = 35;
 
+                if (gridView1.Columns["VNCConnect"] == null)
+                {
+                    var btnVNC = new DevExpress.XtraEditors.Repository.RepositoryItemButtonEdit();
+                    btnVNC.Buttons[0].Caption = "اتصال";
+                    btnVNC.Buttons[0].Kind = DevExpress.XtraEditors.Controls.ButtonPredefines.Glyph;
+                    btnVNC.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.HideTextEditor;
+
+
+                    var colVNC = gridView1.Columns.AddVisible("VNCConnect", "اتصال VNC");
+                    colVNC.ColumnEdit = btnVNC;
+                    colVNC.Width = 100;
+
+                    Image original = Properties.Resources.vnc_3;
+
+                    // تغییر اندازه (مثلا 16x16 یا 24x24)
+                    Image resized = new Bitmap(original, new Size(48*3, 32));
+
+                    // اختصاص به دکمه
+                    btnVNC.Buttons[0].ImageOptions.Image = resized;
+
+                    gridControl1.RepositoryItems.Add(btnVNC);
+                    colVNC.OptionsColumn.AllowEdit = true;
+                    gridView1.OptionsBehavior.Editable = true;
+                }
+
+
+                gridView1.RowHeight = 35;
+                gridView1.Columns["SystemInfoID"].Visible = false;
 
                 gridView1.RowStyle += gridView1_RowStyle;
             }
@@ -327,9 +353,7 @@ namespace DashBoard
             (gridControl1.MainView as GridView).BestFitColumns();
         }
 
-        /// <summary>
-        /// پیکربندی grid برای ویرایش ستون‌های دلخواه (editableColumns)
-        /// </summary>
+
         private void SetupGridForPcCodeEditing()
         {
             // 1) Force initialize so views/columns are created
@@ -407,9 +431,7 @@ namespace DashBoard
             SetEditableColumns(editableColumns);
         }
 
-        /// <summary>
-        /// متد کمکی برای تنظیم ستون‌های قابل ویرایش (Update both DataTable.ReadOnly and GridColumn.AllowEdit)
-        /// </summary>
+
         private void SetEditableColumns(List<string> columns)
         {
             if (columns == null) columns = new List<string>();
@@ -445,9 +467,6 @@ namespace DashBoard
             }
         }
 
-        /// <summary>
-        /// غیرفعال کردن ویرایش برای یک view (معمولاً detail view)
-        /// </summary>
         private void DisableEditingOnView(GridView gv)
         {
             if (gv == null) return;
@@ -462,9 +481,7 @@ namespace DashBoard
                 gv.Columns["PcCode"].OptionsColumn.AllowEdit = false;
         }
 
-        /// <summary>
-        /// وقتی view جدیدی ثبت شد (معمولاً detail views در demand) - آن را غیرقابل ویرایش کن
-        /// </summary>
+
         private void GridControl1_ViewRegistered(object sender, ViewOperationEventArgs e)
         {
             if (e.View is GridView gv)
@@ -476,9 +493,7 @@ namespace DashBoard
             }
         }
 
-        /// <summary>
-        /// کنترل اینکه فقط ستون‌های درون editableColumns بتوانند editor باز کنند
-        /// </summary>
+
         private void MasterView_ShowingEditor(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var view = sender as GridView;
@@ -488,15 +503,149 @@ namespace DashBoard
                 e.Cancel = true;
         }
 
-        /// <summary>
-        /// هندل کردن تغییر مقدار سلول در master view.
-        /// در این پیاده‌سازی: 1) فقط ستون‌های موجود در editableColumns پردازش می‌شوند
-        ///                     2) مقدار در حافظه allSystems بروزرسانی می‌شود
-        ///                     3) پیغام به کاربر نشان داده می‌شود (SystemInfoID, ColumnName, NewValue)
-        /// (اگر بخواهی می‌توان اینجا تابع ذخیره در DB را هم صدا زد)
-        /// </summary>
+        private bool suppressCellValueChanged = false;
+
+        private void MasterView_CellValueChanged(object sender, CellValueChangedEventArgs e)
+        {
+            Cursor.Current = Cursors.WaitCursor;
+            if (suppressCellValueChanged) return;
+
+            try
+            {
+                if (!editableColumns.Contains(e.Column.FieldName))
+                    return;
+
+                var view = sender as GridView;
+                var idObj = view.GetRowCellValue(e.RowHandle, "SystemInfoID");
+                if (idObj == null) return;
+                int systemInfoId = Convert.ToInt32(idObj);
+
+                var newValue = e.Value?.ToString();
+
+                var system = allSystems?.FirstOrDefault(s => s.SystemInfoID == systemInfoId);
+                if (system == null) return;
+
+                var active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
+                string prevVal = view.GetRowCellValue(e.RowHandle, e.Column)?.ToString();
+
+                bool ok = true;
+                string errorMessage = null;
+
+                // ========================
+                // ۱. اعتبارسنجی مقدار جدید
+                // ========================
+                if (string.IsNullOrWhiteSpace(newValue))
+                {
+                    ok = false;
+                    errorMessage = $"{columnDisplayNames[e.Column.FieldName]} نمی‌تواند خالی باشد!";
+                }
+                else if (e.Column.FieldName == "PersonnelCode" && !int.TryParse(newValue, out _))
+                {
+                    ok = false;
+                    errorMessage = "کد پرسنلی باید عددی باشد!";
+                }
+
+                // ========================
+                // ۲. بررسی رکورد فعال
+                // ========================
+                if (ok && active == null)
+                {
+                    ok = false;
+                    errorMessage = "برای این سیستم رکورد فعال (PcCode) یافت نشد.";
+                }
+
+                if (!ok)
+                {
+                    // بازگرداندن مقدار قبلی
+                    MessageBox.Show(errorMessage ?? "مقدار وارد شده نامعتبر است.", "خطا در ورود اطلاعات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                    suppressCellValueChanged = true;
+                    try
+                    {
+                        view.SetRowCellValue(e.RowHandle, e.Column, prevVal ?? "-");
+                    }
+                    finally
+                    {
+                        suppressCellValueChanged = false;
+                    }
+                    return;
+                }
+
+                // ========================
+                // ۳. اعمال مقدار جدید به شیء active
+                // ========================
+                if (active != null)
+                {
+                    ApplyValueToActive(active, e.Column.FieldName, newValue);
+                }
+
+                // ========================
+                // ۴. ذخیره و بروزرسانی
+                // ========================
+                if (SetValue(systemInfoId, active))
+                {
+                    MessageBox.Show(
+                        $"تغییر در ستون {e.Column.FieldName} ذخیره شد.\nمقدار جدید: {newValue}",
+                        "موفق",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("خطا در ذخیره تغییرات در پایگاه داده.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+
+                Cursor.Current = Cursors.WaitCursor;
+                initGridControl();
+                Cursor.Current = Cursors.Default;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("خطا در اعمال تغییر: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                Cursor.Current = Cursors.Default;
+            }
+        }
+
+
+        private void ApplyValueToActive(dynamic active, string fieldName, string newValue)
+        {
+            switch (fieldName)
+            {
+                case "PcCode":
+                    if (!string.Equals(active.PcCode, newValue, StringComparison.Ordinal))
+                        active.PcCode = newValue;
+                    break;
+
+                case "UserFullName":
+                    if (!string.Equals(active.UserFullName, newValue, StringComparison.Ordinal))
+                        active.UserFullName = newValue;
+                    break;
+
+                case "PersonnelCode":
+                    if (int.TryParse(newValue, out int parsedCode) && active.PersonnelCode != parsedCode)
+                        active.PersonnelCode = parsedCode;
+                    break;
+
+                default:
+                    // سایر ستون‌های Desc و غیره:
+                    var prop = active.GetType().GetProperty(fieldName);
+                    if (prop != null && prop.CanWrite)
+                    {
+                        var current = prop.GetValue(active)?.ToString();
+                        if (!string.Equals(current, newValue, StringComparison.Ordinal))
+                            prop.SetValue(active, newValue);
+                    }
+                    break;
+            }
+        }
         //private void MasterView_CellValueChanged(object sender, CellValueChangedEventArgs e)
         //{
+        //    Cursor.Current = Cursors.WaitCursor;
+        //    if (suppressCellValueChanged) return; // اگر ما خودمون مقدار رو ست کرده باشیم، پردازش نکن
+
         //    try
         //    {
         //        if (!editableColumns.Contains(e.Column.FieldName)) return;
@@ -507,68 +656,57 @@ namespace DashBoard
         //        int systemInfoId = Convert.ToInt32(idObj);
 
         //        var newValue = e.Value?.ToString();
-        //        if (newValue != null || string.IsNullOrEmpty(newValue.ToString()))
-        //        {
-        //            MessageBox.Show(
-        //                            "مقادیر وارد شده صحیح نمی باشد",
-        //                            "خطا در ورود اطلاعات",
-        //                            MessageBoxButtons.OK,
-        //                            MessageBoxIcon.Warning); return;
-        //        }
 
-
+        //        // پیدا کردن system در حافظه
         //        var system = allSystems?.FirstOrDefault(s => s.SystemInfoID == systemInfoId);
         //        if (system == null) return;
 
-        //        PcCodeInfo active = null;
+        //        // گرفتن رکورد فعال و مقدار قبلی برای revert در صورت نیاز
+        //        var active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
+        //        string prevVal = null;
+        //        if (active != null)
+        //        {
+        //            // گرفتن مقدار قبل بر اساس ستون
+        //            switch (e.Column.FieldName)
+        //            {
+        //                case "PcCode": prevVal = active.PcCode; break;
+        //                case "UserFullName": prevVal = active.UserFullName; break;
+        //                case "PersonnelCode": prevVal = active.PersonnelCode.ToString(); break;
+        //                default: prevVal = view.GetRowCellValue(e.RowHandle, e.Column)?.ToString(); break;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            // اگر رکورد فعال وجود ندارد، prevVal را از دیتاتیبل بگیر (projection)
+        //            prevVal = view.GetRowCellValue(e.RowHandle, e.Column)?.ToString();
+        //        }
+
+        //        // اعتبارسنجی و اعمال تغییرات
+        //        bool ok = true;
+        //        string errorMessage = null;
+
         //        switch (e.Column.FieldName)
         //        {
         //            case "PcCode":
         //                {
-        //                    // بررسی خالی بودن مقدار جدید
         //                    if (string.IsNullOrWhiteSpace(newValue))
         //                    {
-        //                        MessageBox.Show(
-        //                            "کد سیستم (PcCode) نمی‌تواند خالی باشد!",
-        //                            "خطا در ورود اطلاعات",
-        //                            MessageBoxButtons.OK,
-        //                            MessageBoxIcon.Warning);
-
-        //                        // مقدار قبلی را دوباره در گرید برگردان (ریست شود)
-        //                        view.SetRowCellValue(e.RowHandle, e.Column,
-        //                            system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null)?.PcCode ?? "-");
-
-        //                        return;
-        //                    }
-
-        //                    // تغییر PcCode در حافظه
-        //                    active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
-        //                    if (active != null)
-        //                    {
-        //                        // اگر مقدار واقعا تغییر کرد
-        //                        if (!string.Equals(active.PcCode, newValue, StringComparison.Ordinal))
-        //                        {
-        //                            // فقط update نمایش (در حافظه بهتر است با منطق expire/insert واقعی هماهنگ باشی)
-        //                            active.PcCode = newValue;
-        //                        }
+        //                        ok = false;
+        //                        errorMessage = "کد سیستم (PcCode) نمی‌تواند خالی باشد!";
         //                    }
         //                    else
         //                    {
-        //                        //// اگر هیچ رکورد فعالی نبود، یک رکورد موقت در حافظه اضافه کن
-        //                        //if (system.pcCodeInfo == null) system.pcCodeInfo = new List<PcCodeInfo>();
-        //                        //system.pcCodeInfo.Add(new PcCodeInfo
-        //                        //{
-        //                        //    SystemInfoRef = systemInfoId,
-        //                        //    PcCode = newValue,
-        //                        //    UserFullName = active.UserFullName,
-        //                        //    PersonalCode = active.PersonnelCode,
-        //                        //    Desc1 = active.Desc1,
-        //                        //    Desc2 = active.Desc2,
-        //                        //    Desc3 = active.Desc3,
-        //                        //    InsertDate = DateTime.Now
-        //                        //});
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.PcCode, newValue, StringComparison.Ordinal))
+        //                                active.PcCode = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
         //                    }
-
         //                    break;
         //                }
 
@@ -576,316 +714,222 @@ namespace DashBoard
         //                {
         //                    if (string.IsNullOrWhiteSpace(newValue))
         //                    {
-        //                        MessageBox.Show(
-        //                            "کد سیستم (UserFullName) نمی‌تواند خالی باشد!",
-        //                            "خطا در ورود اطلاعات",
-        //                            MessageBoxButtons.OK,
-        //                            MessageBoxIcon.Warning);
-
-        //                        // مقدار قبلی را دوباره در گرید برگردان (ریست شود)
-        //                        view.SetRowCellValue(e.RowHandle, e.Column,
-        //                            system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null)?.UserFullName ?? "-");
-
-        //                        return; // هیچ تغییر اعمال نشود
-        //                    }
-
-        //                    // تغییر PcCode در حافظه
-        //                    active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
-        //                    if (active != null)
-        //                    {
-        //                        // اگر مقدار واقعا تغییر کرد
-        //                        if (!string.Equals(active.UserFullName, newValue, StringComparison.Ordinal))
-        //                        {
-        //                            // فقط update نمایش (در حافظه بهتر است با منطق expire/insert واقعی هماهنگ باشی)
-        //                            active.UserFullName = newValue;
-        //                        }
+        //                        ok = false;
+        //                        errorMessage = "نام کاربر (UserFullName) نمی‌تواند خالی باشد!";
         //                    }
         //                    else
         //                    {
-        //                        //// اگر هیچ رکورد فعالی نبود، یک رکورد موقت در حافظه اضافه کن
-        //                        //if (system.pcCodeInfo == null) system.pcCodeInfo = new List<PcCodeInfo>();
-        //                        //system.pcCodeInfo.Add(new PcCodeInfo
-        //                        //{
-        //                        //    SystemInfoRef = systemInfoId,
-        //                        //    PcCode = active.PcCode,
-        //                        //    UserFullName = newValue,
-        //                        //    PersonnelCode = active.PersonnelCode,
-        //                        //    Desc1 = active.Desc1,
-        //                        //    Desc2 = active.Desc2,
-        //                        //    Desc3 = active.Desc3,
-        //                        //    InsertDate = DateTime.Now
-        //                        //});
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.UserFullName, newValue, StringComparison.Ordinal))
+        //                                active.UserFullName = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
         //                    }
-
         //                    break;
         //                }
+
         //            case "PersonnelCode":
         //                {
-        //                    // بررسی خالی بودن مقدار جدید
         //                    if (string.IsNullOrWhiteSpace(newValue))
         //                    {
-        //                        MessageBox.Show(
-        //                            "کد سیستم (PersonalCode) نمی‌تواند خالی باشد!",
-        //                            "خطا در ورود اطلاعات",
-        //                            MessageBoxButtons.OK,
-        //                            MessageBoxIcon.Warning);
-
-        //                        // مقدار قبلی را دوباره در گرید برگردان (ریست شود)
-
-
-        //                        view.SetRowCellValue(e.RowHandle, e.Column,
-        //                            system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null)?.PersonnelCode.ToString() ?? "-");
-
-        //                        return; // هیچ تغییر اعمال نشود
+        //                        ok = false;
+        //                        errorMessage = "کد پرسنلی (PersonnelCode) نمی‌تواند خالی باشد!";
         //                    }
-
-        //                    // تغییر PcCode در حافظه
-        //                    active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
-        //                    if (active != null)
+        //                    else if (!int.TryParse(newValue, out int parsed))
         //                    {
-        //                        // اگر مقدار واقعا تغییر کرد
-        //                        if (!string.Equals(active.PersonnelCode.ToString(), newValue, StringComparison.Ordinal))
-        //                        {
-        //                            // فقط update نمایش (در حافظه بهتر است با منطق expire/insert واقعی هماهنگ باشی)
-        //                            active.PersonnelCode = int.Parse(newValue);
-        //                        }
+        //                        ok = false;
+        //                        errorMessage = "کد پرسنلی باید عددی باشد!";
         //                    }
         //                    else
         //                    {
-        //                        //// اگر هیچ رکورد فعالی نبود، یک رکورد موقت در حافظه اضافه کن
-        //                        //if (system.pcCodeInfo == null) system.pcCodeInfo = new List<PcCodeInfo>();
-        //                        //system.pcCodeInfo.Add(new PcCodeInfo
-        //                        //{
-        //                        //    SystemInfoRef = systemInfoId,
-        //                        //    PcCode = active.PcCode,
-        //                        //    UserFullName =  active.UserFullName,,
-        //                        //    PersonnelCode =newValue,
-        //                        //    Desc1 = active.Desc1,
-        //                        //    Desc2 = active.Desc2,
-        //                        //    Desc3 = active.Desc3,
-        //                        //    InsertDate = DateTime.Now
-        //                        //});
+        //                        if (active != null)
+        //                        {
+        //                            if (active.PersonnelCode != parsed)
+        //                                active.PersonnelCode = parsed;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
         //                    }
-
         //                    break;
         //                }
+
+        //            case "Desc1":
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(newValue))
+        //                    {
+        //                        ok = false;
+        //                        errorMessage = " (Desc1) نمی‌تواند خالی باشد!";
+        //                    }
+        //                    else
+        //                    {
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.Desc1, newValue, StringComparison.Ordinal))
+        //                                active.Desc1 = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+        //            case "Desc2":
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(newValue))
+        //                    {
+        //                        ok = false;
+        //                        errorMessage = " (Desc2) نمی‌تواند خالی باشد!";
+        //                    }
+        //                    else
+        //                    {
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.Desc2, newValue, StringComparison.Ordinal))
+        //                                active.Desc2 = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+        //            case "Desc3":
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(newValue))
+        //                    {
+        //                        ok = false;
+        //                        errorMessage = " (Desc3) نمی‌تواند خالی باشد!";
+        //                    }
+        //                    else
+        //                    {
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.Desc3, newValue, StringComparison.Ordinal))
+        //                                active.Desc3 = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+
+        //            case "Desc4":
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(newValue))
+        //                    {
+        //                        ok = false;
+        //                        errorMessage = " (Desc4) نمی‌تواند خالی باشد!";
+        //                    }
+        //                    else
+        //                    {
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.Desc4, newValue, StringComparison.Ordinal))
+        //                                active.Desc4 = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+        //            case "Desc5":
+        //                {
+        //                    if (string.IsNullOrWhiteSpace(newValue))
+        //                    {
+        //                        ok = false;
+        //                        errorMessage = " (Desc5) نمی‌تواند خالی باشد!";
+        //                    }
+        //                    else
+        //                    {
+        //                        if (active != null)
+        //                        {
+        //                            if (!string.Equals(active.Desc5, newValue, StringComparison.Ordinal))
+        //                                active.Desc5 = newValue;
+        //                        }
+        //                        else
+        //                        {
+        //                            ok = false;
+        //                            errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
+        //                        }
+        //                    }
+        //                    break;
+        //                }
+
         //            default:
         //                {
-        //                    // اگر ستون دلخواه دیگری بود و نیاز به update حافظه داری، اینجا اضافه کن
+        //                    // ستون‌های دیگر: اگر نیاز به منطق دارن اینجا اضافه کن
         //                    break;
         //                }
         //        }
 
-        //        if (active == null)
+        //        if (!ok)
         //        {
-        //            MessageBox.Show(
-        //                            "مقادیر وارد شده صحیح نمی باشد",
-        //                            "خطا در ورود اطلاعات",
-        //                            MessageBoxButtons.OK,
-        //                            MessageBoxIcon.Warning);
+        //            // خطا: پیغام نشان بده و مقدار سلول را به مقدار قبلی برگردان
+        //            MessageBox.Show(errorMessage ?? "مقدار وارد شده نامعتبر است.", "خطا در ورود اطلاعات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+        //            // جلوگیری از تریگر دوباره با SetRowCellValue
+        //            suppressCellValueChanged = true;
+        //            try
+        //            {
+        //                view.SetRowCellValue(e.RowHandle, e.Column, prevVal ?? "-");
+        //            }
+        //            finally
+        //            {
+        //                // تا وقتی که SetRowCellValue اجرا می‌شود، رویداد دوباره به handler می‌رسد اما نادیده گرفته خواهد شد
+        //                suppressCellValueChanged = false;
+        //            }
         //            return;
         //        }
 
+        //        // اگر رسیدیم اینجا یعنی ok هست — میتوانی اینجا عملیات ذخیره در DB را صدا بزنی
+        //        // مثال: SetValue(systemInfoId, active); // یا متد ExpireAndInsert در DataInsertUpdateHelper
 
-        //        SetValue(systemInfoId, active);
-        //        initGridControl();
-        //        MessageBox.Show(
-        //            $"SystemInfoID: {systemInfoId}\nColumn: {e.Column.FieldName}\nNew Value: {newValue}",
+        //        // بروزرسانی UI/حافظه
+        //        if (SetValue(systemInfoId, active))
+        //        {
+        //            MessageBox.Show(
+        //            $"Column: {e.Column.FieldName}\nNew Value: {newValue}",
         //            "ویرایش ذخیره شد",
         //            MessageBoxButtons.OK,
         //            MessageBoxIcon.Information);
 
+        //        }
+        //        else
+        //        {
+        //            MessageBox.Show(
+        //            $"خطا در ذخیره تغییرات در پایگاه داده.",
+        //            "خطا",
+        //            MessageBoxButtons.OK,
+        //            MessageBoxIcon.Error);
+        //        }
+        //        initGridControl(); // اگر این متد رفرش گرید را انجام می‌دهد
 
 
-        //        //// اگر لازم است رفرش DataSource انجام شود (مثلاً مقادیری که در projection به نمایش می‌آیند تغییر کرد)
-        //        //gridControl1.RefreshDataSource();
         //    }
         //    catch (Exception ex)
         //    {
         //        MessageBox.Show("خطا در اعمال تغییر: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //    }
+        //    Cursor.Current = Cursors.Default;
         //}
-        // فیلد در سطح کلاس
-        private bool suppressCellValueChanged = false;
-
-        // هندلر اصلاح‌شده
-        private void MasterView_CellValueChanged(object sender, CellValueChangedEventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            if (suppressCellValueChanged) return; // اگر ما خودمون مقدار رو ست کرده باشیم، پردازش نکن
-
-            try
-            {
-                if (!editableColumns.Contains(e.Column.FieldName)) return;
-
-                var view = sender as GridView;
-                var idObj = view.GetRowCellValue(e.RowHandle, "SystemInfoID");
-                if (idObj == null) return;
-                int systemInfoId = Convert.ToInt32(idObj);
-
-                var newValue = e.Value?.ToString();
-
-                // پیدا کردن system در حافظه
-                var system = allSystems?.FirstOrDefault(s => s.SystemInfoID == systemInfoId);
-                if (system == null) return;
-
-                // گرفتن رکورد فعال و مقدار قبلی برای revert در صورت نیاز
-                var active = system.pcCodeInfo?.FirstOrDefault(p => p.ExpireDate == null);
-                string prevVal = null;
-                if (active != null)
-                {
-                    // گرفتن مقدار قبل بر اساس ستون
-                    switch (e.Column.FieldName)
-                    {
-                        case "PcCode": prevVal = active.PcCode; break;
-                        case "UserFullName": prevVal = active.UserFullName; break;
-                        case "PersonnelCode": prevVal = active.PersonnelCode.ToString(); break;
-                        default: prevVal = view.GetRowCellValue(e.RowHandle, e.Column)?.ToString(); break;
-                    }
-                }
-                else
-                {
-                    // اگر رکورد فعال وجود ندارد، prevVal را از دیتاتیبل بگیر (projection)
-                    prevVal = view.GetRowCellValue(e.RowHandle, e.Column)?.ToString();
-                }
-
-                // اعتبارسنجی و اعمال تغییرات
-                bool ok = true;
-                string errorMessage = null;
-
-                switch (e.Column.FieldName)
-                {
-                    case "PcCode":
-                        {
-                            if (string.IsNullOrWhiteSpace(newValue))
-                            {
-                                ok = false;
-                                errorMessage = "کد سیستم (PcCode) نمی‌تواند خالی باشد!";
-                            }
-                            else
-                            {
-                                if (active != null)
-                                {
-                                    if (!string.Equals(active.PcCode, newValue, StringComparison.Ordinal))
-                                        active.PcCode = newValue;
-                                }
-                                else
-                                {
-                                    ok = false;
-                                    errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
-                                }
-                            }
-                            break;
-                        }
-
-                    case "UserFullName":
-                        {
-                            if (string.IsNullOrWhiteSpace(newValue))
-                            {
-                                ok = false;
-                                errorMessage = "نام کاربر (UserFullName) نمی‌تواند خالی باشد!";
-                            }
-                            else
-                            {
-                                if (active != null)
-                                {
-                                    if (!string.Equals(active.UserFullName, newValue, StringComparison.Ordinal))
-                                        active.UserFullName = newValue;
-                                }
-                                else
-                                {
-                                    ok = false;
-                                    errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
-                                }
-                            }
-                            break;
-                        }
-
-                    case "PersonnelCode":
-                        {
-                            if (string.IsNullOrWhiteSpace(newValue))
-                            {
-                                ok = false;
-                                errorMessage = "کد پرسنلی (PersonnelCode) نمی‌تواند خالی باشد!";
-                            }
-                            else if (!int.TryParse(newValue, out int parsed))
-                            {
-                                ok = false;
-                                errorMessage = "کد پرسنلی باید عددی باشد!";
-                            }
-                            else
-                            {
-                                if (active != null)
-                                {
-                                    if (active.PersonnelCode != parsed)
-                                        active.PersonnelCode = parsed;
-                                }
-                                else
-                                {
-                                    ok = false;
-                                    errorMessage = "برای این سیستم رکورد PcCode فعالی یافت نشد.";
-                                }
-                            }
-                            break;
-                        }
-
-                    default:
-                        {
-                            // ستون‌های دیگر: اگر نیاز به منطق دارن اینجا اضافه کن
-                            break;
-                        }
-                }
-
-                if (!ok)
-                {
-                    // خطا: پیغام نشان بده و مقدار سلول را به مقدار قبلی برگردان
-                    MessageBox.Show(errorMessage ?? "مقدار وارد شده نامعتبر است.", "خطا در ورود اطلاعات", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-
-                    // جلوگیری از تریگر دوباره با SetRowCellValue
-                    suppressCellValueChanged = true;
-                    try
-                    {
-                        view.SetRowCellValue(e.RowHandle, e.Column, prevVal ?? "-");
-                    }
-                    finally
-                    {
-                        // تا وقتی که SetRowCellValue اجرا می‌شود، رویداد دوباره به handler می‌رسد اما نادیده گرفته خواهد شد
-                        suppressCellValueChanged = false;
-                    }
-                    return;
-                }
-
-                // اگر رسیدیم اینجا یعنی ok هست — میتوانی اینجا عملیات ذخیره در DB را صدا بزنی
-                // مثال: SetValue(systemInfoId, active); // یا متد ExpireAndInsert در DataInsertUpdateHelper
-
-                // بروزرسانی UI/حافظه
-                if (SetValue(systemInfoId, active))
-                {
-                    MessageBox.Show(
-                    $"Column: {e.Column.FieldName}\nNew Value: {newValue}",
-                    "ویرایش ذخیره شد",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information);
-
-                }
-                else
-                {
-                    MessageBox.Show(
-                    $"خطا در ذخیره تغییرات در پایگاه داده.",
-                    "خطا",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                }
-                initGridControl(); // اگر این متد رفرش گرید را انجام می‌دهد
-
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("خطا در اعمال تغییر: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            Cursor.Current = Cursors.Default;
-        }
 
         private bool SetValue(int systemInfoRef, PcCodeInfo NewPcCodeInfo)
         {
@@ -1011,11 +1055,6 @@ namespace DashBoard
             FrmSendMsg frmSendMsg = new FrmSendMsg();
             frmSendMsg.ShowDialog();
         }
-
-        /// <summary>
-        /// تبدیل لیستی از anonymous/POCO به DataTable.
-        /// توجه: برای property های پیچیده (لیست‌ها/کلاس‌ها) نوع را object در نظر می‌گیرد تا گرید مشکل نداشته باشد.
-        /// </summary>
         public static DataTable ToDataTable<T>(List<T> items)
         {
             DataTable table = new DataTable(typeof(T).Name);
@@ -1043,6 +1082,62 @@ namespace DashBoard
             }
 
             return table;
+        }
+
+        private void BtnVNC_ButtonClick(int rowHandle)
+        {
+            if (rowHandle < 0) return;
+
+            string IpAddress = gridView1.GetRowCellValue(rowHandle, "IpAddress")?.ToString();
+            if (string.IsNullOrWhiteSpace(IpAddress))
+            {
+                MessageBox.Show("IP معتبر نیست.", "هشدار", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string vncPath = @"C:\Program Files\RealVNC\VNC Viewer\vncviewer.exe"; // مسیر VNC
+            if (!File.Exists(vncPath))
+            {
+                MessageBox.Show("مسیر VNC یافت نشد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            Process.Start(vncPath, IpAddress);
+        }
+        private void gridView1_DoubleClick(object sender, EventArgs e)
+        {
+            GridView view = sender as GridView;
+            Point pt = view.GridControl.PointToClient(Control.MousePosition);
+            GridHitInfo hitInfo = view.CalcHitInfo(pt);
+
+            if (hitInfo.InRowCell)
+            {
+                int rowHandle = hitInfo.RowHandle;
+                view.FocusedRowHandle = rowHandle;
+                view.MakeRowVisible(rowHandle);
+                // مقدار ستون VNC را بخوان
+                bool isVncInstalled = Convert.ToBoolean(view.GetRowCellValue(rowHandle, "VNC"));
+
+                if (!isVncInstalled)
+                {
+                    MessageBox.Show("مسیر VNC یافت نشد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+
+                view.FocusedRowHandle = hitInfo.RowHandle;
+                view.MakeRowVisible(hitInfo.RowHandle);
+
+                string targetColumnFieldName = "VNCConnect"; // نام ستون مورد نظر
+                if (hitInfo.Column != null && hitInfo.Column.FieldName == targetColumnFieldName)
+                {
+                    BtnVNC_ButtonClick(hitInfo.RowHandle);
+                }
+                else
+                {
+                    view.FocusedRowHandle = hitInfo.RowHandle;
+                }
+            }
         }
 
     }
@@ -1163,3 +1258,17 @@ namespace DashBoard
 
 //}
 
+
+
+
+
+//systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
+//RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
+//RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
+//cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
+//gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
+//DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
+//NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
+//monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
+//motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
+//OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),

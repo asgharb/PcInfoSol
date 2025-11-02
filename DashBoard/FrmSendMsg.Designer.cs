@@ -56,11 +56,11 @@
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(180, 174);
+            btnCancel.Location = new System.Drawing.Point(177, 174);
             btnCancel.Name = "btnCancel";
             btnCancel.Size = new System.Drawing.Size(156, 29);
             btnCancel.TabIndex = 4;
-            btnCancel.Text = "button1";
+            btnCancel.Text = "Cancel";
             btnCancel.UseVisualStyleBackColor = true;
             btnCancel.Click += btnCancel_Click;
             // 

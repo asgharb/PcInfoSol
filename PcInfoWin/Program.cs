@@ -11,6 +11,8 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.Remoting.Contexts;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace PcInfoWin
@@ -28,22 +30,22 @@ namespace PcInfoWin
 
             //MessageBox.Show("Ver :"+ Assembly.GetExecutingAssembly().GetName().Version.ToString(), "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+            showSplashScreen();
+
             WirteVersion();
+            Thread.Sleep(3000);
             CheckForUpdate();
 
 
             try
             {
+                Thread.Sleep(3000);
                 Receiver receiver = new Receiver(9000);
                 receiver.StartListening();
 
-                showSplashScreen();
-
-                //////Application.Run();
-
                 if (!CheckSettings())
                 {
-                    MessageBox.Show("اجرای برنامه با خطا مواجه شده به واحد انفورماتیک اطلاع بدید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("برنامه نمیتواند به دیتابیس وصل بشود ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     Environment.Exit(0);
                 }
 
@@ -56,6 +58,12 @@ namespace PcInfoWin
                     DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
 
                     SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
+
+                    if(curreentInfo.NetworkAdapterInfo == null || curreentInfo.NetworkAdapterInfo.Count ==0)
+                    {
+                        MessageBox.Show("برنامه نمیتواند اطلاعات کارت شبکه را دریافت کند.لطفا با واحد انفورماتیک تماس بگیرید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Environment.Exit(0);
+                    }
                     SystemInfo infoFromDB = new SystemInfo();
 
                     List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
@@ -116,6 +124,7 @@ namespace PcInfoWin
             catch (Exception ex)
             {
                 MessageBox.Show("اجرای برنامه با خطا مواجه شده به واحد انفورماتیک اطلاع بدید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
                 Environment.Exit(0);
             }
         }
@@ -178,6 +187,8 @@ namespace PcInfoWin
                 if (File.Exists(confEx.Filename))
                     File.Delete(confEx.Filename);
 
+                LoggingHelper.LogError(confEx, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
+
                 return false;
             }
             catch
@@ -206,11 +217,12 @@ namespace PcInfoWin
 
                 File.WriteAllText(versionFile, version);
 
-                Console.WriteLine("Version file updated: " + version);
+                //Console.WriteLine("Version file updated: " + version);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error writing version file: " + ex.Message);
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
+                showSplashScreen();
             }
         }
 
@@ -239,7 +251,8 @@ namespace PcInfoWin
                     Environment.Exit(0);
                 }
             }
-            catch { }
+            catch(Exception ex)
+            { LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0); }
         }
     }
 }

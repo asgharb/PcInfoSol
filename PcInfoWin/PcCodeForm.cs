@@ -145,6 +145,7 @@ namespace PcInfoWin
                     MessageBox.Show("خطا در ثبت اطلاعات: " + ex.Message, "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     resultImportData = false;
                     IsEditMode = IsNewMode = false;
+                    LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
                 }
             }
             else

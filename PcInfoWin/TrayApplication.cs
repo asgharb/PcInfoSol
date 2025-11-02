@@ -35,7 +35,7 @@ namespace PcInfoWin
             var icon = new NotifyIcon
             {
                 Icon = Properties.Resources.pc,
-                Text = "PcInfo V:" +  Assembly.GetExecutingAssembly().GetName().Version.ToString(),
+                Text = "PcInfo V:" + Assembly.GetExecutingAssembly().GetName().Version.ToString(),
                 ContextMenuStrip = trayMenu
             };
 
@@ -69,26 +69,33 @@ namespace PcInfoWin
 
         private void ShowPcCodeForm(bool editMode)
         {
-            PcCodeForm.IsEditMode = editMode;
-            using (var form = new PcCodeForm())
+            try
             {
-                form.ShowDialog();
+                PcCodeForm.IsEditMode = editMode;
+                using (var form = new PcCodeForm())
+                {
+                    form.ShowDialog();
+                }
+                if (PcCodeForm.IsEditMode && !PcCodeForm.IsNewMode && PcCodeForm.resultImportData)
+                {
+                    var helper = new DataInsertUpdateHelper();
+
+                    int systemInfoRef = Settings.Default.SystemInfoID;
+
+                    bool result = helper.ExpireAndInsertPcCodeInfo(systemInfoRef, PcCodeForm._pcCodeInfo);
+                    if (result)
+                    {
+                        MessageBox.Show("عملیات با موفقیت انجام شد.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("عملیات با خطا مواجه شد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
             }
-            if (PcCodeForm.IsEditMode && !PcCodeForm.IsNewMode && PcCodeForm.resultImportData)
+            catch (Exception ex)
             {
-                var helper = new DataInsertUpdateHelper();
-
-                int systemInfoRef = Settings.Default.SystemInfoID;
-
-                bool result = helper.ExpireAndInsertPcCodeInfo(systemInfoRef, PcCodeForm._pcCodeInfo);
-                if (result)
-                {
-                    MessageBox.Show("عملیات با موفقیت انجام شد.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-                else
-                {
-                    MessageBox.Show("عملیات با خطا مواجه شد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
             }
         }
 

@@ -1,32 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SqlDataExtention.Data
 {
-    public class LoggingHelper
+    public static class LoggingHelper
     {
-        private readonly DataHelper _dataHelper = new DataHelper();
-
-        public void Log(string entityName, string action, object keyValue, string message)
+        public static void LogError(Exception ex, string additionalInfo = null, int? SysId = null)
         {
+            DataHelper _dataHelper = new DataHelper();
+
             try
             {
-                string query = @"INSERT INTO [Log] ([EntityName], [ActionType], [PrimaryKeyValue], [Message]) 
-                                 VALUES (@EntityName, @ActionType, @KeyValue, @Message)";
+                string query = @"
+                INSERT INTO [dbo].[AppErrorLog]
+                (SysId, ErrorMessage, StackTrace, InnerMessage, AdditionalInfo)
+                VALUES (@SysId, @ErrorMessage, @StackTrace, @InnerMessage, @AdditionalInfo)";
 
                 _dataHelper.ExecuteNonQuery(query,
-                    new SqlParameter("@EntityName", entityName ?? "-"),
-                    new SqlParameter("@ActionType", action ?? "-"),
-                    new SqlParameter("@KeyValue", keyValue?.ToString() ?? "-"),
-                    new SqlParameter("@Message", message ?? "-"));
+                     new SqlParameter("@SysId", SysId.HasValue ? SysId.Value : (object)DBNull.Value),
+                     //new SqlParameter("@MachineName", Environment.MachineName ?? (object)DBNull.Value),
+                     //new SqlParameter("@FormName", formName ?? (object)DBNull.Value),
+                     //new SqlParameter("@MethodName", methodName ?? (object)DBNull.Value),
+                     new SqlParameter("@ErrorMessage", ex.Message ?? (object)DBNull.Value),
+                     new SqlParameter("@StackTrace", ex.StackTrace ?? (object)DBNull.Value),
+                     new SqlParameter("@InnerMessage", ex.InnerException?.Message ?? (object)DBNull.Value),
+                     new SqlParameter("@AdditionalInfo", additionalInfo ?? (object)DBNull.Value)
+                     );
             }
             catch
             {
-                // در صورت خطا، فقط ادامه بده (نباید برنامه بخوابه)
+
             }
         }
     }

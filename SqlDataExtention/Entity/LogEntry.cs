@@ -1,4 +1,5 @@
 ﻿using SqlDataExtention.Attributes;
+using System;
 
 
 namespace SqlDataExtention.Entity
@@ -6,24 +7,15 @@ namespace SqlDataExtention.Entity
     [Table("Log")]
     public class LogEntry
     {
-        [Key]
-        [DbGenerated]
-        [Column("LogID")]
         public int LogID { get; set; }
-
-        [Column("EntityName")]
-        public string EntityName { get; set; }
-
-        [Column("ActionType")]
-        public string ActionType { get; set; }
-
-        [Column("PrimaryKeyValue")]
-        public string PrimaryKeyValue { get; set; }
-
-        [Column("Message")]
-        public string Message { get; set; }
-
-        [Column("CreatedAt")]
-        public System.DateTime CreatedAt { get; set; } = System.DateTime.Now;
+        public DateTime LogDate { get; set; }
+        public int SysId { get; set; }
+        public string MachineName { get; set; }
+        public string FormName { get; set; }
+        public string MethodName { get; set; }
+        public string ErrorMessage { get; set; }
+        public string StackTrace { get; set; }
+        public string InnerMessage { get; set; }
+        public string AdditionalInfo { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using SqlDataExtention.Entity;
+﻿using PcInfoWin.Properties;
+using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +16,6 @@ namespace PcInfoWin.Provider
 
             try
             {
-
                 using (var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory"))
                 {
                     foreach (ManagementObject mo in searcher.Get())
@@ -48,7 +49,7 @@ namespace PcInfoWin.Provider
             }
             catch (Exception ex)
             {
-                //Console.WriteLine("Error reading RAM info: " + ex.Message);
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
             }
 
             return modules;

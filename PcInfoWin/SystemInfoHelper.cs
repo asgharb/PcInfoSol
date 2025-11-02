@@ -1,11 +1,12 @@
-﻿using System;
+﻿using PcInfoWin.Properties;
+using PcInfoWin.Provider;
+using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
+using SqlDataExtention.Entity.Main;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SqlDataExtention.Entity.Main;
-using PcInfoWin.Provider;
-using SqlDataExtention.Entity;
-using PcInfoWin.Properties;
 
 namespace PcInfoWin
 {
@@ -13,63 +14,70 @@ namespace PcInfoWin
     {
         public static SystemInfo GetCurentSystemInfo()
         {
-            SystemInfo systemInfo = new SystemInfo();
+            try
+            {
+                SystemInfo systemInfo = new SystemInfo();
 
-            //systemInfo.InsertDate = DateTime.Now;
-            //systemInfo.ExpireDate = null;
+                //systemInfo.InsertDate = DateTime.Now;
+                //systemInfo.ExpireDate = null;
 
-            // ---------- System Environment ----------
-            var sysEnvProvider = new SystemEnvironmentProvider();
-            systemInfo.systemEnvironmentInfo = sysEnvProvider.GetSystemEnvironmentInfo();
+                // ---------- System Environment ----------
+                var sysEnvProvider = new SystemEnvironmentProvider();
+                systemInfo.systemEnvironmentInfo = sysEnvProvider.GetSystemEnvironmentInfo();
 
-            // ---------- CPU ----------
-            var cpuProvider = new CpuInfoProvider();
-            systemInfo.cpuInfo = cpuProvider.GetCpuInfo();
+                // ---------- CPU ----------
+                var cpuProvider = new CpuInfoProvider();
+                systemInfo.cpuInfo = cpuProvider.GetCpuInfo();
 
-            // ---------- GPU ----------
-            var gpuProvider = new GpuInfoProvider();
-            systemInfo.gpuInfo = gpuProvider.GetGpuInfo();
+                // ---------- GPU ----------
+                var gpuProvider = new GpuInfoProvider();
+                systemInfo.gpuInfo = gpuProvider.GetGpuInfo();
 
-            // ---------- Motherboard ----------
-            var mbProvider = new MotherboardInfoProvider();
-            systemInfo.motherboardInfo = mbProvider.GetMotherboardInfo();
+                // ---------- Motherboard ----------
+                var mbProvider = new MotherboardInfoProvider();
+                systemInfo.motherboardInfo = mbProvider.GetMotherboardInfo();
 
-            // ---------- RAM ----------
-            var ramProvider = new RamInfoProvider();
-            systemInfo.RamSummaryInfo = ramProvider.GetRamSummary();
-            systemInfo.RamModuleInfo = ramProvider.GetRamModules();
+                // ---------- RAM ----------
+                var ramProvider = new RamInfoProvider();
+                systemInfo.RamSummaryInfo = ramProvider.GetRamSummary();
+                systemInfo.RamModuleInfo = ramProvider.GetRamModules();
 
-            // ---------- Disk ----------
-            var diskProvider = new DiskInfoProvider();
-            systemInfo.DiskInfo = diskProvider.GetDisks();
+                // ---------- Disk ----------
+                var diskProvider = new DiskInfoProvider();
+                systemInfo.DiskInfo = diskProvider.GetDisks();
 
-            // ---------- Network Adapter ----------
-            var netProvider = new NetworkAdapterInfoProvider();
-            systemInfo.NetworkAdapterInfo = netProvider.GetAllNetworkAdapters();
+                // ---------- Network Adapter ----------
+                var netProvider = new NetworkAdapterInfoProvider();
+                systemInfo.NetworkAdapterInfo = netProvider.GetAllNetworkAdapters();
 
-            // ---------- Optical Drive ----------
-            var opticalProvider = new OpticalDriveInfoProvider();
-            systemInfo.OpticalDriveInfo = opticalProvider.GetAllOpticalDrives();
+                // ---------- Optical Drive ----------
+                var opticalProvider = new OpticalDriveInfoProvider();
+                systemInfo.OpticalDriveInfo = opticalProvider.GetAllOpticalDrives();
 
-            // ---------- Monitor ----------
-            var monitorProvider = new MonitorInfoProvider();
-            systemInfo.monitorInfo = monitorProvider.GetAllMonitors();
+                // ---------- Monitor ----------
+                var monitorProvider = new MonitorInfoProvider();
+                systemInfo.monitorInfo = monitorProvider.GetAllMonitors();
 
-            // ---------- UpdateInfo ----------
-            var updateInfo = new UpdateInfo(
-                (!string.IsNullOrEmpty(Settings.Default.PathUpdate) && Settings.Default.PathUpdate.Length >= 5)
-                    ? Settings.Default.PathUpdate
-                    : Program.defaultUpdatePath
-            );
+                // ---------- UpdateInfo ----------
+                var updateInfo = new UpdateInfo(
+                    (!string.IsNullOrEmpty(Settings.Default.PathUpdate) && Settings.Default.PathUpdate.Length >= 5)
+                        ? Settings.Default.PathUpdate
+                        : Program.defaultUpdatePath
+                );
 
-            systemInfo.updateInfo = updateInfo;
+                systemInfo.updateInfo = updateInfo;
 
 
-            PcCodeInfo pcCodeInfo = new PcCodeInfo();
-            systemInfo.pcCodeInfo = new List<SqlDataExtention.Entity.PcCodeInfo>();
-            systemInfo.pcCodeInfo.Add(pcCodeInfo);
+                PcCodeInfo pcCodeInfo = new PcCodeInfo();
+                systemInfo.pcCodeInfo = new List<SqlDataExtention.Entity.PcCodeInfo>();
+                systemInfo.pcCodeInfo.Add(pcCodeInfo);
 
-            return systemInfo;
+                return systemInfo;
+            }
+            catch (Exception ex)
+            {
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0); return null;
+            }
         }
 
 

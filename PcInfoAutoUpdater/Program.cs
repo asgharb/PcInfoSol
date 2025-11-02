@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.Remoting.Lifetime;
 using System.Threading;
 
@@ -13,7 +14,33 @@ namespace PcInfoAutoUpdater
             try
             {
                 // مسیر نصب فعلی
-                string installPath = @"D:\DournaCo\PcInfoClient";
+                string installPath = null;
+
+                // بررسی وجود درایو D
+                if (DriveInfo.GetDrives().Any(d => d.Name.StartsWith("D:", StringComparison.OrdinalIgnoreCase)))
+                {
+                    string dPath = @"D:\DournaCo\PcInfoClient";
+                    if (Directory.Exists(dPath))
+                    {
+                        installPath = dPath;
+                    }
+                }
+
+                // اگر مسیر D نبود، بررسی درایو E
+                if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("E:", StringComparison.OrdinalIgnoreCase)))
+                {
+                    string ePath = @"E:\DournaCo\PcInfoClient";
+                    if (Directory.Exists(ePath))
+                    {
+                        installPath = ePath;
+                    }
+                }
+
+                // اگر هیچ‌کدام نبود، مسیر پیش‌فرض روی C
+                if (installPath == null)
+                {
+                    installPath = @"C:\DournaCo\PcInfoClient";
+                }
                 // مسیر نسخه جدید در پوشه شبکه
                 string updatePath = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))? args[0]: @"\\172.20.7.53\soft\PcInfo\Release";
 

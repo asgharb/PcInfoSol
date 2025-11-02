@@ -188,8 +188,7 @@ namespace SqlDataExtention.Data
                 typeof(NetworkAdapterInfo),
                 typeof(RamModuleInfo),
                 typeof(OpticalDriveInfo),
-                typeof(MonitorInfo),
-                typeof(LogEntry)
+                typeof(MonitorInfo)
                 );
         }
     }

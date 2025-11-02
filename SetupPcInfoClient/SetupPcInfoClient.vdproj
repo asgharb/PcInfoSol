@@ -813,7 +813,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_F99C2C9D659444E0B52AB9ADB349CBF6"
             {
-            "DefaultLocation" = "8:D:\\DournaCo\\[ProductName]"
+            "DefaultLocation" = "8:C:\\DournaCo\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"

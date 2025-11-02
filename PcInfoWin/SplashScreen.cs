@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,7 +8,6 @@ namespace PcInfoWin
     {
         public SplashScreen()
         {
-
             InitializeComponent();
             closeSplashScreen();
         }
@@ -26,8 +19,7 @@ namespace PcInfoWin
         private void SplashScreen_Load(object sender, EventArgs e)
         {
             Cursor.Current = Cursors.WaitCursor;
-            this.Opacity = 0.7;
+            this.Opacity = 0.8;
         }
     }
 }
-

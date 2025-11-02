@@ -38,6 +38,7 @@
             ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             gridControl1 = new DevExpress.XtraGrid.GridControl();
             gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
+            barButtonItem3 = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)ribbonControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridView1).BeginInit();
@@ -46,9 +47,9 @@
             // ribbonControl1
             // 
             ribbonControl1.ExpandCollapseItem.Id = 0;
-            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, barButtonItem2, btnSendMsg });
+            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, barButtonItem2, btnSendMsg, barButtonItem3 });
             ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            ribbonControl1.MaxItemId = 6;
+            ribbonControl1.MaxItemId = 7;
             ribbonControl1.Name = "ribbonControl1";
             ribbonControl1.PageCategories.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageCategory[] { ribbonPageCategory1 });
             ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1 });
@@ -116,6 +117,13 @@
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
             // 
+            // barButtonItem3
+            // 
+            barButtonItem3.Caption = "barButtonItem3";
+            barButtonItem3.Id = 6;
+            barButtonItem3.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("barButtonItem3.ImageOptions.Image");
+            barButtonItem3.Name = "barButtonItem3";
+            // 
             // Form1
             // 
             ActiveGlowColor = System.Drawing.Color.Black;
@@ -129,7 +137,6 @@
             ClientSize = new System.Drawing.Size(1377, 815);
             Controls.Add(gridControl1);
             Controls.Add(ribbonControl1);
-            Font = new System.Drawing.Font("Segoe UI", 8.25F);
             Name = "Form1";
             Ribbon = ribbonControl1;
             Text = "PcInfo";
@@ -153,6 +160,7 @@
         private DevExpress.XtraBars.BarButtonItem barButtonItem1;
         private DevExpress.XtraBars.BarButtonItem barButtonItem2;
         private DevExpress.XtraBars.BarButtonItem btnSendMsg;
+        private DevExpress.XtraBars.BarButtonItem barButtonItem3;
     }
 }
 
