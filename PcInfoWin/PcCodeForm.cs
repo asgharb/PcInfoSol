@@ -1,4 +1,5 @@
-﻿using PcInfoWin.Properties;
+﻿using PcInfoWin.Message;
+using PcInfoWin.Properties;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using System;
@@ -77,6 +78,7 @@ namespace PcInfoWin
             else
             {
                 MessageBox.Show("داده ای وارد نشد و برنامه به طور کامل بسته میشود", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Program.receiver.StopListening();
                 Environment.Exit(0);
             }
         }

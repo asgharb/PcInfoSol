@@ -16,8 +16,9 @@ namespace SqlDataExtention.Entity
         public string Domain { get; set; }
         public string OsVersion { get; set; }
         public bool IsRealVNCInstalled { get; set; }
+        public bool IsSemanticInstalled { get; set; }
 
-
+        
 
         public SystemEnvironmentInfo() { }
     }

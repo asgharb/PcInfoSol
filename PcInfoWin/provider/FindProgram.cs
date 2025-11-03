@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceProcess;
 
 namespace PcInfoWin.Provider
 {
     public static class FindProgram
     {
-        public  static bool IsProgramInstalled()
+        public static bool IsVncInstalled()
         {
             //string programName = "vncs";
             //string programName1 = "vncguihelper";
@@ -40,7 +43,7 @@ namespace PcInfoWin.Provider
             //    }
             //}
 
-            string programPath = @"C:\Program Files\RealVNC\VNC Server\VNCServer.exe"; // مسیر اصلی exe
+            string programPath = @"C:\Program Files\RealVNC\VNC Server\VNCServer.exe";
             if (File.Exists(programPath))
             {
                 return true;
@@ -49,6 +52,18 @@ namespace PcInfoWin.Provider
             {
                 return false;
             }
+        }
+        public static bool IsSemanticInstalled()
+        {
+            string[] serviceNames = {
+                      "SepMasterService",
+                      "SmcService",
+                      "SepScanService",
+                      "SNAC"
+                    };
+
+            var services = ServiceController.GetServices();
+            return services.Any(s => serviceNames.Contains(s.ServiceName, StringComparer.OrdinalIgnoreCase));
         }
     }
 }

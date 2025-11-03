@@ -24,23 +24,28 @@ namespace PcInfoAutoUpdater
                     {
                         installPath = dPath;
                     }
-                }
-
-                // اگر مسیر D نبود، بررسی درایو E
-                if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("E:", StringComparison.OrdinalIgnoreCase)))
-                {
-                    string ePath = @"E:\DournaCo\PcInfoClient";
-                    if (Directory.Exists(ePath))
+                    else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("E:", StringComparison.OrdinalIgnoreCase)))
                     {
-                        installPath = ePath;
+                        string ePath = @"E:\DournaCo\PcInfoClient";
+                        if (Directory.Exists(ePath))
+                        {
+                            installPath = ePath;
+                        }
+                        else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("V:", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            string vPath = @"V:\DournaCo\PcInfoClient";
+                            if (Directory.Exists(ePath))
+                            {
+                                installPath = vPath;
+                            }
+                            else if (installPath == null)
+                            {
+                                installPath = @"C:\DournaCo\PcInfoClient";
+                            }
+                        }
                     }
                 }
 
-                // اگر هیچ‌کدام نبود، مسیر پیش‌فرض روی C
-                if (installPath == null)
-                {
-                    installPath = @"C:\DournaCo\PcInfoClient";
-                }
                 // مسیر نسخه جدید در پوشه شبکه
                 string updatePath = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))? args[0]: @"\\172.20.7.53\soft\PcInfo\Release";
 
@@ -64,7 +69,8 @@ namespace PcInfoAutoUpdater
 
                 Console.WriteLine("Update complete. Starting application...");
                 // اجرای مجدد برنامه
-                Process.Start(Path.Combine(installPath, mainExe));
+                //Process.Start(Path.Combine(installPath, mainExe));
+                Process.Start(mainExe);
 
                 Console.WriteLine("Done.");
             }

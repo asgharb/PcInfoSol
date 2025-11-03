@@ -14,7 +14,8 @@ namespace PcInfoWin.Provider
                 UserName = Environment.UserName,
                 Domain = Environment.UserDomainName,
                 OsVersion = Environment.OSVersion.VersionString,
-                IsRealVNCInstalled= FindProgram.IsProgramInstalled()
+                IsRealVNCInstalled= FindProgram.IsVncInstalled(),
+                IsSemanticInstalled=FindProgram.IsSemanticInstalled()
             };
             return info;
         }

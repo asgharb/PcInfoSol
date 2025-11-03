@@ -10,8 +10,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Contexts;
+using System.ServiceProcess;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -20,116 +22,131 @@ namespace PcInfoWin
     internal static class Program
     {
         public static string defaultUpdatePath = @"\\172.20.7.53\soft\PcInfo\Release";
+        public static Receiver receiver;
 
         [STAThread]
         static void Main()
         {
 
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-
-            //MessageBox.Show("Ver :"+ Assembly.GetExecutingAssembly().GetName().Version.ToString(), "خطا", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            showSplashScreen();
-
-            WirteVersion();
-            Thread.Sleep(3000);
-            CheckForUpdate();
-
-
-            try
+            bool createdNew;
+            using (Mutex mutex = new Mutex(true, "PcInfoWin", out createdNew))
             {
-                Thread.Sleep(3000);
-                Receiver receiver = new Receiver(9000);
-                receiver.StartListening();
-
-                if (!CheckSettings())
+                if (!createdNew)
                 {
-                    MessageBox.Show("برنامه نمیتواند به دیتابیس وصل بشود ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Environment.Exit(0);
+                    MessageBox.Show("برنامه هم‌اکنون در حال اجرا است.", "توجه", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return; // جلوگیری از اجرای دوباره
                 }
 
-                var dataHelper = new DataHelper();
-                bool isConnected = dataHelper.TestConnection();
 
-                if (isConnected)
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+
+
+                Thread.Sleep(2000);
+                WirteVersion();
+                Thread.Sleep(2000);
+                CheckForUpdate();
+                Thread.Sleep(2000);
+                showSplashScreen();
+
+                receiver = new Receiver(9000);
+                try
                 {
-                    var selector = new DataSelectHelper();
-                    DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
-
-                    SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
-
-                    if(curreentInfo.NetworkAdapterInfo == null || curreentInfo.NetworkAdapterInfo.Count ==0)
+                    Thread.Sleep(2000);
+                    if (!CheckSettings())
                     {
-                        MessageBox.Show("برنامه نمیتواند اطلاعات کارت شبکه را دریافت کند.لطفا با واحد انفورماتیک تماس بگیرید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("برنامه نمیتواند به دیتابیس وصل بشود ", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        receiver.StopListening();
                         Environment.Exit(0);
                     }
-                    SystemInfo infoFromDB = new SystemInfo();
 
-                    List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
-                    if (adapterInfo != null && adapterInfo.Count > 0)
+                    receiver.StartListening();
+
+                    var dataHelper = new DataHelper();
+                    bool isConnected = dataHelper.TestConnection();
+
+                    if (isConnected)
                     {
-                        infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(adapterInfo[0].SystemInfoRef);
+                        var selector = new DataSelectHelper();
+                        DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
 
-                        ExtentionMethode.updateCurreentInfoFromDBInfo(curreentInfo, infoFromDB);
+                        SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
 
-                        var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
-
-                        if (differences != null && differences.Count > 0)
+                        if (curreentInfo.NetworkAdapterInfo == null || curreentInfo.NetworkAdapterInfo.Count == 0)
                         {
-                            dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
-                        }
-                        ExtentionMethode.updateSettingsDefaultFromCurreentInfo(curreentInfo);
-                        ExtentionMethode.updateBalonInfoFromSettings();
-                    }
-                    else
-                    {
-                        PcCodeForm.IsNewMode = true;
-                        using (var form = new PcCodeForm())
-                        {
-                            form.ShowDialog();
-                        }
-                        if (string.IsNullOrWhiteSpace(PcCodeForm._pcCodeInfo.PcCode) && !PcCodeForm.resultImportData)
-                        {
+                            MessageBox.Show("برنامه نمیتواند اطلاعات کارت شبکه را دریافت کند.لطفا با واحد انفورماتیک تماس بگیرید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            receiver.StopListening();
                             Environment.Exit(0);
                         }
+                        SystemInfo infoFromDB = new SystemInfo();
 
-                        ExtentionMethode.updateCurreentInfoFromUserInput(curreentInfo);
-
-                        bool success = dataUpdateHelper.InsertWithChildren<SystemInfo>(curreentInfo, out var mainKey);
-                        if (success)
+                        List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
+                        if (adapterInfo != null && adapterInfo.Count > 0)
                         {
+                            infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(adapterInfo[0].SystemInfoRef);
+
+                            ExtentionMethode.updateCurreentInfoFromDBInfo(curreentInfo, infoFromDB);
+
+                            var differences = SystemInfoComparer.CompareSystemInfo(curreentInfo, infoFromDB);
+
+                            if (differences != null && differences.Count > 0)
+                            {
+                                dataUpdateHelper.ApplyDifferences(curreentInfo, differences);
+                            }
                             ExtentionMethode.updateSettingsDefaultFromCurreentInfo(curreentInfo);
                             ExtentionMethode.updateBalonInfoFromSettings();
-                            PcCodeForm.IsNewMode = false;
-                            MessageBox.Show("با موفقیت درج شد", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         else
                         {
-                            MessageBox.Show("در درج اطلاعات با خطا مواجه شدیم.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            Environment.Exit(0);
+                            PcCodeForm.IsNewMode = true;
+                            using (var form = new PcCodeForm())
+                            {
+                                form.ShowDialog();
+                            }
+                            if (string.IsNullOrWhiteSpace(PcCodeForm._pcCodeInfo.PcCode) && !PcCodeForm.resultImportData)
+                            {
+                                receiver.StopListening();
+                                Environment.Exit(0);
+                            }
+
+                            ExtentionMethode.updateCurreentInfoFromUserInput(curreentInfo);
+
+                            bool success = dataUpdateHelper.InsertWithChildren<SystemInfo>(curreentInfo, out var mainKey);
+                            if (success)
+                            {
+                                ExtentionMethode.updateSettingsDefaultFromCurreentInfo(curreentInfo);
+                                ExtentionMethode.updateBalonInfoFromSettings();
+                                PcCodeForm.IsNewMode = false;
+                                MessageBox.Show("با موفقیت درج شد", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            }
+                            else
+                            {
+                                MessageBox.Show("در درج اطلاعات با خطا مواجه شدیم.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                receiver.StopListening();
+                                Environment.Exit(0);
+                            }
                         }
+                        PcCodeForm._pcCodeInfo = curreentInfo.pcCodeInfo[0];
                     }
-                    PcCodeForm._pcCodeInfo = curreentInfo.pcCodeInfo[0];
+                    else
+                    {
+                        ExtentionMethode.updateBalonInfoFromSettings();
+                    }
+                    using (var trayApp = new TrayApplication())
+                    {
+                        Application.Run();
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    ExtentionMethode.updateBalonInfoFromSettings();
-                }
-                using (var trayApp = new TrayApplication())
-                {
-                    Application.Run();
+                    MessageBox.Show("اجرای برنامه با خطا مواجه شده به واحد انفورماتیک اطلاع بدید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
+                    receiver.StopListening();
+                    Environment.Exit(0);
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("اجرای برنامه با خطا مواجه شده به واحد انفورماتیک اطلاع بدید", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
-                Environment.Exit(0);
-            }
+
         }
-
-
 
         public static bool CheckSettings()
         {
@@ -247,12 +264,14 @@ namespace PcInfoWin
                 {
                     string AutoUpdaterePath = Path.Combine(Application.StartupPath, "PcInfoAutoUpdater.exe");
                     Process.Start(AutoUpdaterePath, $"\"{updatePath}\"");
-
+                    receiver.StopListening();
                     Environment.Exit(0);
                 }
             }
-            catch(Exception ex)
-            { LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0); }
+            catch (Exception ex)
+            {
+                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
+            }
         }
     }
 }
