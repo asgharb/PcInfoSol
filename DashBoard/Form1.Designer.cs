@@ -49,11 +49,11 @@
             ribbonControl1.ExpandCollapseItem.Id = 0;
             ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, btnRefresh, btnSendMsg, barButtonItem3 });
             ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            ribbonControl1.MaxItemId = 7;
+            ribbonControl1.MaxItemId = 8;
             ribbonControl1.Name = "ribbonControl1";
             ribbonControl1.PageCategories.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageCategory[] { ribbonPageCategory1 });
             ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1 });
-            ribbonControl1.Size = new System.Drawing.Size(1371, 146);
+            ribbonControl1.Size = new System.Drawing.Size(1365, 146);
             // 
             // barButtonItem1
             // 
@@ -65,8 +65,8 @@
             // 
             btnRefresh.Caption = "Refresh";
             btnRefresh.Id = 3;
-            btnRefresh.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("barButtonItem2.ImageOptions.Image");
-            btnRefresh.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("barButtonItem2.ImageOptions.LargeImage");
+            btnRefresh.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("btnRefresh.ImageOptions.Image");
+            btnRefresh.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("btnRefresh.ImageOptions.LargeImage");
             btnRefresh.ItemAppearance.Disabled.Options.UseFont = true;
             btnRefresh.ItemAppearance.Hovered.Font = new System.Drawing.Font("Tahoma", 12F);
             btnRefresh.ItemAppearance.Hovered.Options.UseFont = true;
@@ -117,7 +117,7 @@
             gridControl1.MainView = gridView1;
             gridControl1.MenuManager = ribbonControl1;
             gridControl1.Name = "gridControl1";
-            gridControl1.Size = new System.Drawing.Size(1371, 666);
+            gridControl1.Size = new System.Drawing.Size(1365, 663);
             gridControl1.TabIndex = 1;
             gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
             // 
@@ -136,7 +136,7 @@
             Appearance.Options.UseForeColor = true;
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1371, 812);
+            ClientSize = new System.Drawing.Size(1365, 809);
             Controls.Add(gridControl1);
             Controls.Add(ribbonControl1);
             Font = new System.Drawing.Font("Segoe UI", 8.25F);

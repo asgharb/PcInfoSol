@@ -1,7 +1,5 @@
-﻿using ClosedXML.Excel;
-using DashBoard.Data;
+﻿using DashBoard.Data;
 using DashBoard.Extention;
-using System.ServiceProcess;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid;
@@ -9,6 +7,7 @@ using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
 using DevExpress.XtraGrid.Views.Grid.ViewInfo;
+using MyNetworkLib;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using SqlDataExtention.Entity.Main;
@@ -20,6 +19,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 
@@ -27,7 +27,6 @@ namespace DashBoard
 {
     public partial class Form1 : DevExpress.XtraBars.Ribbon.RibbonForm
     {
-
         List<SystemInfo> allSystems;
 
 
@@ -54,16 +53,42 @@ namespace DashBoard
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        //private void Form1_Load(object sender, EventArgs e)
+        //{
+        //    initGridControl();
+        //}
+
+        //private void initGridControl()
+        //{
+        //    gridControl1.DataSourceChanged += gridControl1_DataSourceChanged;
+
+        //    loadGridAsync();
+
+        //    gridControl1.UseEmbeddedNavigator = true;
+        //    ControlNavigator navigator = gridControl1.EmbeddedNavigator;
+        //    navigator.Buttons.BeginUpdate();
+        //    try
+        //    {
+        //        navigator.Buttons.Append.Visible = false;
+        //        navigator.Buttons.Remove.Visible = false;
+        //    }
+        //    finally
+        //    {
+        //        navigator.Buttons.EndUpdate();
+        //    }
+
+        //    SetupGridForPcCodeEditing();
+        //    gridView1.DoubleClick += gridView1_DoubleClick;
+        //}
+
+        private async void Form1_Load(object sender, EventArgs e)
         {
             initGridControl();
+            await loadGridAsync();
         }
-
         private void initGridControl()
         {
             gridControl1.DataSourceChanged += gridControl1_DataSourceChanged;
-
-            loadGrid();
 
             gridControl1.UseEmbeddedNavigator = true;
             ControlNavigator navigator = gridControl1.EmbeddedNavigator;
@@ -79,10 +104,13 @@ namespace DashBoard
             }
 
             SetupGridForPcCodeEditing();
-            gridView1.DoubleClick += gridView1_DoubleClick;
+            gridView1.RowCellClick += gridView1_DoubleClick;
+
         }
 
-        private void loadGrid()
+
+
+        private async Task loadGridAsync()
         {
             Cursor.Current = Cursors.WaitCursor;
             try
@@ -95,11 +123,28 @@ namespace DashBoard
                 var helper = new DataSelectHelperNoFilter();
                 allSystems = helper.SelectAllFullSystemInfo();
 
+                var macs = allSystems.Select(s => s.NetworkAdapterInfo
+                           ?.FirstOrDefault(a => !string.IsNullOrWhiteSpace(a.MACAddress)) 
+                           ?.MACAddress)
+                           .Where(mac => !string.IsNullOrWhiteSpace(mac)) 
+                           .ToList();
+
+ 
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+
+                var results = await NetworkMapper.MapMacsOnAccessSwitchesAsync(macs);
+
+           
+                sw.Stop();
+
+                double seconds = sw.Elapsed.TotalSeconds;
+
+                MessageBox.Show(seconds.ToString(), "اطلاع", MessageBoxButtons.OK);
 
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
-                        No = index + 1,   // شماره ردیف خودکار (شروع از 1)
+                        No = index + 1,
                         SystemInfoID = s.SystemInfoID,
                         PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
                         IpAddress = s.NetworkAdapterInfo != null
@@ -108,6 +153,14 @@ namespace DashBoard
                                         .OrderByDescending(a => a.IsLAN)
                                         .ThenByDescending(a => a.IsEnabled)
                                         .Select(a => a.IpAddress.Trim())
+                                        .FirstOrDefault()
+                                    : null,
+                        MacAddress = s.NetworkAdapterInfo != null
+                                    ? s.NetworkAdapterInfo
+                                        .Where(a => !string.IsNullOrWhiteSpace(a.MACAddress))
+                                        .OrderByDescending(a => a.IsLAN)
+                                        .ThenByDescending(a => a.IsEnabled)
+                                        .Select(a => a.MACAddress.Trim())
                                         .FirstOrDefault()
                                     : null,
                         UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),
@@ -120,10 +173,11 @@ namespace DashBoard
                         Desc5 = GetSafeDesc(s.pcCodeInfo, x => x.Desc5),
                         Desc6 = GetSafeDesc(s.pcCodeInfo, x => x.Desc6),
                         Desc7 = GetSafeDesc(s.pcCodeInfo, x => x.Desc7),
-                        VNC = s.systemEnvironmentInfo.IsRealVNCInstalled,
-                        InsertDate = s.InsertDate,
+                        VNC = GetSafeEnvironmentInfo(s.systemEnvironmentInfo, x => x.IsRealVNCInstalled, false),
+                        Semantic = GetSafeEnvironmentInfo(s.systemEnvironmentInfo, x => x.IsSemanticInstalled, false),
+                        AppVersion = GetSafeEnvironmentInfo(s.systemEnvironmentInfo, x => x.AppVersion, "0.0.0.0"),
                         pcCodeInfo = Utils.ToDtoList(s.pcCodeInfo),
-                        systemEnvironmentInfo = Utils.ToDtoListSingle(s.systemEnvironmentInfo),
+                        systemEnvironmentInfo = Utils.ToDtoList(s.systemEnvironmentInfo),
                         RamSummaryInfo = Utils.ToDtoListSingle(s.RamSummaryInfo),
                         RamModuleInfo = Utils.ToDtoList(s.RamModuleInfo),
                         cpuInfo = Utils.ToDtoListSingle(s.cpuInfo),
@@ -139,13 +193,68 @@ namespace DashBoard
 
 
 
-                DataTable dtSystemInfo = ToDataTable(transformedSystems);
+                var finalSystems = transformedSystems
+    .Select(sys =>
+    {
+        var mac = NormalizeMac(sys.MacAddress);
+
+        var match = results
+            .FirstOrDefault(r => NormalizeMac(r.Mac) == mac);
+
+        return new
+        {
+            sys.No,
+            sys.SystemInfoID,
+            sys.PcCode,
+            sys.IpAddress,
+            sys.MacAddress,
+            Switch = match?.FoundSwitch ?? "N/A",
+            SwitchPort = match?.FoundPort ?? "N/A",
+            MacVlan = match?.Vlan ?? "N/A",
+            PhoneMac = match?.PhoneMac ?? "N/A",
+            PhoneIp=match?.PhoneIp ?? "N/A",
+            //PhoneVlan = match?.PhoneVlan ?? "N/A",
+            //MacSearchStatus = match?.Status ?? "NOT_FOUND
+            sys.UserFullName,
+            sys.PersonnelCode,
+            sys.Unit,
+            sys.Desc1,
+            sys.Desc2,
+            sys.Desc3,
+            sys.Desc4,
+            sys.Desc5,
+            sys.Desc6,
+            sys.Desc7,
+            sys.VNC,
+            sys.Semantic,
+            sys.AppVersion,
+            sys.pcCodeInfo,
+            sys.systemEnvironmentInfo,
+            sys.RamSummaryInfo,
+            sys.RamModuleInfo,
+            sys.cpuInfo,
+            sys.gpuInfo,
+            sys.DiskInfo,
+            sys.NetworkAdapterInfo,
+            sys.monitorInfo,
+            sys.motherboardInfo,
+            sys.OpticalDriveInfo
+        };
+    })
+    .ToList();
+
+
+
+                DataTable dtSystemInfo = ToDataTable(finalSystems);
                 dtSystemInfo.TableName = "SystemInfo";
                 //dtSystemInfo.Columns.Add("VNCConnect", typeof(string));
                 ds.Tables.Add(dtSystemInfo);
 
+
                 gridControl1.DataSource = ds;
                 gridControl1.DataMember = "SystemInfo";
+                gridView1.Columns["SystemInfoID"].Visible = false;
+                gridView1.RowHeight = 35;
 
 
                 if (gridView1.Columns["VNCConnect"] == null)
@@ -174,9 +283,6 @@ namespace DashBoard
                 }
 
 
-                gridView1.RowHeight = 35;
-                gridView1.Columns["SystemInfoID"].Visible = false;
-
                 gridView1.RowStyle -= gridView1_RowStyle;
                 gridView1.RowStyle += gridView1_RowStyle;
             }
@@ -192,7 +298,7 @@ namespace DashBoard
 
         void gridView1_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
         {
-            e.Appearance.BackColor = e.RowHandle % 2 == 0 ? Color.LightGray : Color.WhiteSmoke;
+            e.Appearance.BackColor = e.RowHandle % 2 == 0 ? System.Drawing.Color.LightGray : System.Drawing.Color.WhiteSmoke;
         }
 
         private string GetSafeDesc(IList<PcCodeInfo> list, Func<PcCodeInfo, string> selector)
@@ -203,6 +309,49 @@ namespace DashBoard
             var value = selector(list.Last());
             return string.IsNullOrWhiteSpace(value) ? "-" : value;
         }
+
+        private T GetSafeEnvironmentInfo<T>(IList<SystemEnvironmentInfo> list, Func<SystemEnvironmentInfo, T> selector, T defaultValue = default)
+        {
+            if (list == null || list.Count == 0)
+                return defaultValue;
+
+            var lastItem = list.LastOrDefault();
+            if (lastItem == null)
+                return defaultValue;
+
+            var value = selector(lastItem);
+
+            // اگر مقدار null بود (برای reference type‌ها)
+            if (value == null)
+                return defaultValue;
+
+            return value;
+        }
+
+
+        //public static bool GetIsRealVNCInstalled(IList<SystemEnvironmentInfo> items)
+        //{
+        //    if (items == null || items.Count == 0)
+        //        return false;
+
+        //    return items[items.Count - 1]?.IsRealVNCInstalled ?? false;
+        //}
+
+
+        //public static bool GetIsSemanticInstalled(IList<SystemEnvironmentInfo> items)
+        //{
+        //    if (items == null || items.Count == 0)
+        //        return false;
+
+        //    return items[items.Count - 1]?.IsSemanticInstalled ?? false;
+        //}
+        //public static string GetAppVersion(IList<SystemEnvironmentInfo> items)
+        //{
+        //    if (items == null || items.Count == 0)
+        //        return "0.0.0.0";
+
+        //    return items[items.Count - 1]?.AppVersion ?? "0.0.0.0";
+        //}
 
         void gridControl1_DataSourceChanged(object sender, EventArgs e)
         {
@@ -330,7 +479,7 @@ namespace DashBoard
             foreach (GridColumn c in gv.Columns)
             {
                 c.OptionsColumn.AllowEdit = false;
-                c.AppearanceCell.BackColor = Color.White;
+                c.AppearanceCell.BackColor = System.Drawing.Color.White;
             }
             if (gv.Columns["PcCode"] != null)
                 gv.Columns["PcCode"].OptionsColumn.AllowEdit = false;
@@ -357,6 +506,7 @@ namespace DashBoard
             if (!editableColumns.Contains(view.FocusedColumn.FieldName))
                 e.Cancel = true;
         }
+
 
         private bool suppressCellValueChanged = false;
 
@@ -504,117 +654,13 @@ namespace DashBoard
             return helper.ExpireAndInsertPcCodeInfo(systemInfoRef, NewPcCodeInfo);
         }
 
-        private void barButtonItem3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
-        {
-            Cursor.Current = Cursors.WaitCursor;
-            DataSet ds = new DataSet();
-
-
-            var helper = new DataSelectHelperNoFilter();
-            allSystems = helper.SelectAllFullSystemInfo();
-
-            var transformedSystems = allSystems
-                .Select((s, index) => new
-                {
-                    RowNumber = index + 1,   // شماره ردیف خودکار (شروع از 1)
-                    SystemInfoID = s.SystemInfoID,
-                    PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
-                    IpAddress = s.NetworkAdapterInfo != null
-                                ? s.NetworkAdapterInfo
-                                    .Where(a => !string.IsNullOrWhiteSpace(a.IpAddress))
-                                    .OrderByDescending(a => a.IsLAN)
-                                    .ThenByDescending(a => a.IsEnabled)
-                                    .Select(a => a.IpAddress.Trim())
-                                    .FirstOrDefault()
-                                : null,
-                    UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),
-                    PersonnelCode = GetSafeDesc(s.pcCodeInfo, x => x.PersonnelCode.ToString()),
-                    Unit = GetSafeDesc(s.pcCodeInfo, x => x.Unit),
-                    Desc1 = GetSafeDesc(s.pcCodeInfo, x => x.Desc1),
-                    Desc2 = GetSafeDesc(s.pcCodeInfo, x => x.Desc2),
-                    Desc3 = GetSafeDesc(s.pcCodeInfo, x => x.Desc3),
-                    Desc4 = GetSafeDesc(s.pcCodeInfo, x => x.Desc4),
-                    Desc5 = GetSafeDesc(s.pcCodeInfo, x => x.Desc5),
-                    Desc6 = GetSafeDesc(s.pcCodeInfo, x => x.Desc6),
-                    Desc7 = GetSafeDesc(s.pcCodeInfo, x => x.Desc7),
-                    InsertDate = s.InsertDate,
-                    ExpireDate = s.ExpireDate != null ? s.ExpireDate : (DateTime?)null,
-
-                    pcCodeInfo = s.pcCodeInfo ?? new List<PcCodeInfo>(),
-                    RamSummaryInfo = s.RamSummaryInfo != null ? new List<RamSummaryInfo> { s.RamSummaryInfo } : new List<RamSummaryInfo>(),
-                    RamModuleInfo = s.RamModuleInfo ?? new List<RamModuleInfo>(),
-                    cpuInfo = s.cpuInfo != null ? new List<CpuInfo> { s.cpuInfo } : new List<CpuInfo>(),
-                    gpuInfo = s.gpuInfo != null ? new List<GpuInfo> { s.gpuInfo } : new List<GpuInfo>(),
-                    DiskInfo = s.DiskInfo ?? new List<DiskInfo>(),
-                    NetworkAdapterInfo = s.NetworkAdapterInfo ?? new List<NetworkAdapterInfo>(),
-                    monitorInfo = s.monitorInfo ?? new List<MonitorInfo>(),
-                    motherboardInfo = s.motherboardInfo != null ? new List<MotherboardInfo> { s.motherboardInfo } : new List<MotherboardInfo>(),
-                    systemEnvironmentInfo = s.systemEnvironmentInfo != null ? new List<SystemEnvironmentInfo> { s.systemEnvironmentInfo } : new List<SystemEnvironmentInfo>(),
-                    OpticalDriveInfo = s.OpticalDriveInfo ?? new List<OpticalDriveInfo>(),
-                })
-                .ToList();
-
-
-
-            var workbook = new XLWorkbook();
-
-            // 1. شیت اصلی SystemInfo
-            var dtSystemInfo = ds.Tables["SystemInfo"];
-            var wsMain = workbook.Worksheets.Add("SystemInfo");
-            wsMain.Cell(1, 1).InsertTable(dtSystemInfo, "SystemInfo", true);
-
-            // 2. شیت جزئی‌ها
-            // CpuInfo
-            if (transformedSystems.SelectMany(s => s.cpuInfo).Any())
-            {
-                var cpuList = transformedSystems
-                    .SelectMany(s => s.cpuInfo, (s, cpu) => new
-                    {
-                        s.SystemInfoID,
-                        cpu.CpuInfoID,
-                        cpu.Name,
-                        cpu.Manufacturer,
-                        cpu.InsertDate,
-                        cpu.ExpireDate
-                    }).ToList();
-
-                var wsCpu = workbook.Worksheets.Add("CpuInfo");
-                wsCpu.Cell(1, 1).InsertTable(cpuList, "CpuInfo", true);
-            }
-
-            // NetworkAdapterInfo
-            if (transformedSystems.SelectMany(s => s.NetworkAdapterInfo).Any())
-            {
-                var netList = transformedSystems
-                    .SelectMany(s => s.NetworkAdapterInfo, (s, net) => new
-                    {
-                        s.SystemInfoID,
-                        net.NetworkAdapterInfoID,
-                        net.Name,
-                        net.MACAddress,
-                        net.IpAddress,
-                        net.IsEnabled,
-                        net.IsLAN,
-                        net.InsertDate,
-                        net.ExpireDate
-                    }).ToList();
-
-                var wsNet = workbook.Worksheets.Add("NetworkAdapterInfo");
-                wsNet.Cell(1, 1).InsertTable(netList, "NetworkAdapterInfo", true);
-            }
-
-            // می‌توانید بقیه جزئی‌ها مثل RamModuleInfo، GpuInfo، MonitorInfo و ... را هم به همین شکل اضافه کنید
-
-            // ذخیره فایل
-            workbook.SaveAs("SystemInfo_MasterDetail.xlsx");
-            Cursor.Current = Cursors.Default;
-        }
 
         private void btnSendMsg_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             FrmSendMsg frmSendMsg = new FrmSendMsg();
             frmSendMsg.ShowDialog();
         }
+
         public static DataTable ToDataTable<T>(List<T> items)
         {
             DataTable table = new DataTable(typeof(T).Name);
@@ -665,45 +711,88 @@ namespace DashBoard
             Process.Start(vncPath, IpAddress);
         }
 
+        //private void gridView1_DoubleClick(object sender, EventArgs e)
+        //{
+        //    GridView view = sender as GridView;
+        //    Point pt = view.GridControl.PointToClient(Control.MousePosition);
+        //    GridHitInfo hitInfo = view.CalcHitInfo(pt);
+
+        //    if (hitInfo.InRowCell)
+        //    {
+        //        int rowHandle = hitInfo.RowHandle;
+        //        view.FocusedRowHandle = rowHandle;
+        //        view.MakeRowVisible(rowHandle);
+        //        // مقدار ستون VNC را بخوان
+        //        bool isVncInstalled = Convert.ToBoolean(view.GetRowCellValue(rowHandle, "VNC"));
+
+        //        if (!isVncInstalled)
+        //        {
+        //            MessageBox.Show("مسیر VNC یافت نشد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //            return;
+        //        }
+
+
+        //        view.FocusedRowHandle = hitInfo.RowHandle;
+        //        view.MakeRowVisible(hitInfo.RowHandle);
+
+        //        string targetColumnFieldName = "VNCConnect"; // نام ستون مورد نظر
+        //        if (hitInfo.Column != null && hitInfo.Column.FieldName == targetColumnFieldName)
+        //        {
+        //            BtnVNC_ButtonClick(hitInfo.RowHandle);
+        //        }
+        //        else
+        //        {
+        //            view.FocusedRowHandle = hitInfo.RowHandle;
+        //        }
+        //    }
+        //}
+
+
         private void gridView1_DoubleClick(object sender, EventArgs e)
         {
             GridView view = sender as GridView;
             Point pt = view.GridControl.PointToClient(Control.MousePosition);
             GridHitInfo hitInfo = view.CalcHitInfo(pt);
 
-            if (hitInfo.InRowCell)
-            {
-                int rowHandle = hitInfo.RowHandle;
-                view.FocusedRowHandle = rowHandle;
-                view.MakeRowVisible(rowHandle);
-                // مقدار ستون VNC را بخوان
-                bool isVncInstalled = Convert.ToBoolean(view.GetRowCellValue(rowHandle, "VNC"));
+            if (!hitInfo.InRowCell) return;
 
+            int rowHandle = hitInfo.RowHandle;
+            view.FocusedRowHandle = rowHandle;
+            view.MakeRowVisible(rowHandle);
+
+            // فقط اگر روی ستون "VNCConnect" کلیک شده بود
+            string targetColumnFieldName = "VNCConnect";
+            if (hitInfo.Column != null && hitInfo.Column.FieldName == targetColumnFieldName)
+            {
+                // بررسی نصب بودن VNC فقط در این حالت
+                bool isVncInstalled = Convert.ToBoolean(view.GetRowCellValue(rowHandle, "VNC"));
                 if (!isVncInstalled)
                 {
                     MessageBox.Show("مسیر VNC یافت نشد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
-
-                view.FocusedRowHandle = hitInfo.RowHandle;
-                view.MakeRowVisible(hitInfo.RowHandle);
-
-                string targetColumnFieldName = "VNCConnect"; // نام ستون مورد نظر
-                if (hitInfo.Column != null && hitInfo.Column.FieldName == targetColumnFieldName)
-                {
-                    BtnVNC_ButtonClick(hitInfo.RowHandle);
-                }
-                else
-                {
-                    view.FocusedRowHandle = hitInfo.RowHandle;
-                }
+                // اجرای تابع اصلی
+                BtnVNC_ButtonClick(rowHandle);
             }
         }
 
-        private void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        //private void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        //{
+        //    loadGridAsync();
+        //}
+
+        private async void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            loadGrid();
+            await loadGridAsync();
         }
+
+        string NormalizeMac(string raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+            var hex = System.Text.RegularExpressions.Regex.Replace(raw.Trim(), @"[^0-9a-fA-F]", "");
+            return hex.Length == 12 ? hex.ToLower() : null;
+        }
+
     }
 }

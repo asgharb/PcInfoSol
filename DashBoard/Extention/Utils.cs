@@ -21,7 +21,8 @@ namespace DashBoard.Extention
             var idName = type.Name + "Id";
 
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                            .Where(p => !string.Equals(p.Name, idName, StringComparison.OrdinalIgnoreCase))
+                            .Where(p => !string.Equals(p.Name, idName, StringComparison.OrdinalIgnoreCase)
+                                        && !string.Equals(p.Name, "SystemInfoRef", StringComparison.OrdinalIgnoreCase))
                             .ToList();
 
             IDictionary<string, object> dto = new ExpandoObject();

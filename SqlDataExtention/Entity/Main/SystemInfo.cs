@@ -14,7 +14,7 @@ namespace SqlDataExtention.Entity.Main
         [Column("SystemInfoID")]
         public int SystemInfoID { get; set; }
         [Ignore]
-        public SystemEnvironmentInfo systemEnvironmentInfo { get; set; }
+        public List<SystemEnvironmentInfo> systemEnvironmentInfo { get; set; }
         [Ignore]
         public List<PcCodeInfo> pcCodeInfo { get; set; } 
         [Ignore]

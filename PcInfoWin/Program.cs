@@ -1,4 +1,5 @@
-﻿using PcInfoWin.Extention;
+﻿using Newtonsoft.Json;
+using PcInfoWin.Extention;
 using PcInfoWin.Message;
 using PcInfoWin.Properties;
 using SqlDataExtention.Data;
@@ -14,6 +15,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting.Contexts;
 using System.ServiceProcess;
+using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -27,6 +29,8 @@ namespace PcInfoWin
         [STAThread]
         static void Main()
         {
+
+            //RunScripts();
 
             bool createdNew;
             using (Mutex mutex = new Mutex(true, "PcInfoWin", out createdNew))
@@ -42,10 +46,10 @@ namespace PcInfoWin
                 Application.SetCompatibleTextRenderingDefault(false);
 
 
-                Thread.Sleep(2000);
                 WirteVersion();
                 Thread.Sleep(2000);
-                CheckForUpdate();
+                if (Environment.MachineName != "Bizaval-pc" && Environment.MachineName != "BIZAVAL-PC")
+                    CheckForUpdate();
                 Thread.Sleep(2000);
                 showSplashScreen();
 
@@ -245,33 +249,105 @@ namespace PcInfoWin
 
         public static void CheckForUpdate()
         {
+            int x = 254;
             try
             {
+                // نسخه فعلی برنامه
                 string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+                // مسیر آپدیت
                 string updatePath = defaultUpdatePath;
                 if (!string.IsNullOrEmpty(Settings.Default.PathUpdate) && Settings.Default.PathUpdate.Length > 4)
                 {
                     updatePath = Settings.Default.PathUpdate;
                 }
-
+                x = 264;
                 string versionFile = Path.Combine(updatePath, "version.txt");
-
-                if (!File.Exists(versionFile)) return;
-
-                string newVersion = File.ReadAllText(versionFile).Trim();
-
+                x = 266;
+                // بررسی وجود فایل version.txt
+                if (!File.Exists(versionFile))
+                {
+                    x = 270;
+                    LoggingHelper.LogError(
+                        new FileNotFoundException("Version file not found" + " X:" + x.ToString(), versionFile),
+                        $"Checked update path: {updatePath}",
+                        Settings.Default.SystemInfoID
+                    );
+                    return;
+                }
+                x = 278;
+                string newVersion;
+                try
+                {
+                    newVersion = File.ReadAllText(versionFile).Trim();
+                    x = 283;
+                }
+                catch (Exception ex)
+                {
+                    LoggingHelper.LogError(
+                        ex,
+                        $"Failed to read version file: {versionFile}" + " X:" + x.ToString(),
+                        Settings.Default.SystemInfoID
+                    );
+                    return;
+                }
+                x = 294;
+                // بررسی نسخه جدید
                 if (newVersion != currentVersion)
                 {
-                    string AutoUpdaterePath = Path.Combine(Application.StartupPath, "PcInfoAutoUpdater.exe");
-                    Process.Start(AutoUpdaterePath, $"\"{updatePath}\"");
-                    receiver.StopListening();
-                    Environment.Exit(0);
+                    string autoUpdaterPath = Path.Combine(Application.StartupPath, "PcInfoAutoUpdater.exe");
+                    x = 299;
+                    if (!File.Exists(autoUpdaterPath))
+                    {
+                        LoggingHelper.LogError(
+                            new FileNotFoundException("AutoUpdater executable not found" + " X:" + x.ToString(), autoUpdaterPath),
+                            $"Current version: {currentVersion}, New version: {newVersion}",
+                            Settings.Default.SystemInfoID
+                        );
+                        return;
+                    }
+
+                    try
+                    {
+                        x = 312;
+                        Process.Start(autoUpdaterPath, $"\"{updatePath}\"");
+                        receiver.StopListening();
+                        Environment.Exit(0);
+                    }
+                    catch (Exception ex)
+                    {
+                        x = 319;
+                        LoggingHelper.LogError(
+                            ex,
+                            $"Failed to start updater: {autoUpdaterPath}" + " X:" + x.ToString(),
+                            Settings.Default.SystemInfoID
+                        );
+                    }
                 }
             }
             catch (Exception ex)
             {
-                LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0);
+                x = 330;
+                LoggingHelper.LogError(
+                    ex,
+                    "---Unhandled exception in CheckForUpdate---" + " X:" + x.ToString(),
+                    Settings.Default.SystemInfoID
+                );
             }
+        }
+
+        private static async void RunScripts()
+        {
+            string folder = @"\\172.20.7.53\Soft\PcInfoScripts"; // یا مسیر محلی
+            var results = await RunPsScriptsHelper.RunAllPs1InFolderAsync(folder);
+
+            // نمایش خلاصه به کاربر (مثال)
+            var sb = new StringBuilder();
+            foreach (var r in results)
+            {
+                sb.AppendLine($"{Path.GetFileName(r.FilePath)} => Success: {r.Success}, Error: {r.ErrorMessage}");
+            }
+            //MessageBox.Show(sb.ToString(), "Run scripts result");
         }
     }
 }

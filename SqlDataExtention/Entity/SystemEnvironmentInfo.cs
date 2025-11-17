@@ -14,11 +14,12 @@ namespace SqlDataExtention.Entity
         public string ComputerName { get; set; }
         public string UserName { get; set; }
         public string Domain { get; set; }
-        public string OsVersion { get; set; }
+        //public string OsVersion { get; set; }
+        public string OperatingSystem { get; set; }
         public bool IsRealVNCInstalled { get; set; }
         public bool IsSemanticInstalled { get; set; }
+        public string AppVersion { get; set; }
 
-        
 
         public SystemEnvironmentInfo() { }
     }

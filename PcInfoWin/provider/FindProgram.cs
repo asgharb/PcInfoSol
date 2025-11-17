@@ -59,11 +59,32 @@ namespace PcInfoWin.Provider
                       "SepMasterService",
                       "SmcService",
                       "SepScanService",
+                      "Symantec AntiVirus",
                       "SNAC"
                     };
 
             var services = ServiceController.GetServices();
-            return services.Any(s => serviceNames.Contains(s.ServiceName, StringComparer.OrdinalIgnoreCase));
+            bool result1 = services.Any(s => serviceNames.Contains(s.ServiceName, StringComparer.OrdinalIgnoreCase));
+
+            bool result2 = false;
+            string path = @"C:\Program Files\Symantec\Symantec Endpoint Protection";
+            if (Directory.Exists(path))
+            {
+                result2 = true;
+            }
+            else
+            {
+                result2 = false;
+            }
+            if (result1 || result2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
         }
     }
 }

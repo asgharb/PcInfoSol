@@ -13,42 +13,63 @@ namespace PcInfoAutoUpdater
         {
             try
             {
-                // مسیر نصب فعلی
-                string installPath = null;
+                //// بررسی وجود درایو D
+                //if (DriveInfo.GetDrives().Any(d => d.Name.StartsWith("D:", StringComparison.OrdinalIgnoreCase)))
+                //{
+                //    string dPath = @"D:\DournaCo\PcInfoClient";
+                //    if (Directory.Exists(dPath))
+                //    {
+                //        installPath = dPath;
+                //    }
+                //    else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("E:", StringComparison.OrdinalIgnoreCase)))
+                //    {
+                //        string ePath = @"E:\DournaCo\PcInfoClient";
+                //        if (Directory.Exists(ePath))
+                //        {
+                //            installPath = ePath;
+                //        }
+                //        else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("V:", StringComparison.OrdinalIgnoreCase)))
+                //        {
+                //            string vPath = @"V:\DournaCo\PcInfoClient";
+                //            if (Directory.Exists(ePath))
+                //            {
+                //                installPath = vPath;
+                //            }
+                //            else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("G:", StringComparison.OrdinalIgnoreCase)))
+                //            {
+                //                string gPath = @"G:\DournaCo\PcInfoClient";
+                //                if (Directory.Exists(gPath))
+                //                {
+                //                    installPath = gPath;
+                //                }
+                //            }
+                //            else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("F:", StringComparison.OrdinalIgnoreCase)))
+                //            {
+                //                string fPath = @"F:\DournaCo\PcInfoClient";
+                //                if (Directory.Exists(fPath))
+                //                {
+                //                    installPath = fPath;
+                //                }
+                //                else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("H:", StringComparison.OrdinalIgnoreCase)))
+                //                {
+                //                    string hPath = @"H:\DournaCo\PcInfoClient";
+                //                    if (Directory.Exists(hPath))
+                //                    {
+                //                        installPath = hPath;
+                //                    }
+                //                    else if (installPath == null)
+                //                    {
+                //                        installPath = @"C:\DournaCo\PcInfoClient";
+                //                    }
+                //                }
+                //            }
 
-                // بررسی وجود درایو D
-                if (DriveInfo.GetDrives().Any(d => d.Name.StartsWith("D:", StringComparison.OrdinalIgnoreCase)))
-                {
-                    string dPath = @"D:\DournaCo\PcInfoClient";
-                    if (Directory.Exists(dPath))
-                    {
-                        installPath = dPath;
-                    }
-                    else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("E:", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        string ePath = @"E:\DournaCo\PcInfoClient";
-                        if (Directory.Exists(ePath))
-                        {
-                            installPath = ePath;
-                        }
-                        else if (installPath == null && DriveInfo.GetDrives().Any(d => d.Name.StartsWith("V:", StringComparison.OrdinalIgnoreCase)))
-                        {
-                            string vPath = @"V:\DournaCo\PcInfoClient";
-                            if (Directory.Exists(ePath))
-                            {
-                                installPath = vPath;
-                            }
-                            else if (installPath == null)
-                            {
-                                installPath = @"C:\DournaCo\PcInfoClient";
-                            }
-                        }
-                    }
-                }
+
+                // مسیر نصب فعلی
+                string installPath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
 
                 // مسیر نسخه جدید در پوشه شبکه
-                string updatePath = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))? args[0]: @"\\172.20.7.53\soft\PcInfo\Release";
-
+                string updatePath = (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0])) ? args[0] : @"\\172.20.7.53\soft\PcInfo\Release";
 
                 // نام برنامه اصلی
                 string mainExe = "PcInfoWin.exe";
@@ -79,7 +100,7 @@ namespace PcInfoAutoUpdater
                 Console.WriteLine("Update failed: " + ex.Message);
                 Thread.Sleep(4000);
             }
-            finally 
+            finally
             {
                 Environment.Exit(0);
             }

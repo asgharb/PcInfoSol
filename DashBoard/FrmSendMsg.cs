@@ -12,7 +12,7 @@ namespace DashBoard
     public partial class FrmSendMsg : Form
     {
         private UdpClient listener;
-        private CancellationTokenSource cts;
+        //private CancellationTokenSource cts;
         private const int Port = 9000;
 
         public FrmSendMsg()
@@ -45,98 +45,12 @@ namespace DashBoard
         }
 
 
-
-        private async Task ListenForMessages(CancellationToken token)
-        {
-            try
-            {
-                while (!token.IsCancellationRequested)
-                {
-                    UdpReceiveResult result = await listener.ReceiveAsync();
-                    string message = Encoding.UTF8.GetString(result.Buffer);
-
-                    // نمایش بالون در ترد UI
-                    this.Invoke((MethodInvoker)delegate
-                    {
-                        NotifyIcon notify = new NotifyIcon();
-                        notify.Visible = true;
-                        notify.Icon = SystemIcons.Information;
-                        notify.BalloonTipTitle = "📨 پیام جدید";
-                        notify.BalloonTipText = message;
-                        notify.ShowBalloonTip(5000);
-                    });
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                // نادیده بگیر (زمان توقف)
-            }
-        }
-
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            try
-            {
-                cts?.Cancel();
-                listener?.Close();
-                listener = null;
-                MessageBox.Show("گوش دادن متوقف شد.");
-            }
-            catch { }
+            this.Close();
         }
 
 
-
-        //private async Task SendMessageAsync(string message, string ipFrom, string ipTo)
-        //{
-        //    try
-        //    {
-        //        byte[] data = Encoding.UTF8.GetBytes(message);
-
-        //        using (UdpClient client = new UdpClient())
-        //        {
-        //            client.EnableBroadcast = true;
-
-        //            // حالت ۵ → ارسال به همه (Broadcast)
-        //            if (ipFrom.Equals("all", StringComparison.OrdinalIgnoreCase))
-        //            {
-        //                IPEndPoint broadcast = new IPEndPoint(IPAddress.Broadcast, Port);
-        //                await client.SendAsync(data, data.Length, broadcast);
-        //                return;
-        //            }
-
-        //            // تبدیل IP‌ها به عدد برای محدوده
-        //            uint from = IpToUint(ipFrom);
-        //            uint to = IpToUint(ipTo);
-
-        //            if (from > to)
-        //            {
-        //                uint temp = from;
-        //                from = to;
-        //                to = temp;
-        //            }
-
-        //            // ارسال به همه IPها در محدوده
-        //            for (uint ip = from; ip <= to; ip++)
-        //            {
-        //                string ipStr = UintToIp(ip);
-        //                try
-        //                {
-        //                    IPEndPoint endPoint = new IPEndPoint(IPAddress.Parse(ipStr), Port);
-        //                    await client.SendAsync(data, data.Length, endPoint);
-        //                }
-        //                catch
-        //                {
-        //                    // خطا در یک IP → ادامه بده
-        //                }
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception("خطا در ارسال پیام: " + ex.Message);
-        //    }
-        //}
 
         private async Task SendMessageAsync(string message, string ipFrom, string ipTo)
         {
@@ -199,16 +113,6 @@ namespace DashBoard
         }
 
 
-
-        private uint IpToUint(string ip)
-        {
-            string[] parts = ip.Split('.');
-            if (parts.Length != 4) throw new Exception("فرمت IP نادرست است.");
-            return (uint)(int.Parse(parts[0]) << 24 |
-                          int.Parse(parts[1]) << 16 |
-                          int.Parse(parts[2]) << 8 |
-                          int.Parse(parts[3]));
-        }
 
         private string UintToIp(uint ip)
         {

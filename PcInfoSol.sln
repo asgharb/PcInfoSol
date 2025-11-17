@@ -15,6 +15,10 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SetupPcInfoClient", "SetupP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PcInfoAutoUpdater", "PcInfoAutoUpdater\PcInfoAutoUpdater.csproj", "{DF8023D7-E34A-4B55-8FE7-11FBA77734E1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyNetworkLib", "MyNetworkLib\MyNetworkLib.csproj", "{F7E5638F-5083-4AFC-A6C6-2AB28D8E67A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Picture", "Picture\Picture.csproj", "{1D86FDB5-925D-49E8-8E68-A8F93AFDDD1C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +47,14 @@ Global
 		{DF8023D7-E34A-4B55-8FE7-11FBA77734E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF8023D7-E34A-4B55-8FE7-11FBA77734E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF8023D7-E34A-4B55-8FE7-11FBA77734E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7E5638F-5083-4AFC-A6C6-2AB28D8E67A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7E5638F-5083-4AFC-A6C6-2AB28D8E67A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7E5638F-5083-4AFC-A6C6-2AB28D8E67A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7E5638F-5083-4AFC-A6C6-2AB28D8E67A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D86FDB5-925D-49E8-8E68-A8F93AFDDD1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D86FDB5-925D-49E8-8E68-A8F93AFDDD1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D86FDB5-925D-49E8-8E68-A8F93AFDDD1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D86FDB5-925D-49E8-8E68-A8F93AFDDD1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
