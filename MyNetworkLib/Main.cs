@@ -54,8 +54,8 @@ namespace MyNetworkLib
         public static async Task<List<MappingResult>> MapMacsOnAccessSwitchesAsync(
             List<string> macs,
             NetworkMapperOptions? optionsIn = null,
-            int startIp = 2,
-            int endIp = 2,
+            int startIp = 1,
+            int endIp = 200,
             string user = "infosw",
             string pass = "Ii123456!")
         {
