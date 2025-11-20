@@ -39,6 +39,7 @@
             ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             gridControl1 = new DevExpress.XtraGrid.GridControl();
             gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
+            btnRefreshMac = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)ribbonControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridView1).BeginInit();
@@ -47,9 +48,9 @@
             // ribbonControl1
             // 
             ribbonControl1.ExpandCollapseItem.Id = 0;
-            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, btnRefresh, btnSendMsg, barButtonItem3 });
+            ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { ribbonControl1.ExpandCollapseItem, barButtonItem1, btnRefresh, btnSendMsg, barButtonItem3, btnRefreshMac });
             ribbonControl1.Location = new System.Drawing.Point(0, 0);
-            ribbonControl1.MaxItemId = 8;
+            ribbonControl1.MaxItemId = 9;
             ribbonControl1.Name = "ribbonControl1";
             ribbonControl1.PageCategories.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPageCategory[] { ribbonPageCategory1 });
             ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] { ribbonPage1 });
@@ -108,6 +109,7 @@
             // 
             ribbonPageGroup1.ItemLinks.Add(btnRefresh);
             ribbonPageGroup1.ItemLinks.Add(btnSendMsg);
+            ribbonPageGroup1.ItemLinks.Add(btnRefreshMac);
             ribbonPageGroup1.Name = "ribbonPageGroup1";
             // 
             // gridControl1
@@ -126,6 +128,15 @@
             gridView1.GridControl = gridControl1;
             gridView1.Name = "gridView1";
             // 
+            // btnRefreshMac
+            // 
+            btnRefreshMac.Caption = "Refresh Mac";
+            btnRefreshMac.Id = 8;
+            btnRefreshMac.ImageOptions.Image = (System.Drawing.Image)resources.GetObject("barButtonItem2.ImageOptions.Image");
+            btnRefreshMac.ImageOptions.LargeImage = (System.Drawing.Image)resources.GetObject("barButtonItem2.ImageOptions.LargeImage");
+            btnRefreshMac.Name = "btnRefreshMac";
+            btnRefreshMac.ItemClick += btnRefreshMac_ItemClick;
+            // 
             // Form1
             // 
             ActiveGlowColor = System.Drawing.Color.Black;
@@ -139,7 +150,6 @@
             ClientSize = new System.Drawing.Size(1365, 809);
             Controls.Add(gridControl1);
             Controls.Add(ribbonControl1);
-            Font = new System.Drawing.Font("Segoe UI", 8.25F);
             Name = "Form1";
             Ribbon = ribbonControl1;
             Text = "PcInfo";
@@ -164,6 +174,7 @@
         private DevExpress.XtraBars.BarButtonItem btnRefresh;
         private DevExpress.XtraBars.BarButtonItem btnSendMsg;
         private DevExpress.XtraBars.BarButtonItem barButtonItem3;
+        private DevExpress.XtraBars.BarButtonItem btnRefreshMac;
     }
 }
 

@@ -59,7 +59,7 @@ namespace DashBoard
             // هیچ چیز روی فرم تنظیم نمی‌شود تا داده‌ها آماده شوند.
             await InitializeDataAsync();
 
-            Thread.Sleep(1000); // کمی تأخیر برای اطمینان از بارگذاری کامل
+            Thread.Sleep(1000);
         }
 
         private async Task InitializeDataAsync()
@@ -68,7 +68,7 @@ namespace DashBoard
 
             try
             {
-                // 👇 مرحله اول: دریافت اطلاعات ابتدایی سیستم‌ها
+
                 var helper = new DataSelectHelperNoFilter();
                 allSystems = helper.SelectAllFullSystemInfo();
 
@@ -77,28 +77,39 @@ namespace DashBoard
                                  .Where(mac => !string.IsNullOrWhiteSpace(mac))
                                  .ToList();
 
-                var results = await NetworkMapper.MapMacsOnAccessSwitchesAsync(macs);
+                //var results = await NetworkMapper.MapMacsOnAccessSwitchesAsync(macs);
+                //InsertToDB
+                List<SwithInfo> results = new List<SwithInfo>();
 
 
-                // 👇 مرحله سوم: پردازش نتایج و ساخت جدول داده‌ها
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
-                        No = index + 1,
+                        //No = index + 1,
                         SystemInfoID = s.SystemInfoID,
-                        PcCode = GetSafeDesc(s.pcCodeInfo, x => x.PcCode),
+                        PcCode = int.Parse(GetSafeDesc(s.pcCodeInfo, x => x.PcCode).ToString()),
                         IpAddress = s.NetworkAdapterInfo?
-                                        .Where(a => !string.IsNullOrWhiteSpace(a.IpAddress))
-                                        .OrderByDescending(a => a.IsLAN)
-                                        .ThenByDescending(a => a.IsEnabled)
-                                        .Select(a => a.IpAddress.Trim())
-                                        .FirstOrDefault(),
+    .Where(a =>
+        a.ExpireDate == null &&                  
+        !string.IsNullOrWhiteSpace(a.IpAddress)) 
+    .OrderByDescending(a => a.IsLAN)
+    .ThenByDescending(a => a.IsEnabled)
+    .Select(a => a.IpAddress.Trim())
+    .FirstOrDefault(),
+
                         MacAddress = s.NetworkAdapterInfo?
-                                        .Where(a => !string.IsNullOrWhiteSpace(a.MACAddress))
-                                        .OrderByDescending(a => a.IsLAN)
-                                        .ThenByDescending(a => a.IsEnabled)
-                                        .Select(a => a.MACAddress.Trim())
-                                        .FirstOrDefault(),
+    .Where(a =>
+        a.ExpireDate == null &&                 
+        !string.IsNullOrWhiteSpace(a.MACAddress))
+    .OrderByDescending(a => a.IsLAN)
+    .ThenByDescending(a => a.IsEnabled)
+    .Select(a => a.MACAddress.Trim())
+    .FirstOrDefault(),
+
+                        Switch = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundSwitch),
+                        SwitchPort = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundPort),
+                        PhoneMac = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneMac),
+                        PhoneIp = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneIp),
                         UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),
                         PersonnelCode = GetSafeDesc(s.pcCodeInfo, x => x.PersonnelCode.ToString()),
                         Unit = GetSafeDesc(s.pcCodeInfo, x => x.Unit),
@@ -124,55 +135,57 @@ namespace DashBoard
                         motherboardInfo = Utils.ToDtoListSingle(s.motherboardInfo),
                         OpticalDriveInfo = Utils.ToDtoList(s.OpticalDriveInfo)
                     })
-                    .ToList();
+                     .OrderBy(sys => sys.PcCode)
+                     .ToList();
 
-                var finalSystems = transformedSystems
-                    .Select(sys =>
-                    {
-                        var mac = NormalizeMac(sys.MacAddress);
-                        var match = results.FirstOrDefault(r => NormalizeMac(r.Mac) == mac);
+                //var finalSystems = transformedSystems
+                //    .Select(sys =>
+                //    {
+                //        var mac = NormalizeMac(sys.MacAddress);
+                //        var match = results.FirstOrDefault(r => NormalizeMac(r.Mac) == mac);
 
-                        return new
-                        {
-                            sys.No,
-                            sys.SystemInfoID,
-                            sys.PcCode,
-                            sys.IpAddress,
-                            sys.MacAddress,
-                            Switch = match?.FoundSwitch ?? "N/A",
-                            SwitchPort = match?.FoundPort ?? "N/A",
-                            MacVlan = match?.Vlan ?? "N/A",
-                            PhoneMac = match?.PhoneMac ?? "N/A",
-                            PhoneIp = match?.PhoneIp ?? "N/A",
-                            sys.UserFullName,
-                            sys.PersonnelCode,
-                            sys.Unit,
-                            sys.Desc1,
-                            sys.Desc2,
-                            sys.Desc3,
-                            sys.Desc4,
-                            //sys.Desc5,
-                            //sys.Desc6,
-                            //sys.Desc7,
-                            sys.VNC,
-                            sys.Semantic,
-                            sys.AppVersion,
-                            sys.pcCodeInfo,
-                            sys.systemEnvironmentInfo,
-                            sys.RamSummaryInfo,
-                            sys.RamModuleInfo,
-                            sys.cpuInfo,
-                            sys.gpuInfo,
-                            sys.DiskInfo,
-                            sys.NetworkAdapterInfo,
-                            sys.monitorInfo,
-                            sys.motherboardInfo,
-                            sys.OpticalDriveInfo
-                        };
-                    })
-                    .ToList();
+                //        return new
+                //        {
+                //            //sys.No,
+                //            sys.SystemInfoID,
+                //            sys.PcCode,
+                //            sys.IpAddress,
+                //            sys.MacAddress,
+                //            //Switch = match?.FoundSwitch ?? "N/A",
+                //            //SwitchPort = match?.FoundPort ?? "N/A",
+                //            //MacVlan = match?.Vlan ?? "N/A",
+                //            //PhoneMac = match?.PhoneMac ?? "N/A",
+                //            //PhoneIp = match?.PhoneIp ?? "N/A",
+                //            sys.UserFullName,
+                //            sys.PersonnelCode,
+                //            sys.Unit,
+                //            sys.Desc1,
+                //            sys.Desc2,
+                //            sys.Desc3,
+                //            sys.Desc4,
+                //            //sys.Desc5,
+                //            //sys.Desc6,
+                //            //sys.Desc7,
+                //            sys.VNC,
+                //            sys.Semantic,
+                //            sys.AppVersion,
+                //            sys.pcCodeInfo,
+                //            sys.systemEnvironmentInfo,
+                //            sys.RamSummaryInfo,
+                //            sys.RamModuleInfo,
+                //            sys.cpuInfo,
+                //            sys.gpuInfo,
+                //            sys.DiskInfo,
+                //            sys.NetworkAdapterInfo,
+                //            sys.monitorInfo,
+                //            sys.motherboardInfo,
+                //            sys.OpticalDriveInfo
+                //        };
+                //    })
+                //     .OrderBy(sys => sys.PcCode) 
+                //     .ToList();
 
-                var dtSystemInfo = ToDataTable(finalSystems);
+                var dtSystemInfo = ToDataTable(transformedSystems);
                 dtSystemInfo.TableName = "SystemInfo";
 
                 var ds = new DataSet();
@@ -233,12 +246,9 @@ namespace DashBoard
             gridView1.RowStyle -= gridView1_RowStyle;
             gridView1.RowStyle += gridView1_RowStyle;
 
-
             gridView1.RowCellClick += GridView1_RowCellClick;
 
-
             SetupGridForPcCodeEditing();
-
         }
 
 
@@ -260,22 +270,8 @@ namespace DashBoard
                                             "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             return;
                         }
-
-                        // اجرای logic مربوط به اتصال VNC (مثلاً فراخوانی تابع)
                         BtnVNC_ButtonClick(e.RowHandle);
                         break;
-
-                        //case "IPAddress":
-                        //    // نمونه: نمایش جزئیات آی‌پی یا پینگ
-                        //    string ip = gridView1.GetRowCellValue(e.RowHandle, "IPAddress")?.ToString();
-                        //    MessageBox.Show($"آی‌پی این سیستم: {ip}", "جزئیات");
-                        //    break;
-
-                        //default:
-                        //    // رفتار عمومی برای بقیه ستون‌ها
-                        //    string cellValue = gridView1.GetRowCellValue(e.RowHandle, field)?.ToString();
-                        //    MessageBox.Show($"دابل‌کلیک روی ستون {field}\nمقدار: {cellValue}", "اطلاعات سلول");
-                        //    break;
                 }
             }
         }
@@ -290,27 +286,47 @@ namespace DashBoard
             if (list == null || list.Count == 0)
                 return "-";
 
-            var value = selector(list.Last());
+            // فقط آیتم‌هایی که ExpireDate == null دارند در نظر گرفته شوند
+            var validItems = list.Where(x => x.ExpireDate == null).ToList();
+            if (validItems.Count == 0)
+                return "-";
+
+            var value = selector(validItems.Last());
             return string.IsNullOrWhiteSpace(value) ? "-" : value;
         }
 
-        private T GetSafeEnvironmentInfo<T>(IList<SystemEnvironmentInfo> list, Func<SystemEnvironmentInfo, T> selector, T defaultValue = default)
+
+        private T GetSafeEnvironmentInfo<T>(
+            IList<SystemEnvironmentInfo> list,
+            Func<SystemEnvironmentInfo, T> selector,
+            T defaultValue = default)
         {
             if (list == null || list.Count == 0)
                 return defaultValue;
 
-            var lastItem = list.LastOrDefault();
+            // فقط آیتم‌های معتبر (ExpireDate == null)
+            var lastItem = list.Where(x => x.ExpireDate == null).LastOrDefault();
             if (lastItem == null)
                 return defaultValue;
 
             var value = selector(lastItem);
 
-            // اگر مقدار null بود (برای reference type‌ها)
+            // اگر مقدار null بود، مقدار پیش‌فرض برگردان
             if (value == null)
                 return defaultValue;
 
             return value;
         }
+
+        private string GetSafesSwitchInfo(SwithInfo Info, Func<SwithInfo, string> selector)
+        {
+            if (Info == null)
+                return "-";
+
+            var value = selector(Info);
+            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+        }
+
 
 
 
@@ -682,6 +698,10 @@ namespace DashBoard
             return hex.Length == 12 ? hex.ToLower() : null;
         }
 
+        private void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            MyNetworkLib.NetworkMapper.InsertToDB();
+        }
     }
 }
 

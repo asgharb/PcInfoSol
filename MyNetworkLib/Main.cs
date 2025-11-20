@@ -1,14 +1,13 @@
-﻿
-using Renci.SshNet;
+﻿using Renci.SshNet;
 using Renci.SshNet.Common;
-using System;
+using SqlDataExtention.Attributes;
+using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
+using SqlDataExtention.Entity.Base;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace MyNetworkLib
 {
@@ -19,20 +18,6 @@ namespace MyNetworkLib
         public string Vlan;
         public string Mac;
         public string Port;
-    }
-
-    public class MappingResult
-    {
-        public string Mac;          // normalized
-        public string FoundSwitch;
-        public string FoundPort;
-        public string Vlan;
-
-        public string PhoneMac;
-        public string PhoneVlan;
-        public string PhoneIp;
-
-        public string Status; // FOUND / NOT FOUND / ERROR
     }
 
     public class NetworkMapperOptions
@@ -46,21 +31,150 @@ namespace MyNetworkLib
         public int ShellReadTimeoutMs { get; set; } = 1500;
     }
 
+
+
+
+
+
     public static class NetworkMapper
     {
-        /// <summary>
-        /// Scans switches (startIp..endIp) in parallel, collects MAC table and CDP, and maps given MACs to switch/port/vlan + phone IP if found.
-        /// </summary>
-        public static async Task<List<MappingResult>> MapMacsOnAccessSwitchesAsync(
-            List<string> macs,
-            NetworkMapperOptions? optionsIn = null,
-            int startIp = 1,
-            int endIp = 200,
-            string user = "infosw",
-            string pass = "Ii123456!")
+
+        //public static async Task<List<SwithInfo>> MapMacsOnAccessSwitchesAsync(List<MacInfoDto> macs, NetworkMapperOptions? optionsIn = null)
+        //{
+
+        //    int startIp = 2;
+        //    int endIp = 2;
+        //    string user = "infosw";
+        //    string pass = "Ii123456!";
+        //    var options = optionsIn ?? new NetworkMapperOptions();
+
+        //    // build switches
+        //    var switches = new List<SwitchCfg>();
+        //    for (int i = startIp; i <= endIp; i++)
+        //        switches.Add(new SwitchCfg($"192.168.254.{i}", $"SW-{i}", user, pass));
+
+        //    var macTables = new ConcurrentDictionary<string, List<MacEntry>>();
+        //    var cdpOutputs = new ConcurrentDictionary<string, string>();
+
+        //    if (options.VerboseLogging)
+        //        Console.WriteLine($"[Mapper] scanning {switches.Count} switches with parallel={options.MaxParallelSsh}");
+
+        //    var parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = options.MaxParallelSsh };
+
+        //    // Scan switches
+        //    await Parallel.ForEachAsync(switches, parallelOptions, async (sw, ct) =>
+        //    {
+        //        int attempt = 0;
+        //        while (!ct.IsCancellationRequested)
+        //        {
+        //            attempt++;
+        //            try
+        //            {
+        //                await ConnectAndCollectAsync(sw, macTables, cdpOutputs, options, ct);
+        //                break;
+        //            }
+        //            catch
+        //            {
+        //                if (attempt >= options.MaxRetries)
+        //                {
+        //                    macTables[sw.Name] = new List<MacEntry>();
+        //                    cdpOutputs[sw.Name] = string.Empty;
+        //                    break;
+        //                }
+        //            }
+
+        //            await Task.Delay(300 + new Random().Next(0, 200), ct);
+        //        }
+
+        //        await Task.Delay(options.DelayBetweenSwitchMs, ct);
+        //    });
+
+        //    // Normalize MAC + Keep SystemInfoRef
+        //    var normalizedMacs = macs
+        //        .Select(m => new
+        //        {
+        //            NormalMac = NormalizeMac(m.Mac),
+        //            m.SystemInfoRef
+        //        })
+        //        .Where(x => x.NormalMac != null)
+        //        .ToList();
+
+        //    var results = new List<SwithInfo>(normalizedMacs.Count);
+
+        //    // Search each MAC
+        //    foreach (var item in normalizedMacs)
+        //    {
+        //        string normalized = item.NormalMac;     // MAC نرمال‌شده
+        //        int systemInfoRef = item.SystemInfoRef; // مقدار دیتابیس
+
+        //        var r = new SwithInfo
+        //        {
+        //            Mac = normalized,
+        //            Status = "ERROR",
+        //            SystemInfoRef = systemInfoRef
+        //        };
+
+        //        if (normalized.Contains("c0"))
+        //        {
+        //            int x = 10;
+        //        }
+        //        // find mac in collected tables
+        //        var found = macTables
+        //            .SelectMany(kv => kv.Value.Select(e => new { Switch = kv.Key, Entry = e }))
+        //            .FirstOrDefault(x =>
+        //                x.Entry.Mac != null &&
+        //                string.Equals(x.Entry.Mac, normalized, StringComparison.OrdinalIgnoreCase));
+
+        //        if (found == null)
+        //        {
+        //            r.Status = "NOT FOUND";
+        //            results.Add(r);
+        //            continue;
+        //        }
+
+        //        // found case
+        //        r.Status = "FOUND";
+        //        r.FoundSwitch = found.Switch.Trim();
+        //        r.FoundPort = found.Entry.Port.Trim();
+        //        r.Vlan = found.Entry.Vlan.Trim();
+
+        //        // find all macs on same port
+        //        var samePortMacs = macTables[found.Switch]
+        //            .Where(e => string.Equals(e.Port, found.Entry.Port, StringComparison.OrdinalIgnoreCase))
+        //            .ToList();
+
+        //        // detect phone if vlan = 30
+        //        var phone = samePortMacs.FirstOrDefault(e => e.Vlan == "30");
+        //        if (phone != null)
+        //        {
+        //            r.PhoneMac = FormatMacReadable(phone.Mac);
+        //            r.PhoneVlan = phone.Vlan;
+
+        //            if (cdpOutputs.TryGetValue(found.Switch, out var cdpOut) && !string.IsNullOrWhiteSpace(cdpOut))
+        //            {
+        //                var portFull = ToFullIfName(phone.Port);
+        //                r.PhoneIp = ParseCdpIpForYourSwitch(cdpOut, portFull);
+        //            }
+        //        }
+
+        //        // set readable MAC
+        //        r.Mac = FormatMacReadable(normalized).Trim();
+        //        results.Add(r);
+        //    }
+
+        //    return results;
+        //}
+
+        public static async Task<List<SwithInfo>> MapMacsOnAccessSwitchesAsync(
+    List<MacInfoDto> macs, NetworkMapperOptions? optionsIn = null)
         {
+            int startIp = 1;
+            int endIp = 250;
+            string user = "infosw";
+            string pass = "Ii123456!";
             var options = optionsIn ?? new NetworkMapperOptions();
 
+            // Build switch list
             var switches = new List<SwitchCfg>();
             for (int i = startIp; i <= endIp; i++)
                 switches.Add(new SwitchCfg($"192.168.254.{i}", $"SW-{i}", user, pass));
@@ -71,98 +185,121 @@ namespace MyNetworkLib
             if (options.VerboseLogging)
                 Console.WriteLine($"[Mapper] scanning {switches.Count} switches with parallel={options.MaxParallelSsh}");
 
-            var po = new ParallelOptions { MaxDegreeOfParallelism = options.MaxParallelSsh };
-            await Parallel.ForEachAsync(switches, po, async (sw, ct) =>
+            // === Stage 1: Collect MAC tables from switches ===
+            var tasks = switches.Select(async sw =>
             {
                 int attempt = 0;
-                while (!ct.IsCancellationRequested)
+                while (true)
                 {
-                    attempt++;
                     try
                     {
-                        await ConnectAndCollectAsync(sw, macTables, cdpOutputs, options, ct);
+                        await ConnectAndCollectAsync(sw, macTables, cdpOutputs, options, CancellationToken.None);
                         break;
-                    }
-                    catch (SshException ex)
-                    {
-                        if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] SSH error attempt {attempt}: {ex.Message}");
                     }
                     catch (Exception ex)
                     {
-                        if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] error attempt {attempt}: {ex.Message}");
+                        attempt++;
+                        if (attempt >= options.MaxRetries)
+                        {
+                            // Mark as failed, ensure dictionary consistency
+                            macTables[sw.Name] = new List<MacEntry>();
+                            cdpOutputs[sw.Name] = string.Empty;
+
+                            if (options.VerboseLogging)
+                                Console.WriteLine($"[Mapper] {sw.Name} failed after {attempt} attempts: {ex.Message}");
+                            break;
+                        }
                     }
 
-                    if (attempt >= options.MaxRetries)
-                    {
-                        macTables[sw.Name] = new List<MacEntry>();
-                        cdpOutputs[sw.Name] = string.Empty;
-                        if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] giving up after {attempt} attempts.");
-                        break;
-                    }
-
-                    await Task.Delay(300 + new Random().Next(0, 200), ct);
+                    await Task.Delay(300 + new Random().Next(0, 200));
                 }
 
-                // small gap to avoid bursts
-                await Task.Delay(options.DelayBetweenSwitchMs, ct);
+                await Task.Delay(options.DelayBetweenSwitchMs);
             });
 
+            // انتظار برای پایان کامل همه‌ی سوئیچ‌ها
+            await Task.WhenAll(tasks);
+
             if (options.VerboseLogging)
+                Console.WriteLine($"[Mapper] MAC collection from all switches completed ({macTables.Count} tables).");
+
+            // === Stage 2: Normalize MACs ===
+            var normalizedMacs = macs
+                .Select(m => new
+                {
+                    NormalMac = NormalizeMac(m.Mac),
+                    m.SystemInfoRef
+                })
+                .Where(x => x.NormalMac != null)
+                .ToList();
+
+            var results = new List<SwithInfo>(normalizedMacs.Count);
+
+            // === Stage 3: Search each MAC ===
+            foreach (var item in normalizedMacs)
             {
-                Console.WriteLine("[Mapper] scan finished. Summary:");
-                foreach (var kv in macTables.OrderBy(k => k.Key))
-                    Console.WriteLine($"  {kv.Key}: {kv.Value.Count} mac rows, cdp present: {cdpOutputs.TryGetValue(kv.Key, out var v) && !string.IsNullOrWhiteSpace(v)}");
-            }
+                string normalized = item.NormalMac;
+                int systemInfoRef = item.SystemInfoRef;
 
-            // Normalize requested MACs
-            var normalizedMacs = macs.Select(m => NormalizeMac(m)).Where(m => m != null).ToList();
-            var results = new List<MappingResult>(normalizedMacs.Count);
+                var r = new SwithInfo
+                {
+                    Mac = normalized,
+                    Status = "ERROR",
+                    SystemInfoRef = systemInfoRef
+                };
 
-            foreach (var mac in normalizedMacs)
-            {
-                var r = new MappingResult { Mac = mac, Status = "ERROR" };
-
-                var found = macTables.SelectMany(kv => kv.Value.Select(e => new { Switch = kv.Key, Entry = e }))
-                                     .FirstOrDefault(x => x.Entry.Mac != null && string.Equals(x.Entry.Mac, mac, StringComparison.OrdinalIgnoreCase));
+                // Find MAC entry in collected tables
+                var found = macTables
+                    .SelectMany(kv => kv.Value.Select(e => new { Switch = kv.Key, Entry = e }))
+                    .FirstOrDefault(x =>
+                        x.Entry.Mac != null &&
+                        string.Equals(x.Entry.Mac, normalized, StringComparison.OrdinalIgnoreCase));
 
                 if (found == null)
                 {
                     r.Status = "NOT FOUND";
-                    if (options.VerboseLogging) Console.WriteLine($"[Mapper] MAC {mac} NOT FOUND");
                     results.Add(r);
                     continue;
                 }
 
+                // Found case
                 r.Status = "FOUND";
-                r.FoundSwitch = found.Switch;
-                r.FoundPort = found.Entry.Port;
-                r.Vlan = found.Entry.Vlan;
+                r.FoundSwitch = found.Switch.Trim();
+                r.FoundPort = found.Entry.Port.Trim();
+                r.Vlan = found.Entry.Vlan.Trim();
 
-                if (options.VerboseLogging) Console.WriteLine($"[Mapper] MAC {mac} found on {r.FoundSwitch} {r.FoundPort} vlan {r.Vlan}");
+                // All MACs on same port (for phone detection)
+                var samePortMacs = macTables[found.Switch]
+                    .Where(e => string.Equals(e.Port, found.Entry.Port, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
 
-                // find all macs on same port
-                var samePortMacs = macTables[found.Switch].Where(e => string.Equals(e.Port, found.Entry.Port, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                // phone detection heuristic: VLAN 30 (user said phones are on vlan 30)
+                // Detect phone if vlan = 30
                 var phone = samePortMacs.FirstOrDefault(e => e.Vlan == "30");
                 if (phone != null)
                 {
                     r.PhoneMac = FormatMacReadable(phone.Mac);
                     r.PhoneVlan = phone.Vlan;
 
-                    if (cdpOutputs.TryGetValue(found.Switch, out var cdpOut) && !string.IsNullOrWhiteSpace(cdpOut))
+                    if (cdpOutputs.TryGetValue(found.Switch, out var cdpOut) &&
+                        !string.IsNullOrWhiteSpace(cdpOut))
                     {
-                        var portFull = ToFullIfName(phone.Port);  // ← جایگزین found.Entry.Port
+                        var portFull = ToFullIfName(phone.Port);
                         r.PhoneIp = ParseCdpIpForYourSwitch(cdpOut, portFull);
                     }
                 }
 
-
+                // readable MAC
+                r.Mac = FormatMacReadable(normalized).Trim();
                 results.Add(r);
             }
 
+            // === Stage 4: Return findings ===
+            if (options.VerboseLogging)
+                Console.WriteLine($"[Mapper] Mapping completed, total results = {results.Count}");
+
             return results;
         }
+
 
         // ---------------- core per-switch logic ----------------
         private static async Task ConnectAndCollectAsync(
@@ -429,21 +566,51 @@ namespace MyNetworkLib
 
         private static string FormatMacReadable(string mac)
         {
-            if (string.IsNullOrWhiteSpace(mac)) return mac;
+            if (string.IsNullOrWhiteSpace(mac))
+                return mac;
 
-            var clean = Regex.Replace(mac, "[^0-9a-fA-F]", "").ToLower();
-            if (clean.Length != 12) return mac;
+            // حذف هر چیزی غیر از ارقام هگز
+            var clean = Regex.Replace(mac, "[^0-9A-Fa-f]", "");
+            if (clean.Length != 12)
+                return mac;
 
-            // فرمت اَنگلی Cisco (0001.22ff.aabb)
-            var ciscoStyle = $"{clean.Substring(0, 4)}.{clean.Substring(4, 4)}.{clean.Substring(8, 4)}";
-
-            // فرمت استاندارد شبکه (00:01:22:FF:AA:BB)
-            var colonStyle = string.Join(":", Enumerable.Range(0, 6)
-                .Select(i => clean.Substring(i * 2, 2)).ToArray()).ToUpper();
-
-            // در نهایت تصویری‌تر: Cisco-style ولی با uppercase
-            return $"{clean.Substring(0, 4)}.{clean.Substring(4, 4)}.{clean.Substring(8, 4)}".ToUpper();
+            // تبدیل به xx:xx:xx:xx:xx:xx (با uppercase)
+            return string.Join(":", Enumerable.Range(0, 6)
+                .Select(i => clean.Substring(i * 2, 2)))
+                .ToUpper();
         }
+
+
+
+        public static async void InsertToDB()
+        {
+            var selectHelper = new DataSelectHelper();
+            //List<string> macs = selectHelper.SelectAllWitoutConditonal<NetworkAdapterInfo>().Select(n => n.MACAddress).ToList();
+            List<MacInfoDto> macInfos = selectHelper.SelectAllWitoutConditonal<NetworkAdapterInfo>()
+                           .Select(n => new MacInfoDto
+                           {
+                               Mac = n.MACAddress,
+                               SystemInfoRef = n.SystemInfoRef
+                           })
+                           .ToList();
+
+            var results = await NetworkMapper.MapMacsOnAccessSwitchesAsync(macInfos);
+
+            var helper = new DataInsertUpdateHelper();
+            bool ok = helper.InsertMappingResults(results);
+
+            if (ok)
+                Console.WriteLine("تمام 200 رکورد با موفقیت درج شدند.");
+            else
+                Console.WriteLine("حداقل یک رکورد خطا داشت!");
+        }
+
+        public class MacInfoDto
+        {
+            public string Mac { get; set; }
+            public int SystemInfoRef { get; set; }
+        }
+
 
     }
 }
@@ -459,6 +626,136 @@ namespace MyNetworkLib
 
 
 
+
+/// <summary>
+/// Scans switches (startIp..endIp) in parallel, collects MAC table and CDP, and maps given MACs to switch/port/vlan + phone IP if found.
+/// </summary>
+//    public static async Task<List<MappingResultInfo>> MapMacsOnAccessSwitchesAsync(
+//        List<MacInfoDto> macs,
+//        NetworkMapperOptions? optionsIn = null,
+//        int startIp = 1,
+//        int endIp = 200,
+//        string user = "infosw",
+//        string pass = "Ii123456!")
+//    {
+//        var options = optionsIn ?? new NetworkMapperOptions();
+
+//        var switches = new List<SwitchCfg>();
+//        for (int i = startIp; i <= endIp; i++)
+//            switches.Add(new SwitchCfg($"192.168.254.{i}", $"SW-{i}", user, pass));
+
+//        var macTables = new ConcurrentDictionary<string, List<MacEntry>>();
+//        var cdpOutputs = new ConcurrentDictionary<string, string>();
+
+//        if (options.VerboseLogging)
+//            Console.WriteLine($"[Mapper] scanning {switches.Count} switches with parallel={options.MaxParallelSsh}");
+
+//        var po = new ParallelOptions { MaxDegreeOfParallelism = options.MaxParallelSsh };
+//        await Parallel.ForEachAsync(switches, po, async (sw, ct) =>
+//        {
+//            int attempt = 0;
+//            while (!ct.IsCancellationRequested)
+//            {
+//                attempt++;
+//                try
+//                {
+//                    await ConnectAndCollectAsync(sw, macTables, cdpOutputs, options, ct);
+//                    break;
+//                }
+//                catch (SshException ex)
+//                {
+//                    if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] SSH error attempt {attempt}: {ex.Message}");
+//                }
+//                catch (Exception ex)
+//                {
+//                    if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] error attempt {attempt}: {ex.Message}");
+//                }
+
+//                if (attempt >= options.MaxRetries)
+//                {
+//                    macTables[sw.Name] = new List<MacEntry>();
+//                    cdpOutputs[sw.Name] = string.Empty;
+//                    if (options.VerboseLogging) Console.WriteLine($"[{sw.Name}] giving up after {attempt} attempts.");
+//                    break;
+//                }
+
+//                await Task.Delay(300 + new Random().Next(0, 200), ct);
+//            }
+
+//            // small gap to avoid bursts
+//            await Task.Delay(options.DelayBetweenSwitchMs, ct);
+//        });
+
+//        if (options.VerboseLogging)
+//        {
+//            Console.WriteLine("[Mapper] scan finished. Summary:");
+//            foreach (var kv in macTables.OrderBy(k => k.Key))
+//                Console.WriteLine($"  {kv.Key}: {kv.Value.Count} mac rows, cdp present: {cdpOutputs.TryGetValue(kv.Key, out var v) && !string.IsNullOrWhiteSpace(v)}");
+//        }
+
+//        // Normalize requested MACs
+//        var normalizedMacs = macs
+//.Select(m => new
+//{
+//    NormalMac = NormalizeMac(m.Mac),
+//    m.SystemInfoRef
+//})
+//.Where(x => x.NormalMac != null)
+//.ToList();
+
+//        var results = new List<MappingResultInfo>(normalizedMacs.Count);
+
+//        foreach (var item in normalizedMacs)
+//        {
+//            var r = new MappingResultInfo
+//            {
+//                Mac = item.NormalMac,
+//                Status = "ERROR",
+//                SystemInfoRef = item.SystemInfoRef
+//            };
+
+//            var found = macTables.SelectMany(kv => kv.Value.Select(e => new { Switch = kv.Key, Entry = e }))
+//                                 .FirstOrDefault(x => x.Entry.Mac != null && string.Equals(x.Entry.Mac, mac, StringComparison.OrdinalIgnoreCase));
+
+//            if (found == null)
+//            {
+//                r.Status = "NOT FOUND";
+//                if (options.VerboseLogging) Console.WriteLine($"[Mapper] MAC {mac} NOT FOUND");
+//                results.Add(r);
+//                continue;
+//            }
+
+//            r.Status = "FOUND";
+//            r.FoundSwitch = found.Switch;
+//            r.FoundPort = found.Entry.Port;
+//            r.Vlan = found.Entry.Vlan;
+
+//            if (options.VerboseLogging) Console.WriteLine($"[Mapper] MAC {mac} found on {r.FoundSwitch} {r.FoundPort} vlan {r.Vlan}");
+
+//            // find all macs on same port
+//            var samePortMacs = macTables[found.Switch].Where(e => string.Equals(e.Port, found.Entry.Port, StringComparison.OrdinalIgnoreCase)).ToList();
+
+//            // phone detection heuristic: VLAN 30 (user said phones are on vlan 30)
+//            var phone = samePortMacs.FirstOrDefault(e => e.Vlan == "30");
+//            if (phone != null)
+//            {
+//                r.PhoneMac = FormatMacReadable(phone.Mac);
+//                r.PhoneVlan = phone.Vlan;
+
+//                if (cdpOutputs.TryGetValue(found.Switch, out var cdpOut) && !string.IsNullOrWhiteSpace(cdpOut))
+//                {
+//                    var portFull = ToFullIfName(phone.Port);  // ← جایگزین found.Entry.Port
+//                    r.PhoneIp = ParseCdpIpForYourSwitch(cdpOut, portFull);
+//                }
+//            }
+
+//            r.Mac = FormatMacReadable(mac);
+//            r.SystemInfoRef = item.SystemInfoRef;
+//            results.Add(r);
+//        }
+
+//        return results;
+//    }
 
 
 

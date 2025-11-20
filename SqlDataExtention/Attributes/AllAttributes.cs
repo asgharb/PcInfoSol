@@ -28,6 +28,9 @@ namespace SqlDataExtention.Attributes
     public class DbGeneratedAttribute : Attribute { }
 
     [AttributeUsage(AttributeTargets.Property)]
+    public class CompareAttribute : Attribute { }
+
+    [AttributeUsage(AttributeTargets.Property)]
     public class ForeignKeyAttribute : Attribute
     {
         public string RelatedTable { get; }

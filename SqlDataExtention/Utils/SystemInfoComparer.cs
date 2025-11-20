@@ -35,8 +35,9 @@ namespace SqlDataExtention.Utils
 
             var props = current.GetType()
                 .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => Attribute.IsDefined(p, typeof(IgnoreAttribute)))
+                .Where(p => Attribute.IsDefined(p, typeof(CompareAttribute)))
                 .ToList();
+
 
             foreach (var prop in props)
             {

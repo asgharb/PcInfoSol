@@ -71,9 +71,6 @@ namespace PcInfoWin
 
                     if (isConnected)
                     {
-                        var selector = new DataSelectHelper();
-                        DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
-
                         SystemInfo curreentInfo = SystemInfoHelper.GetCurentSystemInfo();
 
                         if (curreentInfo.NetworkAdapterInfo == null || curreentInfo.NetworkAdapterInfo.Count == 0)
@@ -82,9 +79,25 @@ namespace PcInfoWin
                             receiver.StopListening();
                             Environment.Exit(0);
                         }
-                        SystemInfo infoFromDB = new SystemInfo();
 
-                        List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
+                        SystemInfo infoFromDB = new SystemInfo();
+                        var selector = new DataSelectHelper();
+                        DataInsertUpdateHelper dataUpdateHelper = new DataInsertUpdateHelper();
+
+                        //List<NetworkAdapterInfo> adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(nameof(NetworkAdapterInfo.MACAddress), curreentInfo.NetworkAdapterInfo[0].MACAddress);
+
+                        List<NetworkAdapterInfo> adapterInfo = null;
+                        foreach (var adapter in curreentInfo.NetworkAdapterInfo)
+                        {
+                            adapterInfo = selector.SelectByColumn<NetworkAdapterInfo>(
+                                nameof(NetworkAdapterInfo.MACAddress),
+                                adapter.MACAddress
+                            );
+
+                            if (adapterInfo != null && adapterInfo.Count > 0)
+                                break;
+                        }
+
                         if (adapterInfo != null && adapterInfo.Count > 0)
                         {
                             infoFromDB = selector.SelectWithRelationsByPrimaryKey<SystemInfo>(adapterInfo[0].SystemInfoRef);

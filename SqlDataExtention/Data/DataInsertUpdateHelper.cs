@@ -1,4 +1,5 @@
-﻿using SqlDataExtention.Entity;
+﻿using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
 using SqlDataExtention.Entity.Main;
 using System;
 using System.Collections;
@@ -21,7 +22,7 @@ namespace SqlDataExtention.Data
             _connectionString = _dataHelper.ConnectionString;
         }
 
-        #region Insert Simple
+        #region Insert 
         public bool InsertSimple<T>(T obj, out object primaryKeyValue)
         {
             primaryKeyValue = null;
@@ -69,9 +70,7 @@ VALUES ({string.Join(", ", parameters)})";
             }
             return results;
         }
-        #endregion
 
-        #region Insert With Children (One-Level)
         public bool InsertWithChildren<T>(T obj, out object primaryKeyValue)
         {
             primaryKeyValue = null;
@@ -178,64 +177,69 @@ VALUES ({string.Join(", ", parameters)})";
             var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
             keyProp.SetValue(obj, key);
         }
-        #endregion
 
-        #region Expire Helpers
-        private void ExpireRow(object obj, SqlConnection conn, SqlTransaction tran)
+        private bool InsertWithChildrenSingle<T>(T obj, SqlConnection conn, SqlTransaction tran, out object primaryKeyValue)
         {
-            if (obj == null) return;
+            primaryKeyValue = null;
+            if (obj == null) return false;
 
-            Type type = obj.GetType();
-            string tableName = EntityMetadataHelper.GetTableName(type);
-            var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
-            object keyValue = keyProp.GetValue(obj);
-            string keyColumn = EntityMetadataHelper.GetColumnName(keyProp);
-
-            string query = $"UPDATE [{tableName}] SET [ExpireDate] = @Now WHERE [{keyColumn}] = @Key";
-            var parameters = new[]
+            try
             {
-                new SqlParameter("@Now", DateTime.Now),
-                new SqlParameter("@Key", keyValue ?? DBNull.Value)
-            };
+                var type = typeof(T);
+                string tableName = EntityMetadataHelper.GetTableName(type);
+                var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
+                string keyColumn = EntityMetadataHelper.GetColumnName(keyProp);
 
-            using (var cmd = new SqlCommand(query, conn, tran))
-            {
-                cmd.Parameters.AddRange(parameters);
-                cmd.ExecuteNonQuery();
-            }
-        }
+                var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                .Where(p => !EntityMetadataHelper.IsIgnored(p) && !EntityMetadataHelper.IsDbGenerated(p))
+                                .ToList();
 
-        public void ExpireByForeignKey(Type entityType, object foreignKeyValue)
-        {
-            if (entityType == null)
-                throw new ArgumentNullException(nameof(entityType));
-            if (foreignKeyValue == null)
-                throw new ArgumentNullException(nameof(foreignKeyValue));
+                var columns = props.Select(p => $"[{EntityMetadataHelper.GetColumnName(p)}]").ToList();
+                var parameters = props.Select(p => $"@{p.Name}").ToList();
 
-            string tableName = EntityMetadataHelper.GetTableName(entityType);
-            string fkColumn = "SystemInfoRef";
+                string query = $@"
+INSERT INTO [{tableName}] ({string.Join(", ", columns)})
+OUTPUT INSERTED.[{keyColumn}]
+VALUES ({string.Join(", ", parameters)})";
 
-            using (var conn = _dataHelper.GetConnectionClosed())
-            {
-                conn.Open();
-                using (var tran = conn.BeginTransaction())
+                var sqlParams = props
+                    .Select(p => new SqlParameter($"@{p.Name}", p.GetValue(obj) ?? DBNull.Value))
+                    .ToArray();
+
+                using (var cmd = new SqlCommand(query, conn, tran))
                 {
-                    string query = $"UPDATE [{tableName}] SET [ExpireDate] = @Now WHERE [{fkColumn}] = @Fk";
-                    using (var cmd = new SqlCommand(query, conn, tran))
-                    {
-                        cmd.Parameters.AddWithValue("@Now", DateTime.Now);
-                        cmd.Parameters.AddWithValue("@Fk", foreignKeyValue);
-                        cmd.ExecuteNonQuery();
-                    }
-
-                    tran.Commit();
+                    cmd.Parameters.AddRange(sqlParams);
+                    primaryKeyValue = cmd.ExecuteScalar();
                 }
+
+                // ست کردن کلید اصلی در نمونه
+                keyProp.SetValue(obj, Convert.ChangeType(primaryKeyValue, keyProp.PropertyType));
+                return true;
+            }
+            catch
+            {
+                primaryKeyValue = null;
+                return false;
             }
         }
+
+        public bool InsertList<T>(List<T> items)
+        {
+            if (items == null || items.Count == 0)
+                return false;
+
+            var results = InsertSimple(items);
+            return results.All(r => r.Success);
+        }
+
+        public bool InsertMappingResults(List<SwithInfo> items)
+        {
+            return InsertList(items);
+        }
         #endregion
+
 
         #region ApplyDifferences 
-        // internal version that uses provided conn/tran (bulk expire)
         private void ExpireByForeignKey_Internal(Type entityType, object foreignKeyValue, SqlConnection conn, SqlTransaction tran)
         {
             if (entityType == null) throw new ArgumentNullException(nameof(entityType));
@@ -253,8 +257,6 @@ VALUES ({string.Join(", ", parameters)})";
                 cmd.ExecuteNonQuery();
             }
         }
-
-        // جدید: ApplyDifferences - امن و براساس EntityType (یک تراکنش برای همه عملیات)
         public void ApplyDifferences(SystemInfo currentSystemInfo, List<Difference> diffs)
         {
             if (currentSystemInfo == null) throw new ArgumentNullException(nameof(currentSystemInfo));
@@ -314,7 +316,6 @@ VALUES ({string.Join(", ", parameters)})";
                                     try { fkProp.SetValue(item, Convert.ChangeType(parentKeyValue, fkProp.PropertyType)); }
                                     catch { /* ignore conversion errors */ }
                                 }
-
                                 // Insert هر آیتم با همان connection/tran
                                 InsertSingleDynamic(item, conn, tran);
                             }
@@ -344,11 +345,7 @@ VALUES ({string.Join(", ", parameters)})";
                             InsertSingleDynamic(obj, conn, tran);
                         }
                     }
-
-                    // اگر نه لیست نه تک شی پیدا شد، می‌توانیم تلاش کنیم پروپرتی‌ای که نام نوع را در نامش دارد بیابیم
-                    // (اختیاری) - اما معمولاً بالا کافیست.
                 }
-
                 tran.Commit();
             }
             catch
@@ -362,10 +359,6 @@ VALUES ({string.Join(", ", parameters)})";
                 if (conn != null) conn.Dispose();
             }
         }
-
-        #endregion
-
-
         public bool ExpireAndInsertPcCodeInfo(int systemInfoRef, PcCodeInfo newItem)
         {
             if (newItem == null) throw new ArgumentNullException(nameof(newItem));
@@ -402,7 +395,8 @@ WHERE [SystemInfoRef] = @Fk AND [ExpireDate] IS NULL";
                             tran.Commit();
                             return success;
                         }
-                        else {            
+                        else
+                        {
                             tran.Rollback();
                             return false;
                         }
@@ -416,51 +410,64 @@ WHERE [SystemInfoRef] = @Fk AND [ExpireDate] IS NULL";
                 }
             }
         }
+        #endregion
 
-        // متد کمکی برای Insert یک رکورد با connection و transaction موجود
-        private bool InsertWithChildrenSingle<T>(T obj, SqlConnection conn, SqlTransaction tran, out object primaryKeyValue)
-        {
-            primaryKeyValue = null;
-            if (obj == null) return false;
-
-            try
-            {
-                var type = typeof(T);
-                string tableName = EntityMetadataHelper.GetTableName(type);
-                var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
-                string keyColumn = EntityMetadataHelper.GetColumnName(keyProp);
-
-                var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                                .Where(p => !EntityMetadataHelper.IsIgnored(p) && !EntityMetadataHelper.IsDbGenerated(p))
-                                .ToList();
-
-                var columns = props.Select(p => $"[{EntityMetadataHelper.GetColumnName(p)}]").ToList();
-                var parameters = props.Select(p => $"@{p.Name}").ToList();
-
-                string query = $@"
-INSERT INTO [{tableName}] ({string.Join(", ", columns)})
-OUTPUT INSERTED.[{keyColumn}]
-VALUES ({string.Join(", ", parameters)})";
-
-                var sqlParams = props
-                    .Select(p => new SqlParameter($"@{p.Name}", p.GetValue(obj) ?? DBNull.Value))
-                    .ToArray();
-
-                using (var cmd = new SqlCommand(query, conn, tran))
-                {
-                    cmd.Parameters.AddRange(sqlParams);
-                    primaryKeyValue = cmd.ExecuteScalar();
-                }
-
-                // ست کردن کلید اصلی در نمونه
-                keyProp.SetValue(obj, Convert.ChangeType(primaryKeyValue, keyProp.PropertyType));
-                return true;
-            }
-            catch
-            {
-                primaryKeyValue = null;
-                return false;
-            }
-        }
     }
 }
+
+
+
+
+//#region Expire Helpers
+//private void ExpireRow(object obj, SqlConnection conn, SqlTransaction tran)
+//{
+//    if (obj == null) return;
+
+//    Type type = obj.GetType();
+//    string tableName = EntityMetadataHelper.GetTableName(type);
+//    var keyProp = EntityMetadataHelper.GetPrimaryKeyProperty(type);
+//    object keyValue = keyProp.GetValue(obj);
+//    string keyColumn = EntityMetadataHelper.GetColumnName(keyProp);
+
+//    string query = $"UPDATE [{tableName}] SET [ExpireDate] = @Now WHERE [{keyColumn}] = @Key";
+//    var parameters = new[]
+//    {
+//                new SqlParameter("@Now", DateTime.Now),
+//                new SqlParameter("@Key", keyValue ?? DBNull.Value)
+//            };
+
+//    using (var cmd = new SqlCommand(query, conn, tran))
+//    {
+//        cmd.Parameters.AddRange(parameters);
+//        cmd.ExecuteNonQuery();
+//    }
+//}
+
+//public void ExpireByForeignKey(Type entityType, object foreignKeyValue)
+//{
+//    if (entityType == null)
+//        throw new ArgumentNullException(nameof(entityType));
+//    if (foreignKeyValue == null)
+//        throw new ArgumentNullException(nameof(foreignKeyValue));
+
+//    string tableName = EntityMetadataHelper.GetTableName(entityType);
+//    string fkColumn = "SystemInfoRef";
+
+//    using (var conn = _dataHelper.GetConnectionClosed())
+//    {
+//        conn.Open();
+//        using (var tran = conn.BeginTransaction())
+//        {
+//            string query = $"UPDATE [{tableName}] SET [ExpireDate] = @Now WHERE [{fkColumn}] = @Fk";
+//            using (var cmd = new SqlCommand(query, conn, tran))
+//            {
+//                cmd.Parameters.AddWithValue("@Now", DateTime.Now);
+//                cmd.Parameters.AddWithValue("@Fk", foreignKeyValue);
+//                cmd.ExecuteNonQuery();
+//            }
+
+//            tran.Commit();
+//        }
+//    }
+//}
+//#endregion

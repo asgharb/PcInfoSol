@@ -57,6 +57,7 @@
     <Compile Include="Entity\GpuInfo.cs" />
     <Compile Include="Entity\LogEntry.cs" />
     <Compile Include="Entity\Main\SystemInfo.cs" />
+    <Compile Include="Entity\SwithInfo.cs" />
     <Compile Include="Entity\MonitorInfo.cs" />
     <Compile Include="Entity\MotherboardInfo.cs" />
     <Compile Include="Entity\NetworkAdapterInfo.cs" />
