@@ -232,10 +232,24 @@ VALUES ({string.Join(", ", parameters)})";
             return results.All(r => r.Success);
         }
 
+        //public bool InsertMappingResults(List<SwithInfo> items)
+        //{
+        //    return InsertList(items);
+        //}
         public bool InsertMappingResults(List<SwithInfo> items)
         {
-            return InsertList(items);
+            var successes = new List<SwithInfo>();
+            foreach (var item in items)
+            {
+                if (InsertSimple(item, out _))
+                    successes.Add(item);
+                else
+                    Console.WriteLine($"خطا در درج {item.Mac}");
+            }
+            Console.WriteLine($"موفق: {successes.Count} / مجموع: {items.Count}");
+            return successes.Count == items.Count;
         }
+
         #endregion
 
 

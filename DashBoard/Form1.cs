@@ -698,9 +698,9 @@ namespace DashBoard
             return hex.Length == 12 ? hex.ToLower() : null;
         }
 
-        private void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            MyNetworkLib.NetworkMapper.InsertToDB();
+            await NetworkMapper.InsertToDB();
         }
     }
 }

@@ -582,7 +582,7 @@ namespace MyNetworkLib
 
 
 
-        public static async void InsertToDB()
+        public static async Task InsertToDB()
         {
             var selectHelper = new DataSelectHelper();
             //List<string> macs = selectHelper.SelectAllWitoutConditonal<NetworkAdapterInfo>().Select(n => n.MACAddress).ToList();
