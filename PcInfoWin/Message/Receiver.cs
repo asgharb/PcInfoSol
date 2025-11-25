@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Text;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -110,13 +111,31 @@ namespace PcInfoWin.Message
             this.TopMost = true;
             this.ClientSize = new Size(400, 200);
 
+
+            string desiredFont = "Segoe UI";
+            float fontSize = 12f;
+            Font fontToUse;
+            // گرفتن لیست فونت‌های نصب شده
+            InstalledFontCollection installedFonts = new InstalledFontCollection();
+            bool fontExists = installedFonts.Families.Any(f => f.Name.Equals(desiredFont, StringComparison.OrdinalIgnoreCase));
+
+            if (fontExists)
+            {
+                fontToUse = new Font(desiredFont, fontSize, FontStyle.Regular);
+            }
+            else
+            {
+                fontToUse = new Font("Arial", fontSize, FontStyle.Regular);
+            }
+
+            // استفاده از فونت در Label
             Label lblMessage = new Label()
             {
                 Text = message,
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
                 Dock = DockStyle.Fill,
-                Font = new Font("Segoe UI", 12, FontStyle.Regular)
+                Font = fontToUse
             };
 
             Button btnOk = new Button()

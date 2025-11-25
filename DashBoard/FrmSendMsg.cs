@@ -23,12 +23,20 @@ namespace DashBoard
 
         private async void BtnSend_Click(object sender, EventArgs e)
         {
-            string msg = txtMsg.Text.Trim();
+            string msg = txtMsg.Text?.Trim();
             if (string.IsNullOrEmpty(msg))
             {
                 MessageBox.Show("متن پیام را وارد کنید.");
                 return;
             }
+
+            // اضافه کردن نام سیستم به صورت ایمن
+            string machineName = string.IsNullOrWhiteSpace(Environment.MachineName)
+                                 ? "Unknown"
+                                 : Environment.MachineName;
+
+            msg = $"{msg}\n{machineName}";
+
 
             string ipFrom = txtIpFrom.Text.Trim();
             string ipTo = txtIpTo.Text.Trim();

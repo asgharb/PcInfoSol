@@ -39,9 +39,9 @@ namespace SqlDataExtention.Data
             var parameters = props.Select(p => $"@{p.Name}").ToList();
 
             string query = $@"
-INSERT INTO [{tableName}] ({string.Join(", ", columns)})
-OUTPUT INSERTED.[{keyColumn}]
-VALUES ({string.Join(", ", parameters)})";
+                             INSERT INTO [{tableName}] ({string.Join(", ", columns)})
+                             OUTPUT INSERTED.[{keyColumn}]
+                             VALUES ({string.Join(", ", parameters)})";
 
             var sqlParams = props
                 .Select(p => new SqlParameter($"@{p.Name}", p.GetValue(obj) ?? DBNull.Value))
@@ -232,10 +232,6 @@ VALUES ({string.Join(", ", parameters)})";
             return results.All(r => r.Success);
         }
 
-        //public bool InsertMappingResults(List<SwithInfo> items)
-        //{
-        //    return InsertList(items);
-        //}
         public bool InsertMappingResults(List<SwithInfo> items)
         {
             var successes = new List<SwithInfo>();
@@ -246,7 +242,23 @@ VALUES ({string.Join(", ", parameters)})";
                 else
                     Console.WriteLine($"خطا در درج {item.Mac}");
             }
-            Console.WriteLine($"موفق: {successes.Count} / مجموع: {items.Count}");
+            // اگر هیچ آیتم موفق درج نشده
+            if (successes.Count == 0)
+                return false;
+
+
+            var grouped = successes
+                .Where(x => x.SystemInfoRef != 0)   // یا != null، بسته به نوع
+                .GroupBy(x => x.SystemInfoRef);
+
+            foreach (var group in grouped)
+            {
+                int systemInfoRef = group.Key;
+
+                // برای هر SystemInfoRef جداگانه رکوردهای قدیمی را Expire کن
+                ExpireOldSwithInfo(systemInfoRef);
+            }
+
             return successes.Count == items.Count;
         }
 
@@ -425,6 +437,30 @@ WHERE [SystemInfoRef] = @Fk AND [ExpireDate] IS NULL";
             }
         }
         #endregion
+        public void ExpireOldSwithInfo(int systemInfoRef)
+        {
+            string query = @"
+UPDATE [SwithInfo]
+SET [ExpireDate] = @Now
+WHERE [SystemInfoRef] = @Fk
+  AND [SwithInfoID] <> (
+        SELECT MAX(SwithInfoID)
+        FROM [SwithInfo]
+        WHERE [SystemInfoRef] = @Fk
+    );
+";
+
+            using (var conn = _dataHelper.GetConnectionClosed())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Now", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@Fk", systemInfoRef);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
 
     }
 }

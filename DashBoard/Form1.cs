@@ -6,7 +6,6 @@ using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
-using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using MyNetworkLib;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
@@ -22,6 +21,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 
 namespace DashBoard
@@ -64,11 +64,10 @@ namespace DashBoard
 
         private async Task InitializeDataAsync()
         {
-            Cursor.Current = Cursors.WaitCursor;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
 
             try
             {
-
                 var helper = new DataSelectHelperNoFilter();
                 allSystems = helper.SelectAllFullSystemInfo();
 
@@ -77,11 +76,7 @@ namespace DashBoard
                                  .Where(mac => !string.IsNullOrWhiteSpace(mac))
                                  .ToList();
 
-                //var results = await NetworkMapper.MapMacsOnAccessSwitchesAsync(macs);
-                //InsertToDB
                 List<SwithInfo> results = new List<SwithInfo>();
-
-
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
@@ -89,22 +84,22 @@ namespace DashBoard
                         SystemInfoID = s.SystemInfoID,
                         PcCode = int.Parse(GetSafeDesc(s.pcCodeInfo, x => x.PcCode).ToString()),
                         IpAddress = s.NetworkAdapterInfo?
-    .Where(a =>
-        a.ExpireDate == null &&                  
-        !string.IsNullOrWhiteSpace(a.IpAddress)) 
-    .OrderByDescending(a => a.IsLAN)
-    .ThenByDescending(a => a.IsEnabled)
-    .Select(a => a.IpAddress.Trim())
-    .FirstOrDefault(),
-
+                                   .Where(a =>
+                                       a.ExpireDate == null &&                  
+                                       !string.IsNullOrWhiteSpace(a.IpAddress)) 
+                                   .OrderByDescending(a => a.IsLAN)
+                                   .ThenByDescending(a => a.IsEnabled)
+                                   .Select(a => a.IpAddress.Trim())
+                                   .FirstOrDefault(),
+                                
                         MacAddress = s.NetworkAdapterInfo?
-    .Where(a =>
-        a.ExpireDate == null &&                 
-        !string.IsNullOrWhiteSpace(a.MACAddress))
-    .OrderByDescending(a => a.IsLAN)
-    .ThenByDescending(a => a.IsEnabled)
-    .Select(a => a.MACAddress.Trim())
-    .FirstOrDefault(),
+                                   .Where(a =>
+                                       a.ExpireDate == null &&                 
+                                       !string.IsNullOrWhiteSpace(a.MACAddress))
+                                   .OrderByDescending(a => a.IsLAN)
+                                   .ThenByDescending(a => a.IsEnabled)
+                                   .Select(a => a.MACAddress.Trim())
+                                   .FirstOrDefault(),
 
                         Switch = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundSwitch),
                         SwitchPort = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundPort),
@@ -138,52 +133,6 @@ namespace DashBoard
                      .OrderBy(sys => sys.PcCode)
                      .ToList();
 
-                //var finalSystems = transformedSystems
-                //    .Select(sys =>
-                //    {
-                //        var mac = NormalizeMac(sys.MacAddress);
-                //        var match = results.FirstOrDefault(r => NormalizeMac(r.Mac) == mac);
-
-                //        return new
-                //        {
-                //            //sys.No,
-                //            sys.SystemInfoID,
-                //            sys.PcCode,
-                //            sys.IpAddress,
-                //            sys.MacAddress,
-                //            //Switch = match?.FoundSwitch ?? "N/A",
-                //            //SwitchPort = match?.FoundPort ?? "N/A",
-                //            //MacVlan = match?.Vlan ?? "N/A",
-                //            //PhoneMac = match?.PhoneMac ?? "N/A",
-                //            //PhoneIp = match?.PhoneIp ?? "N/A",
-                //            sys.UserFullName,
-                //            sys.PersonnelCode,
-                //            sys.Unit,
-                //            sys.Desc1,
-                //            sys.Desc2,
-                //            sys.Desc3,
-                //            sys.Desc4,
-                //            //sys.Desc5,
-                //            //sys.Desc6,
-                //            //sys.Desc7,
-                //            sys.VNC,
-                //            sys.Semantic,
-                //            sys.AppVersion,
-                //            sys.pcCodeInfo,
-                //            sys.systemEnvironmentInfo,
-                //            sys.RamSummaryInfo,
-                //            sys.RamModuleInfo,
-                //            sys.cpuInfo,
-                //            sys.gpuInfo,
-                //            sys.DiskInfo,
-                //            sys.NetworkAdapterInfo,
-                //            sys.monitorInfo,
-                //            sys.motherboardInfo,
-                //            sys.OpticalDriveInfo
-                //        };
-                //    })
-                //     .OrderBy(sys => sys.PcCode) 
-                //     .ToList();
 
                 var dtSystemInfo = ToDataTable(transformedSystems);
                 dtSystemInfo.TableName = "SystemInfo";
@@ -199,7 +148,7 @@ namespace DashBoard
             }
             finally
             {
-                Cursor.Current = Cursors.Default;
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
             }
         }
 
@@ -251,8 +200,6 @@ namespace DashBoard
             SetupGridForPcCodeEditing();
         }
 
-
-
         private void GridView1_RowCellClick(object sender, RowCellClickEventArgs e)
         {
             // فقط در صورت دابل‌کلیک ادامه بده
@@ -292,26 +239,21 @@ namespace DashBoard
                 return "-";
 
             var value = selector(validItems.Last());
-            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+            return string.IsNullOrWhiteSpace(value) ? "-" : value.Trim();
         }
 
 
-        private T GetSafeEnvironmentInfo<T>(
-            IList<SystemEnvironmentInfo> list,
-            Func<SystemEnvironmentInfo, T> selector,
-            T defaultValue = default)
+        private T GetSafeEnvironmentInfo<T>( IList<SystemEnvironmentInfo> list, Func<SystemEnvironmentInfo, T> selector, T defaultValue = default)
         {
             if (list == null || list.Count == 0)
                 return defaultValue;
 
-            // فقط آیتم‌های معتبر (ExpireDate == null)
             var lastItem = list.Where(x => x.ExpireDate == null).LastOrDefault();
             if (lastItem == null)
                 return defaultValue;
 
             var value = selector(lastItem);
 
-            // اگر مقدار null بود، مقدار پیش‌فرض برگردان
             if (value == null)
                 return defaultValue;
 
@@ -324,11 +266,8 @@ namespace DashBoard
                 return "-";
 
             var value = selector(Info);
-            return string.IsNullOrWhiteSpace(value) ? "-" : value;
+            return string.IsNullOrWhiteSpace(value) ? "-" : value.Trim();
         }
-
-
-
 
         void gridControl1_DataSourceChanged(object sender, EventArgs e)
         {
@@ -488,7 +427,7 @@ namespace DashBoard
 
         private async void MasterView_CellValueChanged(object sender, CellValueChangedEventArgs e)
         {
-            Cursor.Current = Cursors.WaitCursor;
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             if (suppressCellValueChanged) return;
 
             try
@@ -576,10 +515,12 @@ namespace DashBoard
                     MessageBox.Show("خطا در ذخیره تغییرات در پایگاه داده.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
-                Cursor.Current = Cursors.WaitCursor;
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+
                 await Task.Delay(1000);
                 await InitializeDataAsync();
-                Cursor.Current = Cursors.Default;
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+
             }
             catch (Exception ex)
             {
@@ -587,7 +528,7 @@ namespace DashBoard
             }
             finally
             {
-                Cursor.Current = Cursors.Default;
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
             }
         }
 
@@ -698,9 +639,13 @@ namespace DashBoard
             return hex.Length == 12 ? hex.ToLower() : null;
         }
 
-        private async void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private  void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await NetworkMapper.InsertToDB();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+            NetworkMapper.InsertToDB();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+            NetworkMapper.startIp += 10;
+            NetworkMapper.endIp += 10;
         }
     }
 }
