@@ -30,13 +30,13 @@ namespace DashBoard
                 return;
             }
 
+            this.Cursor = Cursors.WaitCursor;
             // اضافه کردن نام سیستم به صورت ایمن
             string machineName = string.IsNullOrWhiteSpace(Environment.MachineName)
                                  ? "Unknown"
                                  : Environment.MachineName;
 
-            msg = $"{msg}\n{machineName}";
-
+            msg += "\n\n" + machineName;
 
             string ipFrom = txtIpFrom.Text.Trim();
             string ipTo = txtIpTo.Text.Trim();
@@ -49,6 +49,10 @@ namespace DashBoard
             catch (Exception ex)
             {
                 MessageBox.Show("❌ خطا در ارسال: " + ex.Message);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
 
@@ -118,17 +122,6 @@ namespace DashBoard
             {
                 throw new Exception("خطا در ارسال پیام: " + ex.Message);
             }
-        }
-
-
-
-        private string UintToIp(uint ip)
-        {
-            return string.Join(".",
-                (ip >> 24) & 0xFF,
-                (ip >> 16) & 0xFF,
-                (ip >> 8) & 0xFF,
-                ip & 0xFF);
         }
 
         private void txtIpFrom_KeyPress(object sender, KeyPressEventArgs e)

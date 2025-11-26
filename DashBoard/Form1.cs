@@ -6,6 +6,7 @@ using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using MyNetworkLib;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
@@ -195,7 +196,8 @@ namespace DashBoard
             gridView1.RowStyle -= gridView1_RowStyle;
             gridView1.RowStyle += gridView1_RowStyle;
 
-            gridView1.RowCellClick += GridView1_RowCellClick;
+            //gridView1.RowCellClick += GridView1_RowCellClick;
+            gridView1.DoubleClick += gridView1_DoubleClick;
 
             SetupGridForPcCodeEditing();
         }
@@ -203,25 +205,57 @@ namespace DashBoard
         private void GridView1_RowCellClick(object sender, RowCellClickEventArgs e)
         {
             // فقط در صورت دابل‌کلیک ادامه بده
-            if (e.Clicks == 2 && e.RowHandle >= 0)
-            {
-                string field = e.Column.FieldName;
+            //if (e.Clicks == 2 && e.RowHandle >= 0)
+            //{
+            //    string field = e.Column.FieldName;
 
-                switch (field)
+            //    switch (field)
+            //    {
+            //        case "VNCConnect":
+            //            bool isVncInstalled = Convert.ToBoolean(gridView1.GetRowCellValue(e.RowHandle, "VNC"));
+            //            if (!isVncInstalled)
+            //            {
+            //                MessageBox.Show("نرم‌افزار VNC نصب نشده یا مسیر یافت نشد.",
+            //                                "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //                return;
+            //            }
+            //            BtnVNC_ButtonClick(e.RowHandle);
+            //            break;
+            //    }
+            //}
+        }
+
+
+        private void gridView1_DoubleClick(object sender, EventArgs e)
+        {
+            GridView view = sender as GridView;
+            Point pt = view.GridControl.PointToClient(Control.MousePosition);
+            GridHitInfo hitInfo = view.CalcHitInfo(pt);
+
+            if (!hitInfo.InRowCell) return;
+
+            int rowHandle = hitInfo.RowHandle;
+            view.FocusedRowHandle = rowHandle;
+            view.MakeRowVisible(rowHandle);
+
+            // فقط اگر روی ستون "VNCConnect" کلیک شده بود
+            string targetColumnFieldName = "VNCConnect";
+            if (hitInfo.Column != null && hitInfo.Column.FieldName == targetColumnFieldName)
+            {
+                // بررسی نصب بودن VNC فقط در این حالت
+                bool isVncInstalled = Convert.ToBoolean(view.GetRowCellValue(rowHandle, "VNC"));
+                if (!isVncInstalled)
                 {
-                    case "VNCConnect":
-                        bool isVncInstalled = Convert.ToBoolean(gridView1.GetRowCellValue(e.RowHandle, "VNC"));
-                        if (!isVncInstalled)
-                        {
-                            MessageBox.Show("نرم‌افزار VNC نصب نشده یا مسیر یافت نشد.",
-                                            "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-                        BtnVNC_ButtonClick(e.RowHandle);
-                        break;
+                    MessageBox.Show("مسیر VNC یافت نشد.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
                 }
+
+                // اجرای تابع اصلی
+                BtnVNC_ButtonClick(rowHandle);
             }
         }
+
+
 
         void gridView1_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
         {
@@ -644,8 +678,7 @@ namespace DashBoard
             System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             NetworkMapper.InsertToDB();
             System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-            NetworkMapper.startIp += 10;
-            NetworkMapper.endIp += 10;
+
         }
     }
 }

@@ -27,13 +27,41 @@ namespace MyNetworkLib
 
     public static class NetworkMapper
     {
-        public static int startIp = 1;
-        public static int endIp = 10;
+        private static uint IpToUint(string ip)
+        {
+            var segments = ip.Split('.').Select(byte.Parse).ToArray();
+            return (uint)(segments[0] << 24 | segments[1] << 16 | segments[2] << 8 | segments[3]);
+        }
+        private static string UintToIp(uint value)
+        {
+            return string.Join(".",
+                (value >> 24) & 0xFF,
+                (value >> 16) & 0xFF,
+                (value >> 8) & 0xFF,
+                value & 0xFF);
+        }
+        private static List<string> GetIpRange(string startIp, string endIp)
+        {
+            uint start = IpToUint(startIp);
+            uint end = IpToUint(endIp);
+
+            if (end < start)
+                throw new ArgumentException("End IP must be greater than or equal to Start IP.");
+
+            var list = new List<string>();
+            for (uint ip = start; ip <= end; ip++)
+                list.Add(UintToIp(ip));
+
+            return list;
+        }
+
+
+        public static int startIp = 20;
+        public static int endIp = 30;
 
         public static List<SwithInfo> MapMacsOnAccessSwitches(List<MacInfoDto> macs, NetworkMapperOptions? optionsIn = null)
         {
-            if (endIp > 254) endIp = 254;
-            if (startIp > 254) return null;
+
 
             string user = "infosw";
             string pass = "Ii123456!";
@@ -127,8 +155,6 @@ namespace MyNetworkLib
                             r.PhoneIp = ParseCdpIpForYourSwitch(cdpOut, portFull);
                         }
                     }
-
-                    // 🚀 فقط اگر واقعاً پیدا شده، اضافه می‌کنیم
                     results.Add(r);
                 }
             }
@@ -137,7 +163,6 @@ namespace MyNetworkLib
                 Console.WriteLine($"[Mapper] Mapping completed, total FOUND results = {results.Count}");
 
             return results;
-
         }
 
         // Core switch connection logic
