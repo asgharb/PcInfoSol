@@ -675,10 +675,8 @@ namespace DashBoard
 
         private  void btnRefreshMac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-            NetworkMapper.InsertToDB();
-            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-
+            SwichIpRange swichIpRange=new SwichIpRange();
+            swichIpRange.ShowDialog();
         }
     }
 }

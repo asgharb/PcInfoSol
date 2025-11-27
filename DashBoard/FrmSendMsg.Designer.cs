@@ -40,15 +40,16 @@
             txtMsg.Font = new System.Drawing.Font("Segoe UI", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             txtMsg.Location = new System.Drawing.Point(12, 12);
             txtMsg.Name = "txtMsg";
-            txtMsg.Size = new System.Drawing.Size(628, 88);
+            txtMsg.Size = new System.Drawing.Size(996, 190);
             txtMsg.TabIndex = 0;
             txtMsg.Text = "";
             // 
             // BtnSend
             // 
-            BtnSend.Location = new System.Drawing.Point(12, 174);
+            BtnSend.Font = new System.Drawing.Font("Segoe UI", 12F);
+            BtnSend.Location = new System.Drawing.Point(12, 283);
             BtnSend.Name = "BtnSend";
-            BtnSend.Size = new System.Drawing.Size(159, 29);
+            BtnSend.Size = new System.Drawing.Size(223, 39);
             BtnSend.TabIndex = 3;
             BtnSend.Text = "Send";
             BtnSend.UseVisualStyleBackColor = true;
@@ -56,9 +57,10 @@
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(177, 174);
+            btnCancel.Font = new System.Drawing.Font("Segoe UI", 12F);
+            btnCancel.Location = new System.Drawing.Point(241, 283);
             btnCancel.Name = "btnCancel";
-            btnCancel.Size = new System.Drawing.Size(156, 29);
+            btnCancel.Size = new System.Drawing.Size(239, 39);
             btnCancel.TabIndex = 4;
             btnCancel.Text = "Cancel";
             btnCancel.UseVisualStyleBackColor = true;
@@ -67,18 +69,20 @@
             // txtIpFrom
             // 
             txtIpFrom.Font = new System.Drawing.Font("Segoe UI", 15.75F);
-            txtIpFrom.Location = new System.Drawing.Point(12, 122);
+            txtIpFrom.Location = new System.Drawing.Point(12, 229);
             txtIpFrom.Name = "txtIpFrom";
-            txtIpFrom.Size = new System.Drawing.Size(159, 35);
+            txtIpFrom.PlaceholderText = "Start Ip";
+            txtIpFrom.Size = new System.Drawing.Size(223, 35);
             txtIpFrom.TabIndex = 1;
             txtIpFrom.KeyPress += txtIpFrom_KeyPress;
             // 
             // txtIpTo
             // 
             txtIpTo.Font = new System.Drawing.Font("Segoe UI", 15.75F);
-            txtIpTo.Location = new System.Drawing.Point(177, 122);
+            txtIpTo.Location = new System.Drawing.Point(241, 229);
             txtIpTo.Name = "txtIpTo";
-            txtIpTo.Size = new System.Drawing.Size(159, 35);
+            txtIpTo.PlaceholderText = "End Ip";
+            txtIpTo.Size = new System.Drawing.Size(239, 35);
             txtIpTo.TabIndex = 2;
             txtIpTo.KeyPress += txtIpFrom_KeyPress;
             // 
@@ -86,7 +90,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(652, 215);
+            ClientSize = new System.Drawing.Size(1031, 334);
             Controls.Add(txtIpTo);
             Controls.Add(txtIpFrom);
             Controls.Add(btnCancel);

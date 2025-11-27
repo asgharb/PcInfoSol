@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MyNetworkLib;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,6 +13,8 @@ namespace DashBoard
 {
     public partial class SwichIpRange : Form
     {
+        public static string startIp = "1720.20.254.1";
+        public static string endIp = "1720.20.254.1";
         public SwichIpRange()
         {
             InitializeComponent();
@@ -64,7 +67,21 @@ namespace DashBoard
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-
+            if (txtFrom.Text.Trim().Length < 7 || txtTo.Text.Trim().Length < 7)
+            {
+                MessageBox.Show("محدوده آی‌پی وارد شده معتبر نیست.");
+                return;
+            }
+            else
+            {
+                startIp = txtFrom.Text.Trim();
+                endIp = txtTo.Text.Trim();
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+                NetworkMapper.InsertToDB(startIp, endIp);
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+                MessageBox.Show("محدوده آی‌پی با موفقیت ثبت شد.");
+                this.Close();
+            }
         }
     }
 }

@@ -1,13 +1,7 @@
 ﻿using PcInfoWin.Properties;
 using SqlDataExtention.Data;
-using SqlDataExtention.Entity;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PcInfoWin
@@ -26,7 +20,6 @@ namespace PcInfoWin
         {
             trayMenu = BuildMenu();
             trayIcon = BuildTrayIcon();
-
             trayIcon.Visible = true;
         }
 
@@ -50,7 +43,6 @@ namespace PcInfoWin
             menu.Items.Add("تغییر PC_Code", null, (s, e) => ShowPcCodeForm(true));
             menu.Items.Add(new ToolStripSeparator());
             menu.Items.Add("خروج", null, (s, e) => ShowPcCodeForm(false));
-
             return menu;
         }
 

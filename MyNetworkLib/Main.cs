@@ -56,10 +56,13 @@ namespace MyNetworkLib
         }
 
 
-        public static int startIp = 20;
-        public static int endIp = 30;
 
-        public static List<SwithInfo> MapMacsOnAccessSwitches(List<MacInfoDto> macs, NetworkMapperOptions? optionsIn = null)
+
+        public static List<SwithInfo> MapMacsOnAccessSwitches(
+            List<MacInfoDto> macs,
+            string startIp,
+            string endIp,
+            NetworkMapperOptions? optionsIn = null)
         {
 
 
@@ -68,8 +71,14 @@ namespace MyNetworkLib
             var options = optionsIn ?? new NetworkMapperOptions();
 
             var switches = new List<SwitchCfg>();
-            for (int i = startIp; i <= endIp; i++)
-                switches.Add(new SwitchCfg($"192.168.254.{i}", $"192.168.254.{i}", user, pass));
+
+            var ipList = GetIpRange(startIp, endIp);
+
+            foreach (var ip in ipList)
+            {
+                switches.Add(new SwitchCfg(ip, ip, user, pass));
+            }
+
 
             var macTables = new Dictionary<string, List<MacEntry>>();
             var cdpOutputs = new Dictionary<string, string>();
@@ -356,14 +365,14 @@ namespace MyNetworkLib
             return string.Join(":", Enumerable.Range(0, 6).Select(i => clean.Substring(i * 2, 2))).ToUpper();
         }
 
-        public static void InsertToDB()
+        public static void InsertToDB(string startIp, string endIp)
         {
             var selectHelper = new DataSelectHelper();
             var macInfos = selectHelper.SelectAllWitoutConditonal<NetworkAdapterInfo>()
                 .Select(n => new MacInfoDto { Mac = n.MACAddress, SystemInfoRef = n.SystemInfoRef })
                 .ToList();
 
-            var results = MapMacsOnAccessSwitches(macInfos);
+            var results = MapMacsOnAccessSwitches(macInfos, startIp,endIp);
             if (results.Count > 0)
             {
                 var helper = new DataInsertUpdateHelper();

@@ -36,36 +36,40 @@
             // 
             // txtFrom
             // 
+            txtFrom.Font = new System.Drawing.Font("Segoe UI", 12F);
             txtFrom.Location = new System.Drawing.Point(12, 12);
             txtFrom.Name = "txtFrom";
-            txtFrom.Size = new System.Drawing.Size(148, 23);
+            txtFrom.Size = new System.Drawing.Size(187, 29);
             txtFrom.TabIndex = 0;
             txtFrom.KeyPress += txtFrom_KeyPress;
             // 
             // txtTo
             // 
-            txtTo.Location = new System.Drawing.Point(166, 12);
+            txtTo.Font = new System.Drawing.Font("Segoe UI", 12F);
+            txtTo.Location = new System.Drawing.Point(205, 12);
             txtTo.Name = "txtTo";
-            txtTo.Size = new System.Drawing.Size(148, 23);
-            txtTo.TabIndex = 0;
+            txtTo.Size = new System.Drawing.Size(185, 29);
+            txtTo.TabIndex = 1;
             txtTo.KeyPress += txtTo_KeyPress;
             // 
             // btnOk
             // 
-            btnOk.Location = new System.Drawing.Point(12, 53);
+            btnOk.Font = new System.Drawing.Font("Segoe UI", 12F);
+            btnOk.Location = new System.Drawing.Point(12, 74);
             btnOk.Name = "btnOk";
-            btnOk.Size = new System.Drawing.Size(148, 23);
-            btnOk.TabIndex = 1;
+            btnOk.Size = new System.Drawing.Size(187, 32);
+            btnOk.TabIndex = 2;
             btnOk.Text = "Ok";
             btnOk.UseVisualStyleBackColor = true;
             btnOk.Click += btnOk_Click;
             // 
             // btnCancel
             // 
-            btnCancel.Location = new System.Drawing.Point(166, 53);
+            btnCancel.Font = new System.Drawing.Font("Segoe UI", 12F);
+            btnCancel.Location = new System.Drawing.Point(205, 74);
             btnCancel.Name = "btnCancel";
-            btnCancel.Size = new System.Drawing.Size(148, 23);
-            btnCancel.TabIndex = 1;
+            btnCancel.Size = new System.Drawing.Size(185, 32);
+            btnCancel.TabIndex = 3;
             btnCancel.Text = "Cancel";
             btnCancel.UseVisualStyleBackColor = true;
             btnCancel.Click += btnCancel_Click;
@@ -74,7 +78,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(335, 94);
+            ClientSize = new System.Drawing.Size(397, 118);
             Controls.Add(btnCancel);
             Controls.Add(btnOk);
             Controls.Add(txtTo);

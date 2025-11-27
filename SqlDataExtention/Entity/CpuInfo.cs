@@ -14,5 +14,3 @@ namespace SqlDataExtention.Entity
         public string Manufacturer { get; set; }
     }
 }
-
-

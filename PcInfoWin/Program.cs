@@ -47,10 +47,9 @@ namespace PcInfoWin
 
 
                 WirteVersion();
-                Thread.Sleep(2000);
-                if (Environment.MachineName != "Bizaval-pc" && Environment.MachineName != "BIZAVAL-PC")
-                    CheckForUpdate();
-                Thread.Sleep(2000);
+                Thread.Sleep(1500);
+                CheckForUpdate();
+                Thread.Sleep(1500);
                 showSplashScreen();
 
                 receiver = new Receiver(9000);
@@ -262,9 +261,19 @@ namespace PcInfoWin
 
         public static void CheckForUpdate()
         {
+
             int x = 254;
             try
             {
+                string machineName = string.IsNullOrWhiteSpace(Environment.MachineName)
+                       ? "Unknown"
+                       : Environment.MachineName;
+
+                if (!string.IsNullOrEmpty(machineName) && machineName.Contains("BIZAVAL-PC"))
+                {
+                    return;
+                }
+
                 // نسخه فعلی برنامه
                 string currentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 

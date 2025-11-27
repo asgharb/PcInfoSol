@@ -18,31 +18,31 @@ namespace SqlDataExtention.Entity.Main
         public List<SystemEnvironmentInfo> systemEnvironmentInfo { get; set; }
         [Ignore]
         [Compare]
-        public List<PcCodeInfo> pcCodeInfo { get; set; } 
+        public List<PcCodeInfo> pcCodeInfo { get; set; }
         [Ignore]
         [Compare]
-        public CpuInfo cpuInfo { get; set; } 
+        public CpuInfo cpuInfo { get; set; }
         [Ignore]
         [Compare]
         public GpuInfo gpuInfo { get; set; } = new GpuInfo();
         [Ignore]
         [Compare]
-        public MotherboardInfo motherboardInfo { get; set; } 
+        public MotherboardInfo motherboardInfo { get; set; }
         [Ignore]
         [Compare]
-        public RamSummaryInfo RamSummaryInfo { get; set; } 
+        public RamSummaryInfo RamSummaryInfo { get; set; }
         [Ignore]
         [Compare]
-        public List<DiskInfo> DiskInfo { get; set; } 
+        public List<DiskInfo> DiskInfo { get; set; }
         [Ignore]
         [Compare]
-        public List<NetworkAdapterInfo> NetworkAdapterInfo { get; set; } 
+        public List<NetworkAdapterInfo> NetworkAdapterInfo { get; set; }
         [Ignore]
         [Compare]
         public List<RamModuleInfo> RamModuleInfo { get; set; }
         [Ignore]
         [Compare]
-        public List<OpticalDriveInfo> OpticalDriveInfo { get; set; } 
+        public List<OpticalDriveInfo> OpticalDriveInfo { get; set; }
         [Ignore]
         [Compare]
         public List<MonitorInfo> monitorInfo { get; set; }
@@ -54,62 +54,60 @@ namespace SqlDataExtention.Entity.Main
         public DateTime InsertDate { get; set; } = DateTime.Now;
         public DateTime? ExpireDate { get; set; }
 
-        //}
-        //public override string ToString()
-        //{
-        //    var sb = new StringBuilder();
-
-        //    // پراپرتی‌های معمولی SystemInfo
-        //    sb.AppendLine($"SystemInfoID: {SystemInfoID}");
-        //    sb.AppendLine($"InsertDate: {InsertDate}");
-        //    sb.AppendLine($"ExpireDate: {ExpireDate}");
-
-        //    // پراپرتی‌هایی که مدل یا لیست مدل هستند
-        //    void AppendModel(string name, object value)
-        //    {
-        //        if (value == null)
-        //        {
-        //            sb.AppendLine($"{name}: null");
-        //        }
-        //        else if (value is IEnumerable enumerable && !(value is string))
-        //        {
-        //            sb.AppendLine($"{name}:");
-        //            foreach (var item in enumerable)
-        //            {
-        //                sb.AppendLine("  - " + (item?.ToString() ?? "null"));
-        //            }
-        //        }
-        //        else
-        //        {
-        //            sb.AppendLine($"{name}: {value}");
-        //        }
-        //    }
-        //    sb.AppendLine("=========================systemEnvironmentInfo===========================================");
-        //    AppendModel(nameof(systemEnvironmentInfo), systemEnvironmentInfo);
-        //    sb.AppendLine("==========================cpuInfo==========================================");
-        //    AppendModel(nameof(cpuInfo), cpuInfo);
-        //    sb.AppendLine("===========================gppuInfo=========================================");
-        //    AppendModel(nameof(gpuInfo), gpuInfo);
-        //    sb.AppendLine("===========================motherboardInfo=========================================");
-        //    AppendModel(nameof(motherboardInfo), motherboardInfo);
-        //    sb.AppendLine("===========================RamSummaryInfo=========================================");
-        //    AppendModel(nameof(RamSummaryInfo), RamSummaryInfo);
-        //    sb.AppendLine("===========================DiskInfo=========================================");
-        //    AppendModel(nameof(DiskInfo), DiskInfo);
-        //    sb.AppendLine("==========================NetworkAdapterInfo==========================================");
-        //    AppendModel(nameof(NetworkAdapterInfo), NetworkAdapterInfo);
-        //    sb.AppendLine("==========================RamModuleInfo==========================================");
-        //    AppendModel(nameof(RamModuleInfo), RamModuleInfo);
-        //    sb.AppendLine("==========================OpticalDriveInfo==========================================");
-        //    AppendModel(nameof(OpticalDriveInfo), OpticalDriveInfo);
-        //    sb.AppendLine("=========================monitorInfos===========================================");
-        //    AppendModel(nameof(monitorInfo), monitorInfo);
-        //    sb.AppendLine("=========================PcCodeInfo===========================================");
-        //    AppendModel(nameof(pcCodeInfo), pcCodeInfo);
-
-        //    return sb.ToString();
-        //}
-
     }
-
 }
+
+//public override string ToString()
+//{
+//    var sb = new StringBuilder();
+
+//    // پراپرتی‌های معمولی SystemInfo
+//    sb.AppendLine($"SystemInfoID: {SystemInfoID}");
+//    sb.AppendLine($"InsertDate: {InsertDate}");
+//    sb.AppendLine($"ExpireDate: {ExpireDate}");
+
+//    // پراپرتی‌هایی که مدل یا لیست مدل هستند
+//    void AppendModel(string name, object value)
+//    {
+//        if (value == null)
+//        {
+//            sb.AppendLine($"{name}: null");
+//        }
+//        else if (value is IEnumerable enumerable && !(value is string))
+//        {
+//            sb.AppendLine($"{name}:");
+//            foreach (var item in enumerable)
+//            {
+//                sb.AppendLine("  - " + (item?.ToString() ?? "null"));
+//            }
+//        }
+//        else
+//        {
+//            sb.AppendLine($"{name}: {value}");
+//        }
+//    }
+//    sb.AppendLine("=========================systemEnvironmentInfo===========================================");
+//    AppendModel(nameof(systemEnvironmentInfo), systemEnvironmentInfo);
+//    sb.AppendLine("==========================cpuInfo==========================================");
+//    AppendModel(nameof(cpuInfo), cpuInfo);
+//    sb.AppendLine("===========================gppuInfo=========================================");
+//    AppendModel(nameof(gpuInfo), gpuInfo);
+//    sb.AppendLine("===========================motherboardInfo=========================================");
+//    AppendModel(nameof(motherboardInfo), motherboardInfo);
+//    sb.AppendLine("===========================RamSummaryInfo=========================================");
+//    AppendModel(nameof(RamSummaryInfo), RamSummaryInfo);
+//    sb.AppendLine("===========================DiskInfo=========================================");
+//    AppendModel(nameof(DiskInfo), DiskInfo);
+//    sb.AppendLine("==========================NetworkAdapterInfo==========================================");
+//    AppendModel(nameof(NetworkAdapterInfo), NetworkAdapterInfo);
+//    sb.AppendLine("==========================RamModuleInfo==========================================");
+//    AppendModel(nameof(RamModuleInfo), RamModuleInfo);
+//    sb.AppendLine("==========================OpticalDriveInfo==========================================");
+//    AppendModel(nameof(OpticalDriveInfo), OpticalDriveInfo);
+//    sb.AppendLine("=========================monitorInfos===========================================");
+//    AppendModel(nameof(monitorInfo), monitorInfo);
+//    sb.AppendLine("=========================PcCodeInfo===========================================");
+//    AppendModel(nameof(pcCodeInfo), pcCodeInfo);
+
+//    return sb.ToString();
+//}

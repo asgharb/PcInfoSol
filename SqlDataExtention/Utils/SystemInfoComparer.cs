@@ -115,8 +115,10 @@ namespace SqlDataExtention.Utils
                     !Attribute.IsDefined(p, typeof(DbGeneratedAttribute)) &&
                     p.Name != "InsertDate" &&
                     p.Name != "ExpireDate" &&
-                    p.Name != "SystemInfoRef")
+                    p.Name != "SystemInfoRef" &&
+                    p.Name != "AppVersion")  
                 .ToList();
+
 
             var keyProp = type.GetProperties().FirstOrDefault(p => Attribute.IsDefined(p, typeof(KeyAttribute)));
             var fkProp2 = type.GetProperty("SystemInfoRef");
