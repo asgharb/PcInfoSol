@@ -682,7 +682,9 @@ namespace DashBoard
         {
             SwichIpRange swichIpRange = new SwichIpRange();
             swichIpRange.ShowDialog();
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
             btnRefreshInfo_Click(sender, e);
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
         }
     }
 }

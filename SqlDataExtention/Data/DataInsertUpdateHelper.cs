@@ -232,39 +232,6 @@ VALUES ({string.Join(", ", parameters)})";
             return results.All(r => r.Success);
         }
 
-        //public bool InsertMappingResults(List<SwithInfo> items)
-        //{
-        //    var successes = new List<SwithInfo>();
-        //    foreach (var item in items)
-        //    {
-        //        if (InsertSimple(item, out _))
-        //            successes.Add(item);
-        //        else
-        //            Console.WriteLine($"خطا در درج {item.SwitchIp}");
-        //    }
-        //    // اگر هیچ آیتم موفق درج نشده
-        //    if (successes.Count == 0)
-        //        return false;
-
-
-        //    // مرحله جدید: آپدیت SystemInfoRef
-        //    UpdateSystemInfoRefAfterInsert();
-
-
-        //    var grouped = successes
-        //        .Where(x => x.SystemInfoRef != 0)   // یا != null، بسته به نوع
-        //        .GroupBy(x => x.SystemInfoRef);
-
-        //    foreach (var group in grouped)
-        //    {
-        //        int systemInfoRef = group.Key;
-
-        //        // برای هر SystemInfoRef جداگانه رکوردهای قدیمی را Expire کن
-        //        ExpireOldSwithInfo(systemInfoRef);
-        //    }
-
-        //    return successes.Count == items.Count;
-        //}
 
         public bool InsertMappingResults(List<SwithInfo> items)
         {
@@ -393,6 +360,18 @@ WHERE [SystemInfoRef] = @Fk
                     cmd.Parameters.AddWithValue("@Now", DateTime.Now);
                     cmd.Parameters.AddWithValue("@Fk", systemInfoRef);
                     cmd.ExecuteNonQuery();
+                }
+            }
+
+            string query2 = @"DELETE s  FROM [PcInfo].[dbo].[SwithInfo] s
+                              WHERE s.ExpireDate IS NOT NULL";
+
+            using (var conn2 = _dataHelper.GetConnectionClosed())
+            {
+                conn2.Open();
+                using (var cmd2 = new SqlCommand(query2, conn2))
+                {
+                    cmd2.ExecuteNonQuery();
                 }
             }
         }

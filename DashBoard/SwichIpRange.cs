@@ -67,6 +67,8 @@ namespace DashBoard
 
         private void btnOk_Click(object sender, EventArgs e)
         {
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+
             string from = txtFrom.Text;
             string to = txtTo.Text;
 
@@ -85,6 +87,7 @@ namespace DashBoard
                 txtFrom.Enabled = txtTo.Enabled = true;
                 btnCancel.Enabled = btnOk.Enabled = true;
             }
+            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
         }
         private bool ValidateIpRange(string ipFrom, string ipTo)
         {
