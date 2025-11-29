@@ -102,8 +102,8 @@ namespace DashBoard
                                    .Select(a => a.MACAddress.Trim())
                                    .FirstOrDefault(),
 
-                        Switch = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundSwitch),
-                        SwitchPort = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundPort),
+                        Switch = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchIp),
+                        SwitchPort = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchPort),
                         PhoneMac = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneMac),
                         PhoneIp = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneIp),
                         UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),

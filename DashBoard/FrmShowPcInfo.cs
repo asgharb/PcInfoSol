@@ -75,33 +75,35 @@ namespace DashBoard
                                  .Where(mac => !string.IsNullOrWhiteSpace(mac))
                                  .ToList();
 
-                List<SwithInfo> results = new List<SwithInfo>();
+
                 var transformedSystems = allSystems
                     .Select((s, index) => new
                     {
                         //No = index + 1,
                         SystemInfoID = s.SystemInfoID,
                         PcCode = int.Parse(GetSafeDesc(s.pcCodeInfo, x => x.PcCode).ToString()),
-                        IpAddress = s.NetworkAdapterInfo?
-                                   .Where(a =>
-                                       a.ExpireDate == null &&
-                                       !string.IsNullOrWhiteSpace(a.IpAddress))
-                                   .OrderByDescending(a => a.IsLAN)
-                                   .ThenByDescending(a => a.IsEnabled)
-                                   .Select(a => a.IpAddress.Trim())
-                                   .FirstOrDefault(),
+                        //IpAddress = s.NetworkAdapterInfo?
+                        //           .Where(a =>
+                        //               a.ExpireDate == null &&
+                        //               !string.IsNullOrWhiteSpace(a.IpAddress))
+                        //           .OrderByDescending(a => a.IsLAN)
+                        //           .ThenByDescending(a => a.IsEnabled)
+                        //           .Select(a => a.IpAddress.Trim())
+                        //           .FirstOrDefault(),
 
-                        MacAddress = s.NetworkAdapterInfo?
-                                   .Where(a =>
-                                       a.ExpireDate == null &&
-                                       !string.IsNullOrWhiteSpace(a.MACAddress))
-                                   .OrderByDescending(a => a.IsLAN)
-                                   .ThenByDescending(a => a.IsEnabled)
-                                   .Select(a => a.MACAddress.Trim())
-                                   .FirstOrDefault(),
+                        //MacAddress = s.NetworkAdapterInfo?
+                        //           .Where(a =>
+                        //               a.ExpireDate == null &&
+                        //               !string.IsNullOrWhiteSpace(a.MACAddress))
+                        //           .OrderByDescending(a => a.IsLAN)
+                        //           .ThenByDescending(a => a.IsEnabled)
+                        //           .Select(a => a.MACAddress.Trim())
+                        //           .FirstOrDefault(),
 
-                        Switch = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundSwitch),
-                        SwitchPort = GetSafesSwitchInfo(s.SwithInfo, x => x.FoundPort),
+                        IpAddress= GetSafesSwitchInfo(s.SwithInfo, x => x.PcIp),
+                        MacAddress = GetSafesSwitchInfo(s.SwithInfo, x => x.PcMac),
+                        Switch_IP = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchIp),
+                        Switch_Port = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchPort),
                         PhoneMac = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneMac),
                         PhoneIp = GetSafesSwitchInfo(s.SwithInfo, x => x.PhoneIp),
                         UserFullName = GetSafeDesc(s.pcCodeInfo, x => x.UserFullName),
@@ -680,6 +682,7 @@ namespace DashBoard
         {
             SwichIpRange swichIpRange = new SwichIpRange();
             swichIpRange.ShowDialog();
+            btnRefreshInfo_Click(sender, e);
         }
     }
 }

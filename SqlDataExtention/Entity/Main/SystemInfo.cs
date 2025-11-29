@@ -1,9 +1,6 @@
 ﻿using SqlDataExtention.Attributes;
-using SqlDataExtention.Entity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SqlDataExtention.Entity.Main
 {

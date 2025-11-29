@@ -43,7 +43,7 @@ namespace DashBoard
             pnlSideInbox = new Panel();
             btnShowPcInfo = new ReaLTaiizor.Controls.ParrotButton();
             panel3 = new Panel();
-            pnlSideHelp = new Panel();
+            pnlSideSwitch = new Panel();
             btnSwithchInfo = new ReaLTaiizor.Controls.ParrotButton();
             panel2 = new Panel();
             pnlSideSend = new Panel();
@@ -176,21 +176,21 @@ namespace DashBoard
             // 
             // panel3
             // 
-            panel3.Controls.Add(pnlSideHelp);
+            panel3.Controls.Add(pnlSideSwitch);
             panel3.Controls.Add(btnSwithchInfo);
             panel3.Location = new Point(3, 243);
             panel3.Name = "panel3";
             panel3.Size = new Size(130, 53);
             panel3.TabIndex = 15;
             // 
-            // pnlSideHelp
+            // pnlSideSwitch
             // 
-            pnlSideHelp.BackColor = Color.FromArgb(56, 142, 60);
-            pnlSideHelp.Dock = DockStyle.Left;
-            pnlSideHelp.Location = new Point(0, 0);
-            pnlSideHelp.Name = "pnlSideHelp";
-            pnlSideHelp.Size = new Size(3, 53);
-            pnlSideHelp.TabIndex = 13;
+            pnlSideSwitch.BackColor = Color.FromArgb(56, 142, 60);
+            pnlSideSwitch.Dock = DockStyle.Left;
+            pnlSideSwitch.Location = new Point(0, 0);
+            pnlSideSwitch.Name = "pnlSideSwitch";
+            pnlSideSwitch.Size = new Size(3, 53);
+            pnlSideSwitch.TabIndex = 13;
             // 
             // btnSwithchInfo
             // 
@@ -214,6 +214,7 @@ namespace DashBoard
             btnSwithchInfo.TextColor = Color.White;
             btnSwithchInfo.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             btnSwithchInfo.Vertical_Alignment = StringAlignment.Center;
+            btnSwithchInfo.Click += btnSwithchInfo_Click;
             // 
             // panel2
             // 
@@ -317,7 +318,7 @@ namespace DashBoard
         private Panel pnlSideInbox;
         private ReaLTaiizor.Controls.ParrotButton btnShowPcInfo;
         private Panel panel3;
-        private Panel pnlSideHelp;
+        private Panel pnlSideSwitch;
         private ReaLTaiizor.Controls.ParrotButton btnSwithchInfo;
         private Panel panel2;
         private Panel pnlSideSend;

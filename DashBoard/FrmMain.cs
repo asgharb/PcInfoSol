@@ -31,7 +31,7 @@ namespace DashBoard
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            pnlSideHelp.Visible = false;
+            pnlSideSwitch.Visible = false;
             pnlSideInbox.Visible = false;
             pnlSideSend.Visible = false;
 
@@ -112,7 +112,7 @@ namespace DashBoard
                 return;
 
             pnlSideInbox.Visible = true;
-            pnlSideHelp.Visible = false;
+            pnlSideSwitch.Visible = false;
             pnlSideSend.Visible = false;
 
             OpenChildForm(new FrmShowPcInfo());
@@ -152,14 +152,25 @@ namespace DashBoard
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-
             if (activeForm is FrmSendMsg)
                 return;
             pnlSideSend.Visible = true;
             pnlSideInbox.Visible = false;
-            pnlSideHelp.Visible = false;
+            pnlSideSwitch.Visible = false;
 
             OpenChildForm(new FrmSendMsg());
+        }
+
+        private void btnSwithchInfo_Click(object sender, EventArgs e)
+        {
+
+            if (activeForm is FrmSwitchInfo)
+                return;
+            pnlSideSend.Visible = false;
+            pnlSideInbox.Visible = false;
+            pnlSideSwitch.Visible = true;
+
+            OpenChildForm(new FrmSwitchInfo());
         }
     }
 }

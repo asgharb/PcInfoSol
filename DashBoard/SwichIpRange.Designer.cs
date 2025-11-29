@@ -84,6 +84,7 @@
             Controls.Add(txtTo);
             Controls.Add(txtFrom);
             Name = "SwichIpRange";
+            StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             Text = "SwichIpRange";
             Load += SwichIpRange_Load;
             ResumeLayout(false);

@@ -232,34 +232,204 @@ VALUES ({string.Join(", ", parameters)})";
             return results.All(r => r.Success);
         }
 
+        //public bool InsertMappingResults(List<SwithInfo> items)
+        //{
+        //    var successes = new List<SwithInfo>();
+        //    foreach (var item in items)
+        //    {
+        //        if (InsertSimple(item, out _))
+        //            successes.Add(item);
+        //        else
+        //            Console.WriteLine($"خطا در درج {item.SwitchIp}");
+        //    }
+        //    // اگر هیچ آیتم موفق درج نشده
+        //    if (successes.Count == 0)
+        //        return false;
+
+
+        //    // مرحله جدید: آپدیت SystemInfoRef
+        //    UpdateSystemInfoRefAfterInsert();
+
+
+        //    var grouped = successes
+        //        .Where(x => x.SystemInfoRef != 0)   // یا != null، بسته به نوع
+        //        .GroupBy(x => x.SystemInfoRef);
+
+        //    foreach (var group in grouped)
+        //    {
+        //        int systemInfoRef = group.Key;
+
+        //        // برای هر SystemInfoRef جداگانه رکوردهای قدیمی را Expire کن
+        //        ExpireOldSwithInfo(systemInfoRef);
+        //    }
+
+        //    return successes.Count == items.Count;
+        //}
+
         public bool InsertMappingResults(List<SwithInfo> items)
         {
             var successes = new List<SwithInfo>();
+
+            // 1) INSERT
             foreach (var item in items)
             {
-                if (InsertSimple(item, out _))
+                if (InsertSimple(item, out var pk))
+                {
+                    // ⭐⭐ مهم‌ترین خط ⭐⭐
+                    if (pk != null && pk != DBNull.Value)
+                        item.SwithInfoID = Convert.ToInt32(pk);
+
                     successes.Add(item);
-                else
-                    Console.WriteLine($"خطا در درج {item.Mac}");
+                }
             }
-            // اگر هیچ آیتم موفق درج نشده
+
             if (successes.Count == 0)
                 return false;
 
 
-            var grouped = successes
-                .Where(x => x.SystemInfoRef != 0)   // یا != null، بسته به نوع
+            // 2) Update SystemInfoRef
+            UpdateSystemInfoRefAfterInsert();
+
+
+            // 3) Reload
+            var refreshed = ReloadInserted(successes);
+
+
+            // 4) Expire
+            var grouped = refreshed
+                .Where(x => x.SystemInfoRef != 0)
                 .GroupBy(x => x.SystemInfoRef);
 
             foreach (var group in grouped)
             {
-                int systemInfoRef = group.Key;
-
-                // برای هر SystemInfoRef جداگانه رکوردهای قدیمی را Expire کن
-                ExpireOldSwithInfo(systemInfoRef);
+                int sysRef = group.Key;
+                ExpireOldSwithInfo(sysRef);
             }
 
-            return successes.Count == items.Count;
+            return true;
+        }
+
+        public void UpdateSystemInfoRefAfterInsert()
+        {
+            var select = new DataSelectHelper();
+            var dataHelper = new DataHelper();
+
+            // 1) خواندن NetworkAdapterInfo (Active)
+            var adapters = select.SelectAllWitoutConditonal<NetworkAdapterInfo>()
+                .Where(x => !string.IsNullOrEmpty(x.MACAddress))
+                .ToList();
+
+            if (adapters == null || adapters.Count == 0) return;
+
+            // 2) خواندن SwithInfo هایی که SystemInfoRef = 0 یا NULL هستند
+            string getSwitchInfoQuery = @"
+        SELECT * FROM [SwithInfo]
+        WHERE (SystemInfoRef IS NULL OR SystemInfoRef = 0)
+          AND (ExpireDate IS NULL)";
+
+            var dtSwitch = dataHelper.ExecuteQuery(getSwitchInfoQuery);
+            var openSwitchInfos = dataHelper.ConvertToList<SwithInfo>(dtSwitch);
+
+            if (openSwitchInfos == null || openSwitchInfos.Count == 0) return;
+
+            using (var conn = dataHelper.GetConnectionClosed())
+            {
+                conn.Open();
+
+                foreach (var sw in openSwitchInfos)
+                {
+                    if (string.IsNullOrEmpty(sw.PcMac))
+                        continue;
+
+                    string swMac = NormalizeMac(sw.PcMac);
+
+                    var match = adapters.FirstOrDefault(a =>
+                        NormalizeMac(a.MACAddress) == swMac);
+
+                    if (match == null)
+                        continue;
+
+                    // آپدیت هم SystemInfoRef و هم PcIp
+                    string updateQuery = @"
+                UPDATE [SwithInfo]
+                SET SystemInfoRef = @SysRef,
+                    PcIp = @PcIp
+                WHERE SwithInfoID = @Id";
+
+                    using (var cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@SysRef", match.SystemInfoRef);
+                        cmd.Parameters.AddWithValue("@PcIp",
+                            string.IsNullOrEmpty(match.IpAddress)
+                                ? (object)DBNull.Value
+                                : match.IpAddress);
+                        cmd.Parameters.AddWithValue("@Id", sw.SwithInfoID);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                conn.Close();
+            }
+        }
+
+        public void ExpireOldSwithInfo(int systemInfoRef)
+        {
+            string query = @"
+UPDATE [SwithInfo]
+SET [ExpireDate] = @Now
+WHERE [SystemInfoRef] = @Fk
+  AND [SwithInfoID] <> (
+        SELECT MAX(SwithInfoID)
+        FROM [SwithInfo]
+        WHERE [SystemInfoRef] = @Fk
+    );
+";
+
+            using (var conn = _dataHelper.GetConnectionClosed())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Now", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@Fk", systemInfoRef);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+
+        private List<SwithInfo> ReloadInserted(List<SwithInfo> oldOnes)
+        {
+            var dataHelper = new DataHelper();
+
+            var ids = oldOnes
+                .Select(x => x.SwithInfoID)
+                .Where(id => id > 0)
+                .ToList();
+
+            if (ids.Count == 0)
+                return new List<SwithInfo>();
+
+            string idList = string.Join(",", ids);
+
+            string q = $"SELECT * FROM SwithInfo WHERE SwithInfoID IN ({idList})";
+
+            var dt = dataHelper.ExecuteQuery(q);
+            return dataHelper.ConvertToList<SwithInfo>(dt);
+        }
+
+        public string NormalizeMac(string mac)
+        {
+            if (string.IsNullOrWhiteSpace(mac))
+                return null;
+
+            return mac
+                .Replace(":", "")
+                .Replace("-", "")
+                .Replace(".", "")
+                .Replace(" ", "")
+                .Trim()
+                .ToUpper();
         }
 
         #endregion
@@ -437,30 +607,7 @@ WHERE [SystemInfoRef] = @Fk AND [ExpireDate] IS NULL";
             }
         }
         #endregion
-        public void ExpireOldSwithInfo(int systemInfoRef)
-        {
-            string query = @"
-UPDATE [SwithInfo]
-SET [ExpireDate] = @Now
-WHERE [SystemInfoRef] = @Fk
-  AND [SwithInfoID] <> (
-        SELECT MAX(SwithInfoID)
-        FROM [SwithInfo]
-        WHERE [SystemInfoRef] = @Fk
-    );
-";
-
-            using (var conn = _dataHelper.GetConnectionClosed())
-            {
-                conn.Open();
-                using (var cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@Now", DateTime.Now);
-                    cmd.Parameters.AddWithValue("@Fk", systemInfoRef);
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
+ 
 
     }
 }
