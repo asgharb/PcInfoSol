@@ -35,6 +35,7 @@ namespace DashBoard
             pnlSideInbox.Visible = false;
             pnlSideSend.Visible = false;
 
+            lblVersion.Text = "Version: " + Application.ProductVersion.Split('+')[0];
 
             CenterPictureBox();
         }

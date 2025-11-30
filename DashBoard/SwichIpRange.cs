@@ -24,6 +24,14 @@ namespace DashBoard
         private void SwichIpRange_Load(object sender, EventArgs e)
         {
             txtTo.Text = txtFrom.Text = "192.168.254.2";
+
+            this.BackColor = Color.FromArgb(245, 245, 245);
+            btnOk.FlatStyle= btnCancel.FlatStyle = FlatStyle.Flat;
+            btnOk.BackColor= btnCancel.BackColor = Color.FromArgb(52, 152, 219);   // آبی 
+            btnOk.ForeColor = btnCancel.ForeColor = Color.White;
+
+            this.FormBorderStyle = FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
         }
 
         private void txtFrom_KeyPress(object sender, KeyPressEventArgs e)
@@ -65,30 +73,79 @@ namespace DashBoard
             this.Close();
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
+        //private void btnOk_Click(object sender, EventArgs e)
+        //{
+        //    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+
+        //    string from = txtFrom.Text;
+        //    string to = txtTo.Text;
+
+        //    if (!ValidateIpRange(from, to))
+        //        return;
+        //    else
+        //    {
+        //        txtFrom.Enabled=txtTo.Enabled=false;
+        //        btnCancel.Enabled=btnOk.Enabled=false;
+        //        startIp = txtFrom.Text.Trim();
+        //        endIp = txtTo.Text.Trim();
+        //        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+        //        NetworkMapper.InsertToDB(startIp, endIp);
+        //        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+        //        MessageBox.Show("محدوده آی‌پی با موفقیت اسکن شد.");
+        //        txtFrom.Enabled = txtTo.Enabled = true;
+        //        btnCancel.Enabled = btnOk.Enabled = true;
+        //    }
+        //    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+        //}
+
+        private async void btnOk_Click(object sender, EventArgs e)
         {
-            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
+            Cursor = Cursors.WaitCursor;
 
             string from = txtFrom.Text;
             string to = txtTo.Text;
 
             if (!ValidateIpRange(from, to))
-                return;
-            else
             {
-                txtFrom.Enabled=txtTo.Enabled=false;
-                btnCancel.Enabled=btnOk.Enabled=false;
-                startIp = txtFrom.Text.Trim();
-                endIp = txtTo.Text.Trim();
-                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-                NetworkMapper.InsertToDB(startIp, endIp);
-                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-                MessageBox.Show("محدوده آی‌پی با موفقیت اسکن شد.");
-                txtFrom.Enabled = txtTo.Enabled = true;
-                btnCancel.Enabled = btnOk.Enabled = true;
+                Cursor = Cursors.Default;
+                return;
             }
-            System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+
+
+            txtFrom.Enabled = txtTo.Enabled = false;
+            btnCancel.Enabled = btnOk.Enabled = false;
+
+            var ips = NetworkMapper.GetIpRangePublic(from, to);
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = ips.Count;
+            progressBar1.Value = 0;
+
+            var progress = new Progress<int>(val =>
+            {
+                progressBar1.Value = val;
+            });
+
+            await Task.Run(() =>
+            {
+                NetworkMapper.InsertToDB(from, to, progress);
+            });
+
+
+            var main = this.Owner as FrmShowPcInfo;
+            if (main != null)
+            {
+                await main.InitializeDataAsync();
+            }
+
+            MessageBox.Show("محدوده آی‌پی با موفقیت اسکن شد.");
+
+            txtFrom.Enabled = txtTo.Enabled = true;
+            btnCancel.Enabled = btnOk.Enabled = true;
+
+            progressBar1.Value = 0;
+            Cursor = Cursors.Default;
         }
+
         private bool ValidateIpRange(string ipFrom, string ipTo)
         {
             ipFrom = ipFrom.Trim();
@@ -157,7 +214,6 @@ namespace DashBoard
                  | ((long)parts[2] << 8)
                  | parts[3];
         }
-
 
     }
 }

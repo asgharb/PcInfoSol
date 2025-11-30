@@ -36,31 +36,35 @@ namespace DashBoard
                 var grouped = items
                     .GroupBy(x => x.SwitchIp)
                     .OrderBy(g => IpToUint(g.Key))
-                    .Select(g => new SwitchGroup
+                    .Select(g => new
                     {
                         SwitchIp = g.Key,
-                        Records = g.Select(x => new SwithInfoLite
-                        {
-                            SwitchPort = x.SwitchPort,
-                            PcMac = x.PcMac,
-                            PcVlan = x.PcVlan,
-                            PcIp = x.PcIp,
-                            PhoneMac = x.PhoneMac,
-                            PhoneVlan = x.PhoneVlan,
-                            PhoneIp = x.PhoneIp
-                        }).ToList()
+                        // هر گروه یک جدول فرزند دارد
+                        Details = g.OrderBy(x => x.SwitchPort)
+                                   .Select(x => new
+                                   {
+                                       UserFullName = x.UserFullName,
+                                       SwitchPort = x.SwitchPort,
+                                       PcMac = x.PcMac,
+                                       PcVlan = x.PcVlan,
+                                       PcIp = x.PcIp,
+                                       PhoneMac = x.PhoneMac,
+                                       PhoneVlan = x.PhoneVlan,
+                                       PhoneIp = x.PhoneIp
+                                   }).ToList()
                     })
                     .ToList();
 
 
-                var dtSystemInfo = ToDataTable(grouped);
-                dtSystemInfo.TableName = "SystemInfo";
 
-                var ds = new DataSet();
-                ds.Tables.Add(dtSystemInfo);
+                var dtSwInfo = ToDataTable(grouped);
+                dtSwInfo.TableName = "SwInfo";
 
-                gridControl1.DataSource = ds;
-                gridControl1.DataMember = "SystemInfo";
+                var dsSw = new DataSet();
+                dsSw.Tables.Add(dtSwInfo);
+
+                gridControl1.DataSource = dsSw;
+                gridControl1.DataMember = "SwInfo";
                 gridControl1.UseEmbeddedNavigator = true;
                 ControlNavigator navigator = gridControl1.EmbeddedNavigator;
 
@@ -124,23 +128,26 @@ namespace DashBoard
             return BitConverter.ToUInt32(bytes, 0);
         }
 
-        public class SwithInfoLite
-        {
-            public string SwitchPort { get; set; }
-            public string PcMac { get; set; }
-            public string PcVlan { get; set; }
-            public string PcIp { get; set; }
-            public string PhoneMac { get; set; }
-            public string PhoneVlan { get; set; }
-            public string PhoneIp { get; set; }
-        }
-
-        public class SwitchGroup
-        {
-            public string SwitchIp { get; set; }
-            public List<SwithInfoLite> Records { get; set; }
-        }
-
-
     }
 }
+
+
+
+
+//public class SwithInfoLite
+//{
+//    public string UserFullName { get; set; }
+//    public string SwitchPort { get; set; }
+//    public string PcMac { get; set; }
+//    public string PcVlan { get; set; }
+//    public string PcIp { get; set; }
+//    public string PhoneMac { get; set; }
+//    public string PhoneVlan { get; set; }
+//    public string PhoneIp { get; set; }
+//}
+
+//public class SwitchGroup
+//{
+//    public string SwitchIp { get; set; }
+//    public List<SwithInfoLite> Records { get; set; }
+//}

@@ -115,8 +115,7 @@ namespace SqlDataExtention.Utils
                     !Attribute.IsDefined(p, typeof(DbGeneratedAttribute)) &&
                     p.Name != "InsertDate" &&
                     p.Name != "ExpireDate" &&
-                    p.Name != "SystemInfoRef" &&
-                    p.Name != "AppVersion")  
+                    p.Name != "SystemInfoRef" )  
                 .ToList();
 
 

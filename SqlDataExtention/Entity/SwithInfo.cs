@@ -21,6 +21,8 @@ namespace SqlDataExtention.Entity
         public string PhoneMac { get; set; }
         public string PhoneVlan { get; set; }
         public string PhoneIp { get; set; }
+
+        public string UserFullName { get; set; }
     }
 }
 

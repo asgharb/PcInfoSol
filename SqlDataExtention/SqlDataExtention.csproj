@@ -55,7 +55,6 @@
     <Compile Include="Entity\Department.cs" />
     <Compile Include="Entity\DiskInfo.cs" />
     <Compile Include="Entity\GpuInfo.cs" />
-    <Compile Include="Entity\LogEntry.cs" />
     <Compile Include="Entity\Main\SystemInfo.cs" />
     <Compile Include="Entity\SwithInfo.cs" />
     <Compile Include="Entity\MonitorInfo.cs" />

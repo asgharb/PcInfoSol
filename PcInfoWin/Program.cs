@@ -32,7 +32,15 @@ namespace PcInfoWin
 
             //RunScripts();
 
-            bool createdNew;
+            var dataHelper = new DataHelper();
+            bool isConnected = dataHelper.TestConnection();
+            if (!isConnected)
+            { 
+                Application.Exit(); 
+                return;
+            }
+
+                bool createdNew;
             using (Mutex mutex = new Mutex(true, "PcInfoWin", out createdNew))
             {
                 if (!createdNew)
@@ -64,9 +72,6 @@ namespace PcInfoWin
                     }
 
                     receiver.StartListening();
-
-                    var dataHelper = new DataHelper();
-                    bool isConnected = dataHelper.TestConnection();
 
                     if (isConnected)
                     {
@@ -269,7 +274,8 @@ namespace PcInfoWin
                        ? "Unknown"
                        : Environment.MachineName;
 
-                if (!string.IsNullOrEmpty(machineName) && machineName.Contains("BIZAVAL-PC"))
+                if (!string.IsNullOrEmpty(machineName) &&
+                    machineName.ToLower().Contains("bizaval".ToLower()))
                 {
                     return;
                 }

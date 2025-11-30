@@ -5,8 +5,6 @@ using SqlDataExtention.Entity;
 using SqlDataExtention.Entity.Main;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace PcInfoWin
 {
@@ -64,8 +62,11 @@ namespace PcInfoWin
                         ? Settings.Default.PathUpdate
                         : Program.defaultUpdatePath
                 );
-
                 systemInfo.updateInfo = updateInfo;
+
+                // ---------- SwithInfo ----------
+                var swInfo = new SwithInfo();
+                systemInfo.SwithInfo = swInfo;
 
 
                 PcCodeInfo pcCodeInfo = new PcCodeInfo();
@@ -79,7 +80,6 @@ namespace PcInfoWin
                 LoggingHelper.LogError(ex, "---", SysId: Settings.Default.SystemInfoID > 0 ? Settings.Default.SystemInfoID : 0); return null;
             }
         }
-
 
     }
 }

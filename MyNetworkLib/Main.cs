@@ -76,9 +76,20 @@ namespace MyNetworkLib
         // ===============================  ENTRY  ===============================
         // ======================================================================
 
-        public static void InsertToDB(string startIp, string endIp)
+        //public static void InsertToDB(string startIp, string endIp)
+        //{
+        //    var results = MapMacsOnAccessSwitches(startIp, endIp);
+
+        //    if (results.Count > 0)
+        //    {
+        //        var helper = new DataInsertUpdateHelper();
+        //        bool ok = helper.InsertMappingResults(results);
+        //        Console.WriteLine(ok ? "درج انجام شد" : "خطا در درج");
+        //    }
+        //}
+        public static void InsertToDB(string startIp, string endIp, IProgress<int> progress)
         {
-            var results = MapMacsOnAccessSwitches(startIp, endIp);
+            var results = MapMacsOnAccessSwitches(startIp, endIp, progress);
 
             if (results.Count > 0)
             {
@@ -94,9 +105,53 @@ namespace MyNetworkLib
         // ======================= SCAN ALL SWITCHES ============================
         // ======================================================================
 
-        private static List<SwithInfo> MapMacsOnAccessSwitches(string startIp, string endIp)
+        //private static List<SwithInfo> MapMacsOnAccessSwitches(string startIp, string endIp)
+        //{
+        //    var ips = GetIpRange(startIp, endIp);
+
+        //    var options = new NetworkMapperOptions();
+        //    var switches = new List<AccessSwitch>();
+        //    var macTables = new Dictionary<string, List<MacEntry>>();
+        //    var cdpOutputs = new Dictionary<string, string>();
+
+        //    foreach (var ip in ips)
+        //    {
+        //        switches.Add(new AccessSwitch
+        //        {
+        //            Name = ip,
+        //            IP = ip,
+        //            User = "infosw",
+        //            Pass = "Ii123456!"
+        //        });
+        //    }
+
+        //    foreach (var sw in switches)
+        //    {
+        //        try
+        //        {
+        //            ConnectAndCollect(
+        //                new SwitchCfg(sw.IP, sw.Name, sw.User, sw.Pass),
+        //                macTables,
+        //                cdpOutputs,
+        //                options);
+
+        //            Thread.Sleep(options.DelayBetweenSwitchMs);
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            Console.WriteLine($"[{sw.Name}] ERROR: {ex.Message}");
+        //        }
+        //    }
+
+        //    return MapMacsOnAccessSwitches(switches, macTables, cdpOutputs);
+        //}
+
+        private static List<SwithInfo> MapMacsOnAccessSwitches(
+    string startIp, string endIp, IProgress<int> progress)
         {
             var ips = GetIpRange(startIp, endIp);
+            int total = ips.Count;
+            int counter = 0;
 
             var options = new NetworkMapperOptions();
             var switches = new List<AccessSwitch>();
@@ -123,18 +178,15 @@ namespace MyNetworkLib
                         macTables,
                         cdpOutputs,
                         options);
+                }
+                catch { }
 
-                    Thread.Sleep(options.DelayBetweenSwitchMs);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[{sw.Name}] ERROR: {ex.Message}");
-                }
+                counter++;
+                progress?.Report(counter);   // گزارش پیشرفت به UI
             }
 
             return MapMacsOnAccessSwitches(switches, macTables, cdpOutputs);
         }
-
 
 
         // ======================================================================
@@ -489,5 +541,11 @@ namespace MyNetworkLib
                 Enumerable.Range(0, 6).Select(i => raw.Substring(i * 2, 2)));
         }
 
+
+
+        public static List<string> GetIpRangePublic(string s, string e)
+        {
+            return GetIpRange(s, e);
+        }
     }
 }

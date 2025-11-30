@@ -46,6 +46,7 @@ namespace DashBoard
     { "Desc7", "(Desc7)" },
     { "unit", "(واحد)" }
 };
+
         // master view reference
         private GridView masterView;
         public FrmShowPcInfo()
@@ -61,7 +62,7 @@ namespace DashBoard
             Thread.Sleep(1000);
         }
 
-        private async Task InitializeDataAsync()
+        public async Task InitializeDataAsync()
         {
             System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
 
@@ -100,7 +101,7 @@ namespace DashBoard
                         //           .Select(a => a.MACAddress.Trim())
                         //           .FirstOrDefault(),
 
-                        IpAddress= GetSafesSwitchInfo(s.SwithInfo, x => x.PcIp),
+                        IpAddress = GetSafesSwitchInfo(s.SwithInfo, x => x.PcIp),
                         MacAddress = GetSafesSwitchInfo(s.SwithInfo, x => x.PcMac),
                         Switch_IP = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchIp),
                         Switch_Port = GetSafesSwitchInfo(s.SwithInfo, x => x.SwitchPort),

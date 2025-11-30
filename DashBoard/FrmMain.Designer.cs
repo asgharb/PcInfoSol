@@ -36,6 +36,7 @@ namespace DashBoard
             pnlParent = new Panel();
             pictureBox1 = new PictureBox();
             pnlHead = new Panel();
+            lblVersion = new Label();
             nightControlBox1 = new ReaLTaiizor.Controls.NightControlBox();
             Timer_Sidebar_Menu = new Timer(components);
             SideBar = new Panel();
@@ -82,12 +83,24 @@ namespace DashBoard
             // pnlHead
             // 
             pnlHead.BackColor = Color.FromArgb(56, 142, 60);
+            pnlHead.Controls.Add(lblVersion);
             pnlHead.Controls.Add(nightControlBox1);
             pnlHead.Dock = DockStyle.Top;
             pnlHead.Location = new Point(135, 0);
             pnlHead.Name = "pnlHead";
             pnlHead.Size = new Size(1262, 31);
             pnlHead.TabIndex = 15;
+            // 
+            // lblVersion
+            // 
+            lblVersion.AutoSize = true;
+            lblVersion.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblVersion.ForeColor = Color.White;
+            lblVersion.Location = new Point(6, 5);
+            lblVersion.Name = "lblVersion";
+            lblVersion.Size = new Size(68, 20);
+            lblVersion.TabIndex = 1;
+            lblVersion.Text = "Vaersion:";
             // 
             // nightControlBox1
             // 
@@ -297,6 +310,7 @@ namespace DashBoard
             pnlParent.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             pnlHead.ResumeLayout(false);
+            pnlHead.PerformLayout();
             SideBar.ResumeLayout(false);
             panel5.ResumeLayout(false);
             panel3.ResumeLayout(false);
@@ -324,5 +338,6 @@ namespace DashBoard
         private Panel pnlSideSend;
         private ReaLTaiizor.Controls.ParrotButton btnSend;
         private ReaLTaiizor.Controls.ParrotButton btnMenu;
+        private Label lblVersion;
     }
 }
