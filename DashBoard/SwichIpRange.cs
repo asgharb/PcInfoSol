@@ -15,6 +15,9 @@ namespace DashBoard
     {
         public static string startIp = "1720.20.254.1";
         public static string endIp = "1720.20.254.1";
+
+        public static bool IsOkClicked = false;
+
         public SwichIpRange()
         {
             InitializeComponent();
@@ -144,6 +147,7 @@ namespace DashBoard
 
             progressBar1.Value = 0;
             Cursor = Cursors.Default;
+            IsOkClicked=true;
         }
 
         private bool ValidateIpRange(string ipFrom, string ipTo)

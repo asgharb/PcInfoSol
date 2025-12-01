@@ -13,6 +13,7 @@ namespace MyNetworkLib
         public string Vlan;
         public string Mac;
         public string Port;
+        public bool IsTrunk;
     }
 
     public class AccessSwitch
@@ -33,7 +34,6 @@ namespace MyNetworkLib
         public int ShellReadIntervalMs { get; set; } = 120;
         public int ShellReadTimeoutMs { get; set; } = 1500;
     }
-
 
 
     public static class NetworkMapper
@@ -76,17 +76,7 @@ namespace MyNetworkLib
         // ===============================  ENTRY  ===============================
         // ======================================================================
 
-        //public static void InsertToDB(string startIp, string endIp)
-        //{
-        //    var results = MapMacsOnAccessSwitches(startIp, endIp);
 
-        //    if (results.Count > 0)
-        //    {
-        //        var helper = new DataInsertUpdateHelper();
-        //        bool ok = helper.InsertMappingResults(results);
-        //        Console.WriteLine(ok ? "درج انجام شد" : "خطا در درج");
-        //    }
-        //}
         public static void InsertToDB(string startIp, string endIp, IProgress<int> progress)
         {
             var results = MapMacsOnAccessSwitches(startIp, endIp, progress);
@@ -99,52 +89,9 @@ namespace MyNetworkLib
             }
         }
 
-
-
         // ======================================================================
         // ======================= SCAN ALL SWITCHES ============================
         // ======================================================================
-
-        //private static List<SwithInfo> MapMacsOnAccessSwitches(string startIp, string endIp)
-        //{
-        //    var ips = GetIpRange(startIp, endIp);
-
-        //    var options = new NetworkMapperOptions();
-        //    var switches = new List<AccessSwitch>();
-        //    var macTables = new Dictionary<string, List<MacEntry>>();
-        //    var cdpOutputs = new Dictionary<string, string>();
-
-        //    foreach (var ip in ips)
-        //    {
-        //        switches.Add(new AccessSwitch
-        //        {
-        //            Name = ip,
-        //            IP = ip,
-        //            User = "infosw",
-        //            Pass = "Ii123456!"
-        //        });
-        //    }
-
-        //    foreach (var sw in switches)
-        //    {
-        //        try
-        //        {
-        //            ConnectAndCollect(
-        //                new SwitchCfg(sw.IP, sw.Name, sw.User, sw.Pass),
-        //                macTables,
-        //                cdpOutputs,
-        //                options);
-
-        //            Thread.Sleep(options.DelayBetweenSwitchMs);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            Console.WriteLine($"[{sw.Name}] ERROR: {ex.Message}");
-        //        }
-        //    }
-
-        //    return MapMacsOnAccessSwitches(switches, macTables, cdpOutputs);
-        //}
 
         private static List<SwithInfo> MapMacsOnAccessSwitches(
     string startIp, string endIp, IProgress<int> progress)
@@ -193,10 +140,11 @@ namespace MyNetworkLib
         // ===================== FINAL MAC / PHONE / PC MAPPING =================
         // ======================================================================
 
+
         private static List<SwithInfo> MapMacsOnAccessSwitches(
-         List<AccessSwitch> switches,
-         Dictionary<string, List<MacEntry>> macTables,
-         Dictionary<string, string> cdpOutputs)
+             List<AccessSwitch> switches,
+             Dictionary<string, List<MacEntry>> macTables,
+             Dictionary<string, string> cdpOutputs)
         {
             var results = new List<SwithInfo>();
 
@@ -205,7 +153,7 @@ namespace MyNetworkLib
                 if (!macTables.TryGetValue(sw.Name, out var macList))
                     continue;
 
-                // گروه‌بندی بر اساس پورت
+                // گروه‌بندی بر اساس پورت فیزیکی
                 var grouped = macList.GroupBy(x => x.Port);
 
                 foreach (var g in grouped)
@@ -213,43 +161,69 @@ namespace MyNetworkLib
                     var port = g.Key;
                     var entries = g.ToList();
 
-                    // **حذف مک‌های تکراری - فقط یکبار هر مک رو در نظر بگیر**
+                    // حذف مک‌های تکراری محض اطمینان
                     var uniqueMacs = entries
                         .GroupBy(x => x.Mac)
-                        .Select(mg => mg.OrderBy(x => x.Vlan == "30" ? 0 : 1).First())
+                        .Select(mg => mg.First())
                         .ToList();
 
                     MacEntry phone = null;
                     MacEntry pc = null;
+                    MacEntry vt = null; // Video/Trunk Device (Vlan 200)
 
-                    if (uniqueMacs.Count == 1)
+                    foreach (var entry in uniqueMacs)
                     {
-                        var s = uniqueMacs[0];
-                        if (s.Vlan == "30")
-                            phone = s;
-                        else
-                            pc = s;
-                    }
-                    else
-                    {
-                        phone = uniqueMacs.FirstOrDefault(x => x.Vlan == "30");
-                        pc = uniqueMacs.FirstOrDefault(x => x.Vlan != "30");
+                        // سناریوی 4: ترانک است و VLAN 200 -> میره تو VT
+                        if (entry.IsTrunk && entry.Vlan == "200")
+                        {
+                            vt = entry;
+                        }
+                        // سناریوی 1 و 2: ترانک نیست و VLAN 30 -> میره تو Phone
+                        else if (!entry.IsTrunk && entry.Vlan == "30")
+                        {
+                            phone = entry;
+                        }
+                        // سناریوی 2 و 3: ترانک نیست و VLAN غیر 30 -> میره تو PC
+                        else if (!entry.IsTrunk && entry.Vlan != "30")
+                        {
+                            pc = entry;
+                        }
                     }
 
-                    string phoneIp = null;
-                    if (phone != null && cdpOutputs.TryGetValue(sw.Name, out var cdpTxt))
-                        phoneIp = ParseCdpIpForYourSwitch(cdpTxt, port);
+                    // اگر هیچ مکی پیدا نشد، ادامه بده
+                    if (pc == null && phone == null && vt == null) continue;
+
+                    // دریافت IP از CDP
+                    string cdpIp = null;
+                    if (cdpOutputs.TryGetValue(sw.Name, out var cdpTxt))
+                        cdpIp = ParseCdpIpForYourSwitch(cdpTxt, port);
+
+                    // منطق تخصیص IP CDP:
+                    // اگر VT داریم، IP مال اونه.
+                    // اگر VT نداریم ولی Phone داریم، IP مال اونه.
+                    string vtIp = (vt != null) ? cdpIp : null;
+                    string phoneIp = (vt == null && phone != null) ? cdpIp : null;
 
                     results.Add(new SwithInfo
                     {
                         SwitchIp = sw.IP,
                         SwitchPort = port,
+
+                        // PC Info
                         PcMac = FormatMac(pc?.Mac),
                         PcVlan = pc?.Vlan,
-                        PcIp = null,
+                        PcIp = null, // معمولا PC با CDP آی‌پی نمیدهد
+
+                        // Phone Info
                         PhoneMac = FormatMac(phone?.Mac),
                         PhoneVlan = phone?.Vlan,
                         PhoneIp = phoneIp,
+
+                        // VT Info (Trunk Vlan 200)
+                        VTMac = FormatMac(vt?.Mac),
+                        VTVlan = vt?.Vlan,
+                        VTIP = vtIp,
+
                         SystemInfoRef = 0
                     });
                 }
@@ -257,7 +231,6 @@ namespace MyNetworkLib
 
             return results;
         }
-
 
         // ======================================================================
         // ========================== SSH COLLECT ================================
@@ -405,7 +378,6 @@ namespace MyNetworkLib
         }
 
 
-
         // ======================================================================
         // ========================= PARSE MAC TABLE ============================
         // ======================================================================
@@ -419,6 +391,60 @@ namespace MyNetworkLib
                 RegexOptions.Multiline);
         }
 
+        //private static List<MacEntry> ParseMacAddressTableFiltered(string output, HashSet<string> trunkPorts)
+        //{
+        //    var rawList = new List<MacEntry>();
+        //    var lines = output.Split(new[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        //    foreach (var raw in lines)
+        //    {
+        //        var line = raw.Trim();
+        //        if (string.IsNullOrWhiteSpace(line)) continue;
+        //        if (line.StartsWith("Vlan", StringComparison.OrdinalIgnoreCase)) continue;
+        //        if (line.StartsWith("---")) continue;
+        //        if (line.StartsWith("Total", StringComparison.OrdinalIgnoreCase)) continue;
+
+        //        var m = Regex.Match(line,
+        //            @"^(?<vlan>\d+|All)\s+(?<mac>[0-9A-Fa-f\.]+)\s+(STATIC|DYNAMIC)\s+(?<port>(Gi|Fa|Te|GigabitEthernet|FastEthernet|TenGigabitEthernet)\S+)",
+        //            RegexOptions.IgnoreCase);
+
+        //        if (!m.Success) continue;
+
+        //        var vlan = m.Groups["vlan"].Value.Trim();
+        //        var mac = NormalizeMac(m.Groups["mac"].Value);
+        //        var port = m.Groups["port"].Value.Trim();
+
+        //        if (mac == null) continue;
+
+        //        // فیلتر موارد غیرضروری
+        //        if (vlan.Equals("All", StringComparison.OrdinalIgnoreCase)) continue;
+        //        if (port.Equals("CPU", StringComparison.OrdinalIgnoreCase)) continue;
+        //        if (trunkPorts.Contains(port) && vlan != "200") continue;
+
+
+        //        rawList.Add(new MacEntry
+        //        {
+        //            Vlan = vlan,
+        //            Mac = mac,
+        //            Port = port
+        //        });
+        //    }
+
+        //    // **اینجا کلیده! - گروه‌بندی بر اساس Port و Mac**
+        //    // هر مک که روی یک پورت چندبار دیده شده، فقط یکبار نگه داریم
+        //    var deduplicated = rawList
+        //        .GroupBy(x => new { x.Port, x.Mac })
+        //        .Select(g =>
+        //        {
+        //            // اولویت: اگر VLAN 30 وجود داشت، اونو بردار (تلفن)
+        //            // وگرنه اولین VLAN رو بردار
+        //            var preferred = g.FirstOrDefault(e => e.Vlan == "30") ?? g.First();
+        //            return preferred;
+        //        })
+        //        .ToList();
+
+        //    return deduplicated;
+        //}
         private static List<MacEntry> ParseMacAddressTableFiltered(string output, HashSet<string> trunkPorts)
         {
             var rawList = new List<MacEntry>();
@@ -444,30 +470,38 @@ namespace MyNetworkLib
 
                 if (mac == null) continue;
 
-                // فیلتر موارد غیرضروری
+                // فیلترهای عمومی
                 if (vlan.Equals("All", StringComparison.OrdinalIgnoreCase)) continue;
                 if (port.Equals("CPU", StringComparison.OrdinalIgnoreCase)) continue;
-                if (trunkPorts.Contains(port)) continue;
+
+                // تشخیص ترانک بودن پورت
+                bool isTrunkPort = trunkPorts.Contains(port);
+
+                // *** قانون اصلی فیلتر شما ***
+                // اگر پورت ترانک است:
+                if (isTrunkPort)
+                {
+                    // اگر VLAN 200 نیست، کلاً حذف کن (سناریوی 5 حذف میشود)
+                    // فقط سناریوی 4 (ترانک روی 200) باقی میماند
+                    if (vlan != "200")
+                        continue;
+                }
+                // اگر پورت اکسس است (isTrunkPort == false)، همه چیز (Vlan 30 و غیره) باقی می‌ماند
 
                 rawList.Add(new MacEntry
                 {
                     Vlan = vlan,
                     Mac = mac,
-                    Port = port
+                    Port = port,
+                    IsTrunk = isTrunkPort
                 });
             }
 
-            // **اینجا کلیده! - گروه‌بندی بر اساس Port و Mac**
-            // هر مک که روی یک پورت چندبار دیده شده، فقط یکبار نگه داریم
+            // حذف تکراری‌ها: اگر یک مک روی یک پورت چند بار دیده شده
+            // (مثلا یکبار داینامیک یکبار استاتیک و ...) فقط یکی را بردار
             var deduplicated = rawList
                 .GroupBy(x => new { x.Port, x.Mac })
-                .Select(g =>
-                {
-                    // اولویت: اگر VLAN 30 وجود داشت، اونو بردار (تلفن)
-                    // وگرنه اولین VLAN رو بردار
-                    var preferred = g.FirstOrDefault(e => e.Vlan == "30") ?? g.First();
-                    return preferred;
-                })
+                .Select(g => g.First())
                 .ToList();
 
             return deduplicated;
@@ -516,8 +550,6 @@ namespace MyNetworkLib
             return null;
         }
 
-
-
         // ======================================================================
         // ========================== NORMALIZE / FORMAT ========================
         // ======================================================================
@@ -540,7 +572,6 @@ namespace MyNetworkLib
             return string.Join(":",
                 Enumerable.Range(0, 6).Select(i => raw.Substring(i * 2, 2)));
         }
-
 
 
         public static List<string> GetIpRangePublic(string s, string e)

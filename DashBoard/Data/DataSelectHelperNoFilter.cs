@@ -161,13 +161,6 @@ namespace DashBoard.Data
             return cache.SystemInfos;
         }
 
-        //public SystemInfo SelectFullSystemInfo(int id)
-        //{
-        //    var cache = PreloadedDataCache.LoadAll(_dataSelectHelper);
-        //    DataLinker.LinkAllRelations(cache);
-        //    return cache.SystemInfoById[id];
-        //}
-
 
     }
 

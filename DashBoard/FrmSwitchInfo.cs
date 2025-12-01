@@ -39,19 +39,21 @@ namespace DashBoard
                     .Select(g => new
                     {
                         SwitchIp = g.Key,
-                        // هر گروه یک جدول فرزند دارد
-                        Details = g.OrderBy(x => x.SwitchPort)
-                                   .Select(x => new
-                                   {
-                                       UserFullName = x.UserFullName,
-                                       SwitchPort = x.SwitchPort,
-                                       PcMac = x.PcMac,
-                                       PcVlan = x.PcVlan,
-                                       PcIp = x.PcIp,
-                                       PhoneMac = x.PhoneMac,
-                                       PhoneVlan = x.PhoneVlan,
-                                       PhoneIp = x.PhoneIp
-                                   }).ToList()
+                        Details = g.OrderBy(x => ExtractPortNumber(x.SwitchPort))
+                                 .Select(x => new
+                                 {
+                                     UserFullName = x.UserFullName,
+                                     SwitchPort = x.SwitchPort,
+                                     PcMac = x.PcMac,
+                                     PcVlan = x.PcVlan,
+                                     PcIp = x.PcIp,
+                                     PhoneMac = x.PhoneMac,
+                                     PhoneVlan = x.PhoneVlan,
+                                     PhoneIp = x.PhoneIp,
+                                     VTMac = x.VTMac,
+                                     VTIp = x.VTIP,
+                                     VTVlan = x.VTVlan
+                                 }).ToList()
                     })
                     .ToList();
 
@@ -63,14 +65,17 @@ namespace DashBoard
                 var dsSw = new DataSet();
                 dsSw.Tables.Add(dtSwInfo);
 
-                gridControl1.DataSource = dsSw;
-                gridControl1.DataMember = "SwInfo";
-                gridControl1.UseEmbeddedNavigator = true;
-                ControlNavigator navigator = gridControl1.EmbeddedNavigator;
+                gridControl_1.DataSource = dsSw;
+                gridControl_1.DataMember = "SwInfo";
+                gridControl_1.UseEmbeddedNavigator = true;
+                ControlNavigator navigator = gridControl_1.EmbeddedNavigator;
 
-                gridView1.RowHeight = 35;
-                gridView1.OptionsBehavior.Editable = false;
-                gridView1.OptionsBehavior.ReadOnly = true;
+                gridView_1.RowHeight = 35;
+                gridView_1.OptionsBehavior.Editable = false;
+                gridView_1.OptionsBehavior.ReadOnly = true;
+
+                gridView_1.RowStyle -= gridView1_RowStyle;
+                gridView_1.RowStyle += gridView1_RowStyle;
 
             }
             catch (Exception ex)
@@ -81,6 +86,21 @@ namespace DashBoard
             {
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
             }
+        }
+
+        private int ExtractPortNumber(string port)
+        {
+            if (string.IsNullOrWhiteSpace(port))
+                return -1;
+
+            // آخرین بخش بعد از "/" را استخراج می‌کند
+            var parts = port.Split('/');
+            int num;
+
+            if (int.TryParse(parts.Last(), out num))
+                return num;
+
+            return -1;
         }
 
         public static DataTable ToDataTable<T>(List<T> items)
@@ -128,26 +148,11 @@ namespace DashBoard
             return BitConverter.ToUInt32(bytes, 0);
         }
 
+        void gridView1_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
+        {
+            e.Appearance.BackColor = e.RowHandle % 2 == 0 ? System.Drawing.Color.LightGray : System.Drawing.Color.WhiteSmoke;
+        }
+
     }
 }
 
-
-
-
-//public class SwithInfoLite
-//{
-//    public string UserFullName { get; set; }
-//    public string SwitchPort { get; set; }
-//    public string PcMac { get; set; }
-//    public string PcVlan { get; set; }
-//    public string PcIp { get; set; }
-//    public string PhoneMac { get; set; }
-//    public string PhoneVlan { get; set; }
-//    public string PhoneIp { get; set; }
-//}
-
-//public class SwitchGroup
-//{
-//    public string SwitchIp { get; set; }
-//    public List<SwithInfoLite> Records { get; set; }
-//}

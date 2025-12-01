@@ -30,14 +30,14 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmSwitchInfo));
             panel1 = new System.Windows.Forms.Panel();
-            panel2 = new System.Windows.Forms.Panel();
-            gridControl1 = new DevExpress.XtraGrid.GridControl();
-            gridView1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             btnRefreshInfo = new ReaLTaiizor.Controls.ParrotButton();
+            panel2 = new System.Windows.Forms.Panel();
+            gridControl_1 = new DevExpress.XtraGrid.GridControl();
+            gridView_1 = new DevExpress.XtraGrid.Views.Grid.GridView();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)gridControl1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)gridView1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)gridControl_1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)gridView_1).BeginInit();
             SuspendLayout();
             // 
             // panel1
@@ -48,30 +48,6 @@
             panel1.Name = "panel1";
             panel1.Size = new System.Drawing.Size(1287, 68);
             panel1.TabIndex = 0;
-            // 
-            // panel2
-            // 
-            panel2.Controls.Add(gridControl1);
-            panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            panel2.Location = new System.Drawing.Point(0, 68);
-            panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(1287, 586);
-            panel2.TabIndex = 1;
-            // 
-            // gridControl1
-            // 
-            gridControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            gridControl1.Location = new System.Drawing.Point(0, 0);
-            gridControl1.MainView = gridView1;
-            gridControl1.Name = "gridControl1";
-            gridControl1.Size = new System.Drawing.Size(1287, 586);
-            gridControl1.TabIndex = 3;
-            gridControl1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView1 });
-            // 
-            // gridView1
-            // 
-            gridView1.GridControl = gridControl1;
-            gridView1.Name = "gridView1";
             // 
             // btnRefreshInfo
             // 
@@ -95,6 +71,30 @@
             btnRefreshInfo.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             btnRefreshInfo.Vertical_Alignment = System.Drawing.StringAlignment.Center;
             // 
+            // panel2
+            // 
+            panel2.Controls.Add(gridControl_1);
+            panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            panel2.Location = new System.Drawing.Point(0, 68);
+            panel2.Name = "panel2";
+            panel2.Size = new System.Drawing.Size(1287, 586);
+            panel2.TabIndex = 1;
+            // 
+            // gridControl_1
+            // 
+            gridControl_1.Dock = System.Windows.Forms.DockStyle.Fill;
+            gridControl_1.Location = new System.Drawing.Point(0, 0);
+            gridControl_1.MainView = gridView_1;
+            gridControl_1.Name = "gridControl_1";
+            gridControl_1.Size = new System.Drawing.Size(1287, 586);
+            gridControl_1.TabIndex = 3;
+            gridControl_1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView_1 });
+            // 
+            // gridView1
+            // 
+            gridView_1.GridControl = gridControl_1;
+            gridView_1.Name = "gridView1";
+            // 
             // FrmSwitchInfo
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -107,8 +107,8 @@
             Load += FrmSwitchInfo_Load;
             panel1.ResumeLayout(false);
             panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)gridControl1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)gridView1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)gridControl_1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)gridView_1).EndInit();
             ResumeLayout(false);
         }
 
@@ -116,8 +116,8 @@
 
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private DevExpress.XtraGrid.GridControl gridControl1;
-        private DevExpress.XtraGrid.Views.Grid.GridView gridView1;
+        private DevExpress.XtraGrid.GridControl gridControl_1;
+        private DevExpress.XtraGrid.Views.Grid.GridView gridView_1;
         private ReaLTaiizor.Controls.ParrotButton btnRefreshInfo;
     }
 }

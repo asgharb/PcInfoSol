@@ -37,6 +37,16 @@ namespace DashBoard
 
             lblVersion.Text = "Version: " + Application.ProductVersion.Split('+')[0];
 
+            bool isAdminUser = !string.IsNullOrWhiteSpace(FrmLogin.User) &&
+                               FrmLogin.User.ToLower() == "admin";
+            if (isAdminUser)
+            {
+                btnSend.Enabled = true;
+            }
+            else
+            {
+                btnSend.Enabled = false;
+            }
             CenterPictureBox();
         }
 
@@ -145,6 +155,7 @@ namespace DashBoard
         {
             dragging = false;
         }
+
         private void CenterPictureBox()
         {
             pictureBox1.Left = (pnlParent.Width - pictureBox1.Width) / 2;

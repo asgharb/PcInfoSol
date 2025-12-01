@@ -223,64 +223,6 @@ VALUES ({string.Join(", ", parameters)})";
             }
         }
 
-        //public bool InsertList<T>(List<T> items)
-        //{
-        //    if (items == null || items.Count == 0)
-        //        return false;
-
-        //    var results = InsertSimple(items);
-        //    return results.All(r => r.Success);
-        //}
-
-
-        //public bool InsertMappingResults(List<SwithInfo> items)
-        //{
-        //    var successes = new List<SwithInfo>();
-
-        //    // مرتب‌سازی قبل از INSERT
-        //    var sortedItems = items
-        //        .OrderBy(x => x.SwitchIp)       // مرتب‌سازی بر اساس SwitchIp
-        //        .ThenBy(x => x.SwitchPort)     // مرتب‌سازی بعدی بر اساس SwitchPort
-        //        .ToList();
-
-        //    // 1) INSERT
-        //    foreach (var item in sortedItems)
-        //    {
-        //        if (InsertSimple(item, out var pk))
-        //        {
-        //            // ⭐⭐ مهم‌ترین خط ⭐⭐
-        //            if (pk != null && pk != DBNull.Value)
-        //                item.SwithInfoID = Convert.ToInt32(pk);
-
-        //            successes.Add(item);
-        //        }
-        //    }
-        //    if (successes.Count == 0)
-        //        return false;
-
-
-        //    // 2) Update SystemInfoRef
-        //    UpdateSystemInfoRefAfterInsert();
-
-
-        //    //// 3) Reload
-        //    //var refreshed = ReloadInserted(successes);
-
-
-        //    //// 4) Expire
-        //    //var grouped = refreshed
-        //    //    .Where(x => x.SystemInfoRef != 0)
-        //    //    .GroupBy(x => x.SystemInfoRef);
-
-        //    //foreach (var group in grouped)
-        //    //{
-        //    //    int sysRef = group.Key;
-        //    //    ExpireOldSwithInfo(sysRef);
-        //    //}
-
-        //    return true;
-        //}
-
         public bool InsertMappingResults(List<SwithInfo> items)
         {
             if (items == null || items.Count == 0)
@@ -465,79 +407,108 @@ VALUES ({string.Join(", ", parameters)})";
                     cmd.ExecuteNonQuery();
                 }
             }
+
+
+
+
+
+
+            string deleteQuery_Duplicate = @"
+  WITH Duplicates AS (
+    SELECT 
+        SwithInfoID, 
+        SwitchIp, 
+        SwitchPort,
+        PcMac,
+        PhoneMac,
+        -- به هر سطر یک شماره ردیف می‌دهیم
+        ROW_NUMBER() OVER (
+            -- 1. گروه‌بندی بر اساس پورت و سوئیچ (چون مشکل روی یک پورت خاص است)
+            PARTITION BY SwitchIp, SwitchPort 
+            
+            -- 2. اولویت‌بندی برای نگهداری (هرکدام بالاتر باشد می‌ماند)
+            ORDER BY 
+                -- الف: سطری که هم PC و هم Phone دارد بالاترین اولویت را دارد
+                CASE WHEN PcMac IS NOT NULL AND PhoneMac IS NOT NULL THEN 3 
+                     WHEN PcMac IS NOT NULL THEN 2 -- ب: فقط PC دارد
+                     WHEN PhoneMac IS NOT NULL THEN 1 -- ج: فقط تلفن دارد
+                     ELSE 0 END DESC,
+                
+                -- د: اگر از نظر پر بودن مساوی بودند، اونی که جدیدتر اینسرت شده بماند
+                InsertDate DESC 
+        ) AS RowNum
+    FROM SwithInfo
+)
+-- تمام سطرهایی که رتبه ۱ نشدند (یعنی تکراری یا ناقص هستند) را حذف کن
+DELETE FROM Duplicates 
+WHERE RowNum > 1;
+
+";
+
+            using (var conn = _dataHelper.GetConnectionClosed())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(deleteQuery_Duplicate, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+
+
+
+
+            string deleteQuery = @"DELETE FROM PcInfo.dbo.SystemEnvironmentInfo
+WHERE SystemEnvironmentInfoID NOT IN
+(
+    SELECT MAX(SystemEnvironmentInfoID) AS KeepId
+    FROM PcInfo.dbo.SystemEnvironmentInfo
+    GROUP BY
+        ComputerName,
+        UserName,
+        Domain,
+        OperatingSystem,
+        OsVersion,
+        IsRealVNCInstalled,
+        IsSemanticInstalled,
+        SystemInfoRef
+);
+
+  DELETE FROM [PcInfo].[dbo].[SwithInfo]
+WHERE [SwithInfoID] NOT IN
+(
+    SELECT MAX([SwithInfoID]) AS KeepId
+    FROM [PcInfo].[dbo].[SwithInfo]
+    GROUP BY
+       [SwitchIp]
+      ,[SwitchPort]
+      ,[PcMac]
+      ,[PcVlan]
+      ,[PcIp]
+      ,[PhoneMac]
+      ,[PhoneVlan]
+      ,[PhoneIp]
+      ,[UserFullName]
+      ,[SystemInfoRef]
+      ,[VTMac]
+      ,[VTIP]
+      ,[VTVlan]
+);
+";
+
+            using (var conn = _dataHelper.GetConnectionClosed())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(deleteQuery, conn))
+                {
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+
         }
 
 
-        //        public void ExpireOldSwithInfo(int systemInfoRef)
-        //        {
-        //            string query = @"
-        //UPDATE [SwithInfo]
-        //SET [ExpireDate] = @Now
-        //WHERE [SystemInfoRef] = @Fk
-        //  AND [SwithInfoID] <> (
-        //        SELECT MAX(SwithInfoID)
-        //        FROM [SwithInfo]
-        //        WHERE [SystemInfoRef] = @Fk
-        //    );
-        //";
-
-        //            using (var conn = _dataHelper.GetConnectionClosed())
-        //            {
-        //                conn.Open();
-        //                using (var cmd = new SqlCommand(query, conn))
-        //                {
-        //                    cmd.Parameters.AddWithValue("@Now", DateTime.Now);
-        //                    cmd.Parameters.AddWithValue("@Fk", systemInfoRef);
-        //                    cmd.ExecuteNonQuery();
-        //                }
-        //            }
-
-        //            string query2 = @"DELETE s  FROM [PcInfo].[dbo].[SwithInfo] s
-        //                              WHERE s.ExpireDate IS NOT NULL";
-
-        //            using (var conn2 = _dataHelper.GetConnectionClosed())
-        //            {
-        //                conn2.Open();
-        //                using (var cmd2 = new SqlCommand(query2, conn2))
-        //                {
-        //                    cmd2.ExecuteNonQuery();
-        //                }
-        //            }
-        //        }
-
-        //        private List<SwithInfo> ReloadInserted(List<SwithInfo> oldOnes)
-        //        {
-        //            var dataHelper = new DataHelper();
-
-        //            var ids = oldOnes
-        //                .Select(x => x.SwithInfoID)
-        //                .Where(id => id > 0)
-        //                .ToList();
-
-        //            if (ids.Count == 0)
-        //                return new List<SwithInfo>();
-
-        //            string idList = string.Join(",", ids);
-
-        //            string q = $"SELECT * FROM SwithInfo WHERE SwithInfoID IN ({idList})";
-
-        //            var dt = dataHelper.ExecuteQuery(q);
-        //            return dataHelper.ConvertToList<SwithInfo>(dt);
-        //        }
-
-        //public string NormalizeMac(string mac)
-        //{
-        //    if (string.IsNullOrWhiteSpace(mac))
-        //        return null;
-
-        //    return mac
-        //        .Replace(":", "")
-        //        .Replace("-", "")
-        //        .Replace(".", "")
-        //        .Replace(" ", "")
-        //        .Trim()
-        //        .ToUpper();
-        //}
 
         #endregion
 

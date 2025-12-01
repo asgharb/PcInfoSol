@@ -185,12 +185,6 @@ namespace DashBoard
 
         private async void BtnSend_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(txtPassword.Text) || txtPassword.Text != "123#@!")
-            {
-                MessageBox.Show(".رمز عبور اشتباه است");
-                this.Cursor = Cursors.Default;
-                return;
-            }
 
             string msg = txtMsg.Text?.Trim();
             if (string.IsNullOrEmpty(msg))
