@@ -1,11 +1,12 @@
 ﻿using MyNetworkLib;
+using SqlDataExtention.Data;
+using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,8 +14,8 @@ namespace DashBoard
 {
     public partial class SwichIpRange : Form
     {
-        public static string startIp = "1720.20.254.1";
-        public static string endIp = "1720.20.254.1";
+        public static string startIp = "192.168.254.1";
+        public static string endIp = "192.168.254.2";
 
         public static bool IsOkClicked = false;
 
@@ -76,31 +77,6 @@ namespace DashBoard
             this.Close();
         }
 
-        //private void btnOk_Click(object sender, EventArgs e)
-        //{
-        //    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-
-        //    string from = txtFrom.Text;
-        //    string to = txtTo.Text;
-
-        //    if (!ValidateIpRange(from, to))
-        //        return;
-        //    else
-        //    {
-        //        txtFrom.Enabled=txtTo.Enabled=false;
-        //        btnCancel.Enabled=btnOk.Enabled=false;
-        //        startIp = txtFrom.Text.Trim();
-        //        endIp = txtTo.Text.Trim();
-        //        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor;
-        //        NetworkMapper.InsertToDB(startIp, endIp);
-        //        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-        //        MessageBox.Show("محدوده آی‌پی با موفقیت اسکن شد.");
-        //        txtFrom.Enabled = txtTo.Enabled = true;
-        //        btnCancel.Enabled = btnOk.Enabled = true;
-        //    }
-        //    System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
-        //}
-
         private async void btnOk_Click(object sender, EventArgs e)
         {
             Cursor = Cursors.WaitCursor;
@@ -108,9 +84,15 @@ namespace DashBoard
             string from = txtFrom.Text;
             string to = txtTo.Text;
 
+            txtFrom.Enabled = txtTo.Enabled = false;
+            btnCancel.Enabled = btnOk.Enabled = false;
+
+            Thread.Sleep(500); 
             if (!ValidateIpRange(from, to))
             {
                 Cursor = Cursors.Default;
+                txtFrom.Enabled = txtTo.Enabled = true;
+                btnCancel.Enabled = btnOk.Enabled = true;
                 return;
             }
 
@@ -118,7 +100,7 @@ namespace DashBoard
             txtFrom.Enabled = txtTo.Enabled = false;
             btnCancel.Enabled = btnOk.Enabled = false;
 
-            var ips = NetworkMapper.GetIpRangePublic(from, to);
+            List<string> ips = NetworkMapper.GetIpRange(from, to);
             progressBar1.Minimum = 0;
             progressBar1.Maximum = ips.Count;
             progressBar1.Value = 0;
@@ -128,16 +110,26 @@ namespace DashBoard
                 progressBar1.Value = val;
             });
 
-            await Task.Run(() =>
+            // فراخوانی متد اسکن و دریافت نتیجه در متغیر results
+            List<SwithInfo> results = await Task.Run(() =>
             {
-                NetworkMapper.InsertToDB(from, to, progress);
+                // توجه: متد ScanNetworkRange لیست را برمی‌گرداند
+                return NetworkMapper.ScanNetworkRange(from, to, progress);
             });
 
-
-            var main = this.Owner as FrmShowPcInfo;
-            if (main != null)
+            // حالا results پر شده است و می‌توانید آن را به دیتابیس بفرستید
+            if (results != null && results.Count > 0)
             {
-                await main.InitializeDataAsync();
+                var helper = new DataInsertUpdateHelper();
+
+                // ارسال لیست به متد ذخیره‌سازی
+                bool ok = helper.InsertSwithchinfos(results);
+
+                Console.WriteLine(ok ? "درج انجام شد" : "خطا در درج یا لیست خالی بود");
+            }
+            else
+            {
+                Console.WriteLine("هیچ اطلاعاتی یافت نشد.");
             }
 
             MessageBox.Show("محدوده آی‌پی با موفقیت اسکن شد.");
@@ -218,6 +210,5 @@ namespace DashBoard
                  | ((long)parts[2] << 8)
                  | parts[3];
         }
-
     }
 }

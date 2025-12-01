@@ -22,6 +22,50 @@ namespace SqlDataExtention.Data
             _connectionString = _dataHelper.ConnectionString;
         }
 
+        public bool InsertSimpleWithoutOuput<T>(T obj)
+        {
+            Type type = typeof(T);
+            string tableName = EntityMetadataHelper.GetTableName(type);
+            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                            .Where(p => !EntityMetadataHelper.IsIgnored(p) &&
+                                        !EntityMetadataHelper.IsDbGenerated(p))
+                            .ToList();
+
+            var columns = props.Select(p => $"[{EntityMetadataHelper.GetColumnName(p)}]").ToList();
+            var parameters = props.Select(p => $"@{p.Name}").ToList();
+
+            string query = $@"
+        INSERT INTO [{tableName}] ({string.Join(", ", columns)})
+        VALUES ({string.Join(", ", parameters)})";
+
+            var sqlParams = props
+                .Select(p => new SqlParameter($"@{p.Name}", p.GetValue(obj) ?? DBNull.Value))
+                .ToArray();
+
+            try
+            {
+                _dataHelper.ExecuteNonQuery(query, sqlParams);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public bool InsertSimpleWithoutOuput<T>(List<T> items)
+        {
+            if (items == null || items.Count == 0)
+                return true; // هیچی نبود یعنی مشکلی نیست
+
+            foreach (var item in items)
+            {
+                if (!InsertSimpleWithoutOuput(item))
+                    return false; // اگر یک مورد fail شد، بقیه هم مهم نیست
+            }
+
+            return true;
+        }
         #region Insert 
         public bool InsertSimple<T>(T obj, out object primaryKeyValue)
         {
@@ -223,7 +267,10 @@ VALUES ({string.Join(", ", parameters)})";
             }
         }
 
-        public bool InsertMappingResults(List<SwithInfo> items)
+        #endregion
+
+        #region SwithInfo Insert with Update
+        public bool InsertSwithchinfos(List<SwithInfo> items)
         {
             if (items == null || items.Count == 0)
                 return false;
@@ -251,133 +298,6 @@ VALUES ({string.Join(", ", parameters)})";
 
             return true;
         }
-
-        public bool InsertSimpleWithoutOuput<T>(T obj)
-        {
-            Type type = typeof(T);
-            string tableName = EntityMetadataHelper.GetTableName(type);
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                            .Where(p => !EntityMetadataHelper.IsIgnored(p) &&
-                                        !EntityMetadataHelper.IsDbGenerated(p))
-                            .ToList();
-
-            var columns = props.Select(p => $"[{EntityMetadataHelper.GetColumnName(p)}]").ToList();
-            var parameters = props.Select(p => $"@{p.Name}").ToList();
-
-            string query = $@"
-        INSERT INTO [{tableName}] ({string.Join(", ", columns)})
-        VALUES ({string.Join(", ", parameters)})";
-
-            var sqlParams = props
-                .Select(p => new SqlParameter($"@{p.Name}", p.GetValue(obj) ?? DBNull.Value))
-                .ToArray();
-
-            try
-            {
-                _dataHelper.ExecuteNonQuery(query, sqlParams);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool InsertSimpleWithoutOuput<T>(List<T> items)
-        {
-            if (items == null || items.Count == 0)
-                return true; // هیچی نبود یعنی مشکلی نیست
-
-            foreach (var item in items)
-            {
-                if (!InsertSimpleWithoutOuput(item))
-                    return false; // اگر یک مورد fail شد، بقیه هم مهم نیست
-            }
-
-            return true;
-        }
-
-
-        //        public void UpdateSystemInfoRefAfterInsert()
-        //        {
-        //            var select = new DataSelectHelper();
-        //            var dataHelper = new DataHelper();
-
-        //            // 1) خواندن NetworkAdapterInfo (Active)
-        //            var adapters = select.SelectAllWitoutConditonal<NetworkAdapterInfo>()
-        //                .Where(x => !string.IsNullOrEmpty(x.MACAddress))
-        //                .ToList();
-
-        //            if (adapters == null || adapters.Count == 0) return;
-
-        //            // 2) خواندن SwithInfo هایی که SystemInfoRef = 0 یا NULL هستند
-        //            string getSwitchInfoQuery = @"
-        //SELECT * FROM [SwithInfo]
-        //WHERE (SystemInfoRef IS NULL OR SystemInfoRef = 0)
-        //  AND (ExpireDate IS NULL)";
-
-        //            var dtSwitch = dataHelper.ExecuteQuery(getSwitchInfoQuery);
-        //            var openSwitchInfos = dataHelper.ConvertToList<SwithInfo>(dtSwitch);
-
-        //            if (openSwitchInfos == null || openSwitchInfos.Count == 0) return;
-
-        //            using (var conn = dataHelper.GetConnectionClosed())
-        //            {
-        //                conn.Open();
-
-        //                // 3) آپدیت SwithInfo بر اساس MAC
-        //                foreach (var sw in openSwitchInfos)
-        //                {
-        //                    if (string.IsNullOrEmpty(sw.PcMac))
-        //                        continue;
-
-        //                    string swMac = NormalizeMac(sw.PcMac);
-
-        //                    var match = adapters.FirstOrDefault(a =>
-        //                        NormalizeMac(a.MACAddress) == swMac);
-
-        //                    if (match == null)
-        //                        continue;
-
-        //                    string updateQuery = @"
-        //UPDATE [SwithInfo]
-        //SET SystemInfoRef = @SysRef,
-        //    PcIp = @PcIp
-        //WHERE SwithInfoID = @Id";
-
-        //                    using (var cmd = new SqlCommand(updateQuery, conn))
-        //                    {
-        //                        cmd.Parameters.AddWithValue("@SysRef", match.SystemInfoRef);
-        //                        cmd.Parameters.AddWithValue("@PcIp",
-        //                            string.IsNullOrEmpty(match.IpAddress)
-        //                                ? (object)DBNull.Value
-        //                                : match.IpAddress);
-        //                        cmd.Parameters.AddWithValue("@Id", sw.SwithInfoID);
-
-        //                        cmd.ExecuteNonQuery();
-        //                    }
-        //                }
-
-        //                // 4) آپدیت ستون UserFullName در [SwithInfo] بر اساس [PcCodeInfo]
-        //                string updateUserQuery = @"
-        //UPDATE sw
-        //SET sw.UserFullName = pc.UserFullName
-        //FROM [SwithInfo] sw
-        //INNER JOIN [PcCodeInfo] pc
-        //    ON sw.SystemInfoRef = pc.SystemInfoRef
-        //WHERE pc.ExpireDate IS NULL
-        //  AND sw.SystemInfoRef IS NOT NULL";  // فقط ردیف‌های معتبر
-
-
-        //                using (var cmd = new SqlCommand(updateUserQuery, conn))
-        //                {
-        //                    cmd.ExecuteNonQuery();
-        //                }
-
-        //                conn.Close();
-        //            }
-        //        }
-
         public void UpdateSystemInfoRefAfterInsert()
         {
             var select = new DataSelectHelper();
@@ -385,19 +305,17 @@ VALUES ({string.Join(", ", parameters)})";
 
 
             string updateSwithInfo = @"UPDATE Sw
-                 SET Sw.SystemInfoRef = n.SystemInfoRef,
-                     Sw.PcIp = n.IpAddress,
-                     Sw.UserFullName = pci.UserFullName
-                 FROM dbo.SwithInfo Sw
-                 INNER JOIN dbo.NetworkAdapterInfo n 
-                     ON Sw.PcMac IS NOT NULL
-                     AND n.MACAddress IS NOT NULL
-                     AND REPLACE(TRIM(Sw.PcMac), ':', '') = REPLACE(TRIM(n.MACAddress), ':', '')
-                 INNER JOIN dbo.PcCodeInfo pci 
-                     ON pci.SystemInfoRef = n.SystemInfoRef
-                 WHERE n.ExpireDate IS NULL
-                 AND pci.ExpireDate IS NULL;
-                 ";
+SET    Sw.SystemInfoRef = Nad.SystemInfoRef
+      ,Sw.PcIp = Nad.IpAddress
+      ,Sw.UserFullName = pci.UserFullName 
+      ,Sw.PcCode=pci.PcCode
+FROM dbo.SwithInfo Sw
+INNER JOIN dbo.NetworkAdapterInfo Nad ON Sw.PcMac IS NOT NULL
+	                                     AND Nad.MACAddress IS NOT NULL
+	                                     AND REPLACE(TRIM(Sw.PcMac), ':', '') = REPLACE(TRIM(Nad.MACAddress), ':', '')
+INNER JOIN dbo.PcCodeInfo pci ON pci.SystemInfoRef = Nad.SystemInfoRef
+WHERE Nad.ExpireDate IS NULL
+AND pci.ExpireDate IS NULL;";
 
             using (var conn = _dataHelper.GetConnectionClosed())
             {
@@ -507,10 +425,10 @@ WHERE [SwithInfoID] NOT IN
 
 
         }
-
-
-
         #endregion
+
+
+
 
 
         #region ApplyDifferences 

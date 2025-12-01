@@ -1,11 +1,13 @@
 ﻿using DashBoard.Data;
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid.Views.Grid;
 using MyNetworkLib;
 using SqlDataExtention.Data;
 using SqlDataExtention.Entity;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Reflection;
@@ -42,17 +44,19 @@ namespace DashBoard
                         Details = g.OrderBy(x => ExtractPortNumber(x.SwitchPort))
                                  .Select(x => new
                                  {
-                                     UserFullName = x.UserFullName,
+
                                      SwitchPort = x.SwitchPort,
+                                     Pccode =x.PcCode,
+                                     UserFullName = x.UserFullName,
                                      PcMac = x.PcMac,
                                      PcVlan = x.PcVlan,
                                      PcIp = x.PcIp,
                                      PhoneMac = x.PhoneMac,
-                                     PhoneVlan = x.PhoneVlan,
+                                     //PhoneVlan = x.PhoneVlan,
                                      PhoneIp = x.PhoneIp,
                                      VTMac = x.VTMac,
                                      VTIp = x.VTIP,
-                                     VTVlan = x.VTVlan
+                                     //VTVlan = x.VTVlan
                                  }).ToList()
                     })
                     .ToList();
@@ -77,6 +81,11 @@ namespace DashBoard
                 gridView_1.RowStyle -= gridView1_RowStyle;
                 gridView_1.RowStyle += gridView1_RowStyle;
 
+                gridView_1.MasterRowExpanded += GridView1_MasterRowExpanded;
+                //gridView_1.OptionsBehavior.AllowAddRows = DevExpress.Utils.DefaultBoolean.False;
+                //gridView_1.OptionsView.NewItemRowPosition = NewItemRowPosition.None;
+
+
             }
             catch (Exception ex)
             {
@@ -85,6 +94,31 @@ namespace DashBoard
             finally
             {
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default;
+            }
+        }
+
+        private void GridView1_MasterRowExpanded(object sender, CustomMasterRowEventArgs e)
+        {
+            GridView masterView = sender as GridView;
+            GridView detailView = masterView.GetDetailView(e.RowHandle, e.RelationIndex) as GridView;
+
+            if (detailView == null)
+                return;
+
+            var PCMac_Col = detailView.Columns.ColumnByFieldName("PcMac");
+            if (PCMac_Col != null)
+            {
+                PCMac_Col.AppearanceCell.BackColor = Color.LightYellow;
+                PCMac_Col.AppearanceCell.ForeColor = Color.Black;
+            }
+
+
+            // چک اینکه آیا این DetailView ستون PcCode دارد یا نه
+            var PhoneMac_Col = detailView.Columns.ColumnByFieldName("PhoneMac");
+            if (PhoneMac_Col != null)
+            {
+                PhoneMac_Col.AppearanceCell.BackColor = Color.LightYellow;
+                PhoneMac_Col.AppearanceCell.ForeColor = Color.Black;
             }
         }
 

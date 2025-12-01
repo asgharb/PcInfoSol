@@ -27,13 +27,15 @@ namespace DashBoard
             pnlHead.MouseDown += pnlHead_MouseDown;
             pnlHead.MouseMove += pnlHead_MouseMove;
             pnlHead.MouseUp += pnlHead_MouseUp;
+
+            this.FormClosed += FrmMain_FormClosed;
         }
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            pnlSideSwitch.Visible = false;
-            pnlSideInbox.Visible = false;
-            pnlSideSend.Visible = false;
+            //pnlSideSwitch.Visible = false;
+            //pnlSideInbox.Visible = false;
+            //pnlSideSend.Visible = false;
 
             lblVersion.Text = "Version: " + Application.ProductVersion.Split('+')[0];
 
@@ -119,12 +121,20 @@ namespace DashBoard
 
         private void btnShowPcInfo_Click(object sender, EventArgs e)
         {
+
+
+            btnShowPcInfo.BackgroundColor = Color.FromArgb(243, 112, 33);
+            pnlPcInfo.BackColor = Color.FromArgb(243, 112, 33);
+
+            pnlSendMsg.BackColor = Color.FromArgb(33, 37, 41);
+            btnSend.BackgroundColor = Color.FromArgb(33, 37, 41);
+
+            btnSwithchInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
+            pnlSwitchInfo.BackColor = Color.FromArgb(33, 37, 41);
+
+
             if (activeForm is FrmShowPcInfo)
                 return;
-
-            pnlSideInbox.Visible = true;
-            pnlSideSwitch.Visible = false;
-            pnlSideSend.Visible = false;
 
             OpenChildForm(new FrmShowPcInfo());
         }
@@ -164,11 +174,18 @@ namespace DashBoard
 
         private void btnSend_Click(object sender, EventArgs e)
         {
+
+            btnShowPcInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
+            pnlPcInfo.BackColor = Color.FromArgb(33, 37, 41);
+
+            pnlSendMsg.BackColor = Color.FromArgb(243, 112, 33);
+            btnSend.BackgroundColor = Color.FromArgb(243, 112, 33);
+
+            btnSwithchInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
+            pnlSwitchInfo.BackColor = Color.FromArgb(33, 37, 41);
+
             if (activeForm is FrmSendMsg)
                 return;
-            pnlSideSend.Visible = true;
-            pnlSideInbox.Visible = false;
-            pnlSideSwitch.Visible = false;
 
             OpenChildForm(new FrmSendMsg());
         }
@@ -176,13 +193,28 @@ namespace DashBoard
         private void btnSwithchInfo_Click(object sender, EventArgs e)
         {
 
+            btnShowPcInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
+            pnlPcInfo.BackColor = Color.FromArgb(33, 37, 41);
+
+            pnlSendMsg.BackColor = Color.FromArgb(33, 37, 41);
+            btnSend.BackgroundColor = Color.FromArgb(33, 37, 41);
+
+            btnSwithchInfo.BackgroundColor = Color.FromArgb(243, 112, 33);
+            pnlSwitchInfo.BackColor = Color.FromArgb(243, 112, 33);
+
             if (activeForm is FrmSwitchInfo)
                 return;
-            pnlSideSend.Visible = false;
-            pnlSideInbox.Visible = false;
-            pnlSideSwitch.Visible = true;
+
+
 
             OpenChildForm(new FrmSwitchInfo());
         }
+
+        private void FrmMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            // وقتی فرم بسته شد، کل برنامه بسته شود
+            Application.Exit();
+        }
+
     }
 }

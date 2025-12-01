@@ -40,23 +40,22 @@ namespace DashBoard
             nightControlBox1 = new ReaLTaiizor.Controls.NightControlBox();
             Timer_Sidebar_Menu = new Timer(components);
             SideBar = new Panel();
-            panel5 = new Panel();
-            pnlSideInbox = new Panel();
-            btnShowPcInfo = new ReaLTaiizor.Controls.ParrotButton();
-            panel3 = new Panel();
-            pnlSideSwitch = new Panel();
-            btnSwithchInfo = new ReaLTaiizor.Controls.ParrotButton();
-            panel2 = new Panel();
-            pnlSideSend = new Panel();
-            btnSend = new ReaLTaiizor.Controls.ParrotButton();
+            panel1 = new Panel();
             btnMenu = new ReaLTaiizor.Controls.ParrotButton();
+            pnlPcInfo = new Panel();
+            btnShowPcInfo = new ReaLTaiizor.Controls.ParrotButton();
+            pnlSwitchInfo = new Panel();
+            btnSwithchInfo = new ReaLTaiizor.Controls.ParrotButton();
+            pnlSendMsg = new Panel();
+            btnSend = new ReaLTaiizor.Controls.ParrotButton();
             pnlParent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             pnlHead.SuspendLayout();
             SideBar.SuspendLayout();
-            panel5.SuspendLayout();
-            panel3.SuspendLayout();
-            panel2.SuspendLayout();
+            panel1.SuspendLayout();
+            pnlPcInfo.SuspendLayout();
+            pnlSwitchInfo.SuspendLayout();
+            pnlSendMsg.SuspendLayout();
             SuspendLayout();
             // 
             // pnlParent
@@ -82,7 +81,7 @@ namespace DashBoard
             // 
             // pnlHead
             // 
-            pnlHead.BackColor = Color.FromArgb(56, 142, 60);
+            pnlHead.BackColor = Color.FromArgb(41, 128, 185);
             pnlHead.Controls.Add(lblVersion);
             pnlHead.Controls.Add(nightControlBox1);
             pnlHead.Dock = DockStyle.Top;
@@ -132,11 +131,11 @@ namespace DashBoard
             // 
             // SideBar
             // 
-            SideBar.BackColor = Color.FromArgb(35, 40, 45);
-            SideBar.Controls.Add(panel5);
-            SideBar.Controls.Add(panel3);
-            SideBar.Controls.Add(panel2);
-            SideBar.Controls.Add(btnMenu);
+            SideBar.BackColor = Color.FromArgb(33, 37, 41);
+            SideBar.Controls.Add(panel1);
+            SideBar.Controls.Add(pnlPcInfo);
+            SideBar.Controls.Add(pnlSwitchInfo);
+            SideBar.Controls.Add(pnlSendMsg);
             SideBar.Dock = DockStyle.Left;
             SideBar.Location = new Point(0, 0);
             SideBar.MaximumSize = new Size(135, 1647);
@@ -145,23 +144,48 @@ namespace DashBoard
             SideBar.Size = new Size(135, 596);
             SideBar.TabIndex = 16;
             // 
-            // panel5
+            // panel1
             // 
-            panel5.Controls.Add(pnlSideInbox);
-            panel5.Controls.Add(btnShowPcInfo);
-            panel5.Location = new Point(3, 95);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(130, 53);
-            panel5.TabIndex = 15;
+            panel1.BackColor = Color.FromArgb(25, 30, 35);
+            panel1.Controls.Add(btnMenu);
+            panel1.Dock = DockStyle.Top;
+            panel1.Location = new Point(0, 0);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(135, 31);
+            panel1.TabIndex = 16;
             // 
-            // pnlSideInbox
+            // btnMenu
             // 
-            pnlSideInbox.BackColor = Color.FromArgb(56, 142, 60);
-            pnlSideInbox.Dock = DockStyle.Left;
-            pnlSideInbox.Location = new Point(0, 0);
-            pnlSideInbox.Name = "pnlSideInbox";
-            pnlSideInbox.Size = new Size(3, 53);
-            pnlSideInbox.TabIndex = 13;
+            btnMenu.BackgroundColor = Color.FromArgb(35, 40, 45);
+            btnMenu.ButtonImage = (Image)resources.GetObject("btnMenu.ButtonImage");
+            btnMenu.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
+            btnMenu.ButtonText = "";
+            btnMenu.ClickBackColor = Color.FromArgb(25, 30, 35);
+            btnMenu.ClickTextColor = Color.FromArgb(243, 112, 33);
+            btnMenu.CornerRadius = 5;
+            btnMenu.Dock = DockStyle.Fill;
+            btnMenu.Font = new Font("Segoe UI", 11.25F);
+            btnMenu.Horizontal_Alignment = StringAlignment.Center;
+            btnMenu.HoverBackgroundColor = Color.FromArgb(25, 30, 35);
+            btnMenu.HoverTextColor = Color.FromArgb(243, 112, 33);
+            btnMenu.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
+            btnMenu.Location = new Point(0, 0);
+            btnMenu.Name = "btnMenu";
+            btnMenu.Size = new Size(135, 31);
+            btnMenu.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            btnMenu.TabIndex = 9;
+            btnMenu.TextColor = Color.FromArgb(243, 112, 33);
+            btnMenu.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            btnMenu.Vertical_Alignment = StringAlignment.Center;
+            btnMenu.Click += btnMenu_Click;
+            // 
+            // pnlPcInfo
+            // 
+            pnlPcInfo.Controls.Add(btnShowPcInfo);
+            pnlPcInfo.Location = new Point(3, 98);
+            pnlPcInfo.Name = "pnlPcInfo";
+            pnlPcInfo.Size = new Size(130, 53);
+            pnlPcInfo.TabIndex = 15;
             // 
             // btnShowPcInfo
             // 
@@ -169,17 +193,18 @@ namespace DashBoard
             btnShowPcInfo.ButtonImage = (Image)resources.GetObject("btnShowPcInfo.ButtonImage");
             btnShowPcInfo.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
             btnShowPcInfo.ButtonText = "Pc Info";
-            btnShowPcInfo.ClickBackColor = Color.FromArgb(35, 40, 45);
+            btnShowPcInfo.ClickBackColor = Color.Transparent;
             btnShowPcInfo.ClickTextColor = Color.White;
             btnShowPcInfo.CornerRadius = 5;
+            btnShowPcInfo.Dock = DockStyle.Fill;
             btnShowPcInfo.Font = new Font("Segoe UI", 11.25F);
             btnShowPcInfo.Horizontal_Alignment = StringAlignment.Center;
             btnShowPcInfo.HoverBackgroundColor = Color.FromArgb(35, 40, 45);
             btnShowPcInfo.HoverTextColor = Color.White;
             btnShowPcInfo.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
-            btnShowPcInfo.Location = new Point(8, 3);
+            btnShowPcInfo.Location = new Point(0, 0);
             btnShowPcInfo.Name = "btnShowPcInfo";
-            btnShowPcInfo.Size = new Size(113, 47);
+            btnShowPcInfo.Size = new Size(130, 53);
             btnShowPcInfo.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             btnShowPcInfo.TabIndex = 10;
             btnShowPcInfo.TextColor = Color.White;
@@ -187,23 +212,13 @@ namespace DashBoard
             btnShowPcInfo.Vertical_Alignment = StringAlignment.Center;
             btnShowPcInfo.Click += btnShowPcInfo_Click;
             // 
-            // panel3
+            // pnlSwitchInfo
             // 
-            panel3.Controls.Add(pnlSideSwitch);
-            panel3.Controls.Add(btnSwithchInfo);
-            panel3.Location = new Point(3, 243);
-            panel3.Name = "panel3";
-            panel3.Size = new Size(130, 53);
-            panel3.TabIndex = 15;
-            // 
-            // pnlSideSwitch
-            // 
-            pnlSideSwitch.BackColor = Color.FromArgb(56, 142, 60);
-            pnlSideSwitch.Dock = DockStyle.Left;
-            pnlSideSwitch.Location = new Point(0, 0);
-            pnlSideSwitch.Name = "pnlSideSwitch";
-            pnlSideSwitch.Size = new Size(3, 53);
-            pnlSideSwitch.TabIndex = 13;
+            pnlSwitchInfo.Controls.Add(btnSwithchInfo);
+            pnlSwitchInfo.Location = new Point(3, 246);
+            pnlSwitchInfo.Name = "pnlSwitchInfo";
+            pnlSwitchInfo.Size = new Size(130, 53);
+            pnlSwitchInfo.TabIndex = 15;
             // 
             // btnSwithchInfo
             // 
@@ -211,17 +226,18 @@ namespace DashBoard
             btnSwithchInfo.ButtonImage = (Image)resources.GetObject("btnSwithchInfo.ButtonImage");
             btnSwithchInfo.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
             btnSwithchInfo.ButtonText = "Swithch Info";
-            btnSwithchInfo.ClickBackColor = Color.FromArgb(35, 40, 45);
+            btnSwithchInfo.ClickBackColor = Color.Transparent;
             btnSwithchInfo.ClickTextColor = Color.White;
             btnSwithchInfo.CornerRadius = 5;
+            btnSwithchInfo.Dock = DockStyle.Fill;
             btnSwithchInfo.Font = new Font("Segoe UI", 11.25F);
             btnSwithchInfo.Horizontal_Alignment = StringAlignment.Center;
             btnSwithchInfo.HoverBackgroundColor = Color.FromArgb(35, 40, 45);
             btnSwithchInfo.HoverTextColor = Color.White;
             btnSwithchInfo.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
-            btnSwithchInfo.Location = new Point(8, 3);
+            btnSwithchInfo.Location = new Point(0, 0);
             btnSwithchInfo.Name = "btnSwithchInfo";
-            btnSwithchInfo.Size = new Size(113, 47);
+            btnSwithchInfo.Size = new Size(130, 53);
             btnSwithchInfo.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             btnSwithchInfo.TabIndex = 12;
             btnSwithchInfo.TextColor = Color.White;
@@ -229,23 +245,13 @@ namespace DashBoard
             btnSwithchInfo.Vertical_Alignment = StringAlignment.Center;
             btnSwithchInfo.Click += btnSwithchInfo_Click;
             // 
-            // panel2
+            // pnlSendMsg
             // 
-            panel2.Controls.Add(pnlSideSend);
-            panel2.Controls.Add(btnSend);
-            panel2.Location = new Point(3, 171);
-            panel2.Name = "panel2";
-            panel2.Size = new Size(130, 53);
-            panel2.TabIndex = 14;
-            // 
-            // pnlSideSend
-            // 
-            pnlSideSend.BackColor = Color.FromArgb(56, 142, 60);
-            pnlSideSend.Dock = DockStyle.Left;
-            pnlSideSend.Location = new Point(0, 0);
-            pnlSideSend.Name = "pnlSideSend";
-            pnlSideSend.Size = new Size(3, 53);
-            pnlSideSend.TabIndex = 13;
+            pnlSendMsg.Controls.Add(btnSend);
+            pnlSendMsg.Location = new Point(3, 174);
+            pnlSendMsg.Name = "pnlSendMsg";
+            pnlSendMsg.Size = new Size(130, 53);
+            pnlSendMsg.TabIndex = 14;
             // 
             // btnSend
             // 
@@ -253,47 +259,24 @@ namespace DashBoard
             btnSend.ButtonImage = (Image)resources.GetObject("btnSend.ButtonImage");
             btnSend.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
             btnSend.ButtonText = "Send Msg";
-            btnSend.ClickBackColor = Color.FromArgb(35, 40, 45);
+            btnSend.ClickBackColor = Color.Transparent;
             btnSend.ClickTextColor = Color.White;
             btnSend.CornerRadius = 5;
+            btnSend.Dock = DockStyle.Fill;
             btnSend.Font = new Font("Segoe UI", 11.25F);
             btnSend.Horizontal_Alignment = StringAlignment.Center;
             btnSend.HoverBackgroundColor = Color.FromArgb(35, 40, 45);
             btnSend.HoverTextColor = Color.White;
             btnSend.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
-            btnSend.Location = new Point(8, 3);
+            btnSend.Location = new Point(0, 0);
             btnSend.Name = "btnSend";
-            btnSend.Size = new Size(113, 47);
+            btnSend.Size = new Size(130, 53);
             btnSend.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             btnSend.TabIndex = 12;
             btnSend.TextColor = Color.White;
             btnSend.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             btnSend.Vertical_Alignment = StringAlignment.Center;
             btnSend.Click += btnSend_Click;
-            // 
-            // btnMenu
-            // 
-            btnMenu.BackgroundColor = Color.FromArgb(35, 40, 45);
-            btnMenu.ButtonImage = (Image)resources.GetObject("btnMenu.ButtonImage");
-            btnMenu.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
-            btnMenu.ButtonText = "Menu";
-            btnMenu.ClickBackColor = Color.FromArgb(35, 40, 45);
-            btnMenu.ClickTextColor = Color.White;
-            btnMenu.CornerRadius = 5;
-            btnMenu.Font = new Font("Segoe UI", 11.25F);
-            btnMenu.Horizontal_Alignment = StringAlignment.Center;
-            btnMenu.HoverBackgroundColor = Color.FromArgb(35, 40, 45);
-            btnMenu.HoverTextColor = Color.White;
-            btnMenu.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
-            btnMenu.Location = new Point(7, 15);
-            btnMenu.Name = "btnMenu";
-            btnMenu.Size = new Size(120, 28);
-            btnMenu.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            btnMenu.TabIndex = 9;
-            btnMenu.TextColor = Color.White;
-            btnMenu.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            btnMenu.Vertical_Alignment = StringAlignment.Center;
-            btnMenu.Click += btnMenu_Click;
             // 
             // FrmMain
             // 
@@ -312,9 +295,10 @@ namespace DashBoard
             pnlHead.ResumeLayout(false);
             pnlHead.PerformLayout();
             SideBar.ResumeLayout(false);
-            panel5.ResumeLayout(false);
-            panel3.ResumeLayout(false);
-            panel2.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            pnlPcInfo.ResumeLayout(false);
+            pnlSwitchInfo.ResumeLayout(false);
+            pnlSendMsg.ResumeLayout(false);
             ResumeLayout(false);
 
 
@@ -328,16 +312,14 @@ namespace DashBoard
         private ReaLTaiizor.Controls.NightControlBox nightControlBox1;
         private Timer Timer_Sidebar_Menu;
         private Panel SideBar;
-        private Panel panel5;
-        private Panel pnlSideInbox;
+        private Panel pnlPcInfo;
         private ReaLTaiizor.Controls.ParrotButton btnShowPcInfo;
-        private Panel panel3;
-        private Panel pnlSideSwitch;
+        private Panel pnlSwitchInfo;
         private ReaLTaiizor.Controls.ParrotButton btnSwithchInfo;
-        private Panel panel2;
-        private Panel pnlSideSend;
+        private Panel pnlSendMsg;
         private ReaLTaiizor.Controls.ParrotButton btnSend;
         private ReaLTaiizor.Controls.ParrotButton btnMenu;
         private Label lblVersion;
+        private Panel panel1;
     }
 }

@@ -21,6 +21,7 @@ namespace DashBoard
             {
                 // 3. اگر لاگین موفق بود، حالا فرم اصلی را اجرا کنید
                 // این باعث می‌شود FrmMain تبدیل به فرم اصلی برنامه شود
+                //Application.Run(new FrmMainModern());
                 Application.Run(new FrmMain());
             }
             else

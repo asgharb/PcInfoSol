@@ -26,7 +26,7 @@ namespace SqlDataExtention.Entity
         public string VTIP { get; set; }
         public string VTVlan { get; set; }
 
-
+        public string PcCode { get; set; }
         public string UserFullName { get; set; }
     }
 }
