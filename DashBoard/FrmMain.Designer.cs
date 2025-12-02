@@ -41,7 +41,7 @@ namespace DashBoard
             Timer_Sidebar_Menu = new Timer(components);
             SideBar = new Panel();
             panel1 = new Panel();
-            btnMenu = new ReaLTaiizor.Controls.ParrotButton();
+            picMenu = new PictureBox();
             pnlPcInfo = new Panel();
             btnShowPcInfo = new ReaLTaiizor.Controls.ParrotButton();
             pnlSwitchInfo = new Panel();
@@ -53,6 +53,7 @@ namespace DashBoard
             pnlHead.SuspendLayout();
             SideBar.SuspendLayout();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)picMenu).BeginInit();
             pnlPcInfo.SuspendLayout();
             pnlSwitchInfo.SuspendLayout();
             pnlSendMsg.SuspendLayout();
@@ -60,7 +61,7 @@ namespace DashBoard
             // 
             // pnlParent
             // 
-            pnlParent.BackColor = SystemColors.ActiveCaption;
+            pnlParent.BackColor = SystemColors.GradientInactiveCaption;
             pnlParent.Controls.Add(pictureBox1);
             pnlParent.Dock = DockStyle.Fill;
             pnlParent.Location = new Point(135, 31);
@@ -146,38 +147,24 @@ namespace DashBoard
             // 
             // panel1
             // 
-            panel1.BackColor = Color.FromArgb(25, 30, 35);
-            panel1.Controls.Add(btnMenu);
+            panel1.BackColor = Color.FromArgb(243, 112, 33);
+            panel1.Controls.Add(picMenu);
             panel1.Dock = DockStyle.Top;
             panel1.Location = new Point(0, 0);
             panel1.Name = "panel1";
             panel1.Size = new Size(135, 31);
             panel1.TabIndex = 16;
             // 
-            // btnMenu
+            // picMenu
             // 
-            btnMenu.BackgroundColor = Color.FromArgb(35, 40, 45);
-            btnMenu.ButtonImage = (Image)resources.GetObject("btnMenu.ButtonImage");
-            btnMenu.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
-            btnMenu.ButtonText = "";
-            btnMenu.ClickBackColor = Color.FromArgb(25, 30, 35);
-            btnMenu.ClickTextColor = Color.FromArgb(243, 112, 33);
-            btnMenu.CornerRadius = 5;
-            btnMenu.Dock = DockStyle.Fill;
-            btnMenu.Font = new Font("Segoe UI", 11.25F);
-            btnMenu.Horizontal_Alignment = StringAlignment.Center;
-            btnMenu.HoverBackgroundColor = Color.FromArgb(25, 30, 35);
-            btnMenu.HoverTextColor = Color.FromArgb(243, 112, 33);
-            btnMenu.ImagePosition = ReaLTaiizor.Controls.ParrotButton.ImgPosition.Left;
-            btnMenu.Location = new Point(0, 0);
-            btnMenu.Name = "btnMenu";
-            btnMenu.Size = new Size(135, 31);
-            btnMenu.SmoothingType = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            btnMenu.TabIndex = 9;
-            btnMenu.TextColor = Color.FromArgb(243, 112, 33);
-            btnMenu.TextRenderingType = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            btnMenu.Vertical_Alignment = StringAlignment.Center;
-            btnMenu.Click += btnMenu_Click;
+            picMenu.Image = (Image)resources.GetObject("picMenu.Image");
+            picMenu.Location = new Point(12, 2);
+            picMenu.Name = "picMenu";
+            picMenu.Size = new Size(38, 28);
+            picMenu.SizeMode = PictureBoxSizeMode.StretchImage;
+            picMenu.TabIndex = 0;
+            picMenu.TabStop = false;
+            picMenu.Click += picMenu_Click;
             // 
             // pnlPcInfo
             // 
@@ -296,6 +283,7 @@ namespace DashBoard
             pnlHead.PerformLayout();
             SideBar.ResumeLayout(false);
             panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)picMenu).EndInit();
             pnlPcInfo.ResumeLayout(false);
             pnlSwitchInfo.ResumeLayout(false);
             pnlSendMsg.ResumeLayout(false);
@@ -318,8 +306,8 @@ namespace DashBoard
         private ReaLTaiizor.Controls.ParrotButton btnSwithchInfo;
         private Panel pnlSendMsg;
         private ReaLTaiizor.Controls.ParrotButton btnSend;
-        private ReaLTaiizor.Controls.ParrotButton btnMenu;
         private Label lblVersion;
         private Panel panel1;
+        private PictureBox picMenu;
     }
 }

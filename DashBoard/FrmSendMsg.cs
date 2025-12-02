@@ -149,12 +149,13 @@
 //    }
 //}
 
+
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -165,6 +166,8 @@ namespace DashBoard
         private UdpClient listener;
         //private CancellationTokenSource cts;
         private const int Port = 9000;
+        private Color colorPrimary = Color.FromArgb(41, 128, 185); // آبی مدرن
+        private Color colorText = Color.FromArgb(64, 64, 64);
 
         public FrmSendMsg()
         {
@@ -176,8 +179,35 @@ namespace DashBoard
             // تنظیمات TextBox برای پشتیبانی بهتر از فارسی
             txtMsg.RightToLeft = RightToLeft.Yes;
             txtMsg.Font = new Font("Tahoma", 14F);
-        }
 
+            //if (FrmLogin.User == "admin")
+            //{
+            //    txtPassword.Visible = false;
+            //}
+
+            btnSend.BackColor = colorPrimary;
+            btnSend.ForeColor = Color.White;
+            btnSend.FlatStyle = FlatStyle.Flat;
+            btnSend.FlatAppearance.BorderSize = 0;
+            btnSend.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+            btnSend.Cursor = Cursors.Hand;
+
+
+            btnCancel.BackColor = colorPrimary;
+            btnCancel.ForeColor = Color.White;
+            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel.FlatAppearance.BorderSize = 0;
+            btnCancel.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+            btnCancel.Cursor = Cursors.Hand;
+
+            //MakeRounded(txtMsg);
+
+            //var materialBox = new MyMaterialRichTextBoxCustome();
+            //materialBox.Dock = DockStyle.Fill;
+
+            //// اضافه کردن کنترل داخل پنل
+            //pnlText.Controls.Add(materialBox);
+        }
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
@@ -185,6 +215,18 @@ namespace DashBoard
 
         private async void BtnSend_Click(object sender, EventArgs e)
         {
+
+            if (FrmLogin.User != "admin")
+            {
+                string pass = txtPassword.Text?.Trim();
+                if (string.IsNullOrEmpty(pass) || pass != "12369!@#$%^")
+                {
+                    MessageBox.Show("پسورد درست نیست");
+                    this.Cursor = Cursors.Default;
+                    return;
+                }
+            }
+
 
             string msg = txtMsg.Text?.Trim();
             if (string.IsNullOrEmpty(msg))
@@ -318,6 +360,18 @@ namespace DashBoard
                 if (txt.Text.EndsWith("."))
                     e.Handled = true;
             }
+        }
+
+        private void MakeRounded(RichTextBox box)
+        {
+            GraphicsPath path = new GraphicsPath();
+            int radius = 12;
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(box.Width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(box.Width - radius, box.Height - radius, radius, radius, 0, 90);
+            path.AddArc(0, box.Height - radius, radius, radius, 90, 90);
+            path.CloseFigure();
+            box.Region = new Region(path);
         }
     }
 }

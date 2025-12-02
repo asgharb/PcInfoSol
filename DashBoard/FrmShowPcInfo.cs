@@ -2,7 +2,6 @@
 using DashBoard.Extention;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Repository;
-using DevExpress.XtraGrid;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraGrid.Views.Base;
 using DevExpress.XtraGrid.Views.Grid;
@@ -19,9 +18,9 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+
 
 namespace DashBoard
 {
@@ -31,6 +30,10 @@ namespace DashBoard
         private int _pageSize = 15;
         private int _currentPage = 1;
         private int _totalPages = 0;
+
+        //private bool _isGroupingMode = false;
+        private bool _isSinglePageMode = false;
+
 
         // لیست اصلی که تمام داده‌ها را نگه می‌دارد
         private List<SystemInfo> allSystems;
@@ -183,8 +186,7 @@ namespace DashBoard
 
                 InitGridAndBind(ds);
 
-                // بروزرسانی وضعیت دکمه‌ها (اگر دکمه‌ای دارید)
-                // lblPageStatus.Text = $"Page {_currentPage} of {_totalPages}";
+                UpdatePageLabel();
             }
             finally
             {
@@ -194,7 +196,7 @@ namespace DashBoard
 
         private void InitGridAndBind(DataSet ds)
         {
-            
+
             gridControl1.DataSource = ds;
             gridControl1.DataMember = "SystemInfo";
             gridView1.PopulateColumns();
@@ -217,6 +219,30 @@ namespace DashBoard
             gridView1.RowHeight = 35;
 
             // ساخت ستون VNC
+            //if (gridView1.Columns["VNCConnect"] == null)
+            //{
+            //    var btnVNC = new RepositoryItemButtonEdit();
+            //    btnVNC.Buttons[0].Caption = "اتصال";
+            //    btnVNC.Buttons[0].Kind = DevExpress.XtraEditors.Controls.ButtonPredefines.Glyph;
+            //    btnVNC.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.HideTextEditor;
+
+            //    // اطمینان از وجود Resource
+            //    if (Properties.Resources.vnc_3 != null)
+            //    {
+            //        Image resized = new Bitmap(Properties.Resources.vnc_3, new Size(48 * 3, 32));
+            //        btnVNC.Buttons[0].ImageOptions.Image = resized;
+            //    }
+
+            //    var colVNC = gridView1.Columns.AddVisible("VNCConnect", "اتصال VNC");
+            //    colVNC.ColumnEdit = btnVNC;
+            //    colVNC.Width = 100;
+            //    gridControl1.RepositoryItems.Add(btnVNC);
+            //    colVNC.OptionsColumn.AllowEdit = true;
+            //    gridView1.OptionsBehavior.Editable = true;
+
+            //    //gridView1.EndGrouping -= GridView1_EndGrouping;
+            //    //gridView1.EndGrouping += GridView1_EndGrouping;
+            //}
             if (gridView1.Columns["VNCConnect"] == null)
             {
                 var btnVNC = new RepositoryItemButtonEdit();
@@ -224,20 +250,25 @@ namespace DashBoard
                 btnVNC.Buttons[0].Kind = DevExpress.XtraEditors.Controls.ButtonPredefines.Glyph;
                 btnVNC.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.HideTextEditor;
 
-                // اطمینان از وجود Resource
                 if (Properties.Resources.vnc_3 != null)
                 {
                     Image resized = new Bitmap(Properties.Resources.vnc_3, new Size(48 * 3, 32));
                     btnVNC.Buttons[0].ImageOptions.Image = resized;
                 }
 
+                // اتصال رویداد کلیک مخصوص دکمه
+                btnVNC.ButtonClick -= BtnVNC_Repo_ButtonClick;
+                btnVNC.ButtonClick += BtnVNC_Repo_ButtonClick;
+
                 var colVNC = gridView1.Columns.AddVisible("VNCConnect", "اتصال VNC");
                 colVNC.ColumnEdit = btnVNC;
                 colVNC.Width = 100;
                 gridControl1.RepositoryItems.Add(btnVNC);
-                colVNC.OptionsColumn.AllowEdit = true;
-                gridView1.OptionsBehavior.Editable = true;
 
+                // این تنظیمات برای کار کردن دکمه ضروری است
+                colVNC.OptionsColumn.AllowEdit = true;
+                colVNC.OptionsColumn.ReadOnly = false;
+                gridView1.OptionsBehavior.Editable = true;
             }
 
             gridView1.RowStyle -= gridView1_RowStyle;
@@ -246,10 +277,68 @@ namespace DashBoard
             gridView1.DoubleClick -= gridView1_DoubleClick;
             gridView1.DoubleClick += gridView1_DoubleClick;
 
-            lblPageInfo.Text = $"Page {_currentPage} of {_totalPages}";
+            //lblPageInfo.Text = $"Page {_currentPage} of {_totalPages}";
 
             SetupGridForPcCodeEditing();
         }
+        private void BtnVNC_Repo_ButtonClick(object sender, DevExpress.XtraEditors.Controls.ButtonPressedEventArgs e)
+        {
+            // دریافت سطر فعلی که دکمه در آن کلیک شده است
+            var view = gridControl1.FocusedView as GridView;
+            if (view == null) return;
+
+            int rowHandle = view.FocusedRowHandle;
+            if (rowHandle < 0) return;
+
+            // منطق بررسی نصب بودن VNC
+            bool isVncInstalled = false;
+            var vncVal = view.GetRowCellValue(rowHandle, "VNC");
+            if (vncVal != null) bool.TryParse(vncVal.ToString(), out isVncInstalled);
+
+            if (!isVncInstalled)
+            {
+                MessageBox.Show("نرم افزار VNC روی سیستم مقصد نصب نیست.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // اجرای متد اصلی اتصال
+            BtnVNC_ButtonClick(rowHandle);
+        }
+
+
+        //private void GridView1_EndGrouping(object sender, EventArgs e)
+        //{
+        //    GridView view = sender as GridView;
+
+        //    // اگر هیچ ستونی گروه بندی نشده بود → بازگشت به حالت Paging
+        //    if (view.GroupedColumns.Count == 0)
+        //    {
+        //        if (_isGroupingMode)
+        //        {
+        //            // بازگرداندن صفحه‌بندی
+        //            _pageSize = 15;
+        //            _currentPage = 1;
+        //            _isGroupingMode = false;
+
+        //            ShowCurrentPage();
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // وارد حالت Grouping شده‌ایم:
+        //        if (!_isGroupingMode)
+        //        {
+        //            _isGroupingMode = true;
+
+        //            // حذف کامل Paging
+        //            _pageSize = allSystems.Count;  // نمایش کل
+        //            _currentPage = 1;
+
+        //            ShowCurrentPage();
+        //        }
+        //    }
+        //}
+
 
 
         // ... بقیه متدهای کمکی (GetSafeDesc, GetSafeEnvironmentInfo, GetSafesSwitchInfo) بدون تغییر ...
@@ -291,20 +380,52 @@ namespace DashBoard
             int rowHandle = hitInfo.RowHandle;
             view.FocusedRowHandle = rowHandle;
 
-            if (hitInfo.Column != null && hitInfo.Column.FieldName == "VNCConnect")
-            {
-                bool isVncInstalled = false;
-                var vncVal = view.GetRowCellValue(rowHandle, "VNC");
-                if (vncVal != null) bool.TryParse(vncVal.ToString(), out isVncInstalled);
+            //if (hitInfo.Column != null && hitInfo.Column.FieldName == "VNCConnect")
+            //{
+            //    bool isVncInstalled = false;
+            //    var vncVal = view.GetRowCellValue(rowHandle, "VNC");
+            //    if (vncVal != null) bool.TryParse(vncVal.ToString(), out isVncInstalled);
 
-                if (!isVncInstalled)
-                {
-                    MessageBox.Show("نرم افزار VNC روی سیستم مقصد نصب نیست.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                BtnVNC_ButtonClick(rowHandle);
-            }
+            //    if (!isVncInstalled)
+            //    {
+            //        MessageBox.Show("نرم افزار VNC روی سیستم مقصد نصب نیست.", "خطا", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //        return;
+            //    }
+            //    BtnVNC_ButtonClick(rowHandle);
+            //}
         }
+
+        //private void gridView1_DoubleClick(object sender, EventArgs e)
+        //{
+        //    GridView view = sender as GridView;
+
+        //    // محاسبه محل دقیق کلیک
+        //    Point pt = view.GridControl.PointToClient(Control.MousePosition);
+        //    GridHitInfo hitInfo = view.CalcHitInfo(pt);
+
+        //    // اگر کلیک روی سلول‌های دیتا نبود (مثلا روی هدر یا جای خالی)، خارج شو
+        //    if (!hitInfo.InRowCell) return;
+
+        //    // اگر روی ستون VNC دابل کلیک شد، کاری نکن و خارج شو
+        //    // (چون دکمه‌ی VNC خودش رویداد کلیک جداگانه دارد و کارش را انجام می‌دهد)
+        //    if (hitInfo.Column != null && hitInfo.Column.FieldName == "VNCConnect")
+        //    {
+        //        return;
+        //    }
+
+        //    // تنظیم سطر انتخاب شده (برای اطمینان)
+        //    int rowHandle = hitInfo.RowHandle;
+        //    view.FocusedRowHandle = rowHandle;
+
+        //    // -----------------------------------------------------------
+        //    // فضای خالی برای کدهای آینده:
+        //    // اگر خواستید با دابل‌کلیک روی بقیه قسمت‌های سطر (مثلاً نام سیستم)
+        //    // پنجره جزئیات یا ویرایش باز شود، کدش را اینجا بنویسید.
+        //    // -----------------------------------------------------------
+
+        //    // مثال:
+        //    // MessageBox.Show($"شما روی ردیف {rowHandle} دابل کلیک کردید");
+        //}
 
         void gridView1_RowStyle(object sender, RowStyleEventArgs e)
         {
@@ -458,7 +579,7 @@ namespace DashBoard
                 if (SetValue(systemInfoId, active))
                 {
                     await FullReloadAsync();
-                    MessageBox.Show("تغییرات با موفقیت ذخیره شد.","ذخیره موفق",MessageBoxButtons.OK,MessageBoxIcon.Information);
+                    MessageBox.Show("تغییرات با موفقیت ذخیره شد.", "ذخیره موفق", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 else
                 {
@@ -577,6 +698,12 @@ namespace DashBoard
         {
             // اینجا چون متد Task برمی‌گرداند می‌توانیم await کنیم
             await FullReloadAsync();
+        }
+
+
+        private void UpdatePageLabel()
+        {
+            lblPageInfo.Text = $"Page {_currentPage} of {_totalPages}";
         }
 
     }

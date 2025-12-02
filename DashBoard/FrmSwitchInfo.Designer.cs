@@ -51,13 +51,14 @@
             // 
             // btnRefreshInfo
             // 
-            btnRefreshInfo.BackgroundColor = System.Drawing.Color.FromArgb(255, 255, 255);
+            btnRefreshInfo.BackgroundColor = System.Drawing.Color.Transparent;
             btnRefreshInfo.ButtonImage = (System.Drawing.Image)resources.GetObject("btnRefreshInfo.ButtonImage");
             btnRefreshInfo.ButtonStyle = ReaLTaiizor.Controls.ParrotButton.Style.MaterialRounded;
-            btnRefreshInfo.ButtonText = "Refresh";
+            btnRefreshInfo.ButtonText = "Refresh Info";
             btnRefreshInfo.ClickBackColor = System.Drawing.Color.FromArgb(195, 195, 195);
             btnRefreshInfo.ClickTextColor = System.Drawing.Color.DodgerBlue;
             btnRefreshInfo.CornerRadius = 5;
+            btnRefreshInfo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             btnRefreshInfo.Horizontal_Alignment = System.Drawing.StringAlignment.Center;
             btnRefreshInfo.HoverBackgroundColor = System.Drawing.Color.FromArgb(225, 225, 225);
             btnRefreshInfo.HoverTextColor = System.Drawing.Color.DodgerBlue;
@@ -90,10 +91,10 @@
             gridControl_1.TabIndex = 3;
             gridControl_1.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridView_1 });
             // 
-            // gridView1
+            // gridView_1
             // 
             gridView_1.GridControl = gridControl_1;
-            gridView_1.Name = "gridView1";
+            gridView_1.Name = "gridView_1";
             // 
             // FrmSwitchInfo
             // 

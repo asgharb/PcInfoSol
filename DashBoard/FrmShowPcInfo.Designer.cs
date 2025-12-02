@@ -82,6 +82,7 @@
             btnRefreshInfo.ClickBackColor = System.Drawing.Color.FromArgb(195, 195, 195);
             btnRefreshInfo.ClickTextColor = System.Drawing.Color.DodgerBlue;
             btnRefreshInfo.CornerRadius = 5;
+            btnRefreshInfo.Font = new System.Drawing.Font("Segoe UI", 12F);
             btnRefreshInfo.Horizontal_Alignment = System.Drawing.StringAlignment.Center;
             btnRefreshInfo.HoverBackgroundColor = System.Drawing.Color.FromArgb(225, 225, 225);
             btnRefreshInfo.HoverTextColor = System.Drawing.Color.DodgerBlue;
@@ -105,6 +106,7 @@
             btnRefreshMac.ClickBackColor = System.Drawing.Color.FromArgb(195, 195, 195);
             btnRefreshMac.ClickTextColor = System.Drawing.Color.DodgerBlue;
             btnRefreshMac.CornerRadius = 5;
+            btnRefreshMac.Font = new System.Drawing.Font("Segoe UI", 12F);
             btnRefreshMac.Horizontal_Alignment = System.Drawing.StringAlignment.Center;
             btnRefreshMac.HoverBackgroundColor = System.Drawing.Color.FromArgb(225, 225, 225);
             btnRefreshMac.HoverTextColor = System.Drawing.Color.DodgerBlue;

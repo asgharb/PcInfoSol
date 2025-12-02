@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Telerik.WinControls.VirtualKeyboard;
@@ -33,10 +34,6 @@ namespace DashBoard
 
         private void FrmMain_Load(object sender, EventArgs e)
         {
-            //pnlSideSwitch.Visible = false;
-            //pnlSideInbox.Visible = false;
-            //pnlSideSend.Visible = false;
-
             lblVersion.Text = "Version: " + Application.ProductVersion.Split('+')[0];
 
             bool isAdminUser = !string.IsNullOrWhiteSpace(FrmLogin.User) &&
@@ -50,6 +47,7 @@ namespace DashBoard
                 btnSend.Enabled = false;
             }
             CenterPictureBox();
+
         }
 
 
@@ -122,7 +120,6 @@ namespace DashBoard
         private void btnShowPcInfo_Click(object sender, EventArgs e)
         {
 
-
             btnShowPcInfo.BackgroundColor = Color.FromArgb(243, 112, 33);
             pnlPcInfo.BackColor = Color.FromArgb(243, 112, 33);
 
@@ -131,7 +128,6 @@ namespace DashBoard
 
             btnSwithchInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
             pnlSwitchInfo.BackColor = Color.FromArgb(33, 37, 41);
-
 
             if (activeForm is FrmShowPcInfo)
                 return;
@@ -192,7 +188,6 @@ namespace DashBoard
 
         private void btnSwithchInfo_Click(object sender, EventArgs e)
         {
-
             btnShowPcInfo.BackgroundColor = Color.FromArgb(33, 37, 41);
             pnlPcInfo.BackColor = Color.FromArgb(33, 37, 41);
 
@@ -205,8 +200,6 @@ namespace DashBoard
             if (activeForm is FrmSwitchInfo)
                 return;
 
-
-
             OpenChildForm(new FrmSwitchInfo());
         }
 
@@ -216,5 +209,9 @@ namespace DashBoard
             Application.Exit();
         }
 
+        private void picMenu_Click(object sender, EventArgs e)
+        {
+            Timer_Sidebar_Menu.Start();
+        }
     }
 }
