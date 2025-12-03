@@ -1,14 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Telerik.WinControls.VirtualKeyboard;
+
 
 namespace DashBoard
 {
@@ -53,15 +46,14 @@ namespace DashBoard
 
         private void OpenChildForm(Form childForm)
         {
-            // اگر فرمی باز است، آن را ببند
             if (activeForm != null)
                 activeForm.Close();
 
             activeForm = childForm;
             childForm.TopLevel = false;
             childForm.FormBorderStyle = FormBorderStyle.None;
-            childForm.Dock = DockStyle.Fill; // اندازه دقیقاً به اندازه پنل
-            pnlParent.Controls.Clear(); // اطمینان از پاک بودن پنل
+            childForm.Dock = DockStyle.Fill;
+            pnlParent.Controls.Clear();
             pnlParent.Controls.Add(childForm);
             pnlParent.Tag = childForm;
             childForm.BringToFront();
@@ -205,13 +197,25 @@ namespace DashBoard
 
         private void FrmMain_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // وقتی فرم بسته شد، کل برنامه بسته شود
             Application.Exit();
         }
 
         private void picMenu_Click(object sender, EventArgs e)
         {
             Timer_Sidebar_Menu.Start();
+        }
+
+
+        private void pnlHead_DoubleClick(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Normal)
+            {
+                this.WindowState = FormWindowState.Maximized;
+            }
+            else 
+            {
+                this.WindowState = FormWindowState.Normal;
+            }
         }
     }
 }

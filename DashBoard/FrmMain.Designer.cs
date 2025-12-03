@@ -90,6 +90,7 @@ namespace DashBoard
             pnlHead.Name = "pnlHead";
             pnlHead.Size = new Size(1262, 31);
             pnlHead.TabIndex = 15;
+            pnlHead.DoubleClick += pnlHead_DoubleClick;
             // 
             // lblVersion
             // 
