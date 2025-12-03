@@ -27,7 +27,7 @@ namespace DashBoard
     public partial class FrmShowPcInfo : Form
     {
         // تنظیمات صفحه‌بندی
-        private int _pageSize = 15;
+        private int _pageSize = 1500;
         private int _currentPage = 1;
         private int _totalPages = 0;
 
@@ -217,6 +217,7 @@ namespace DashBoard
                 gridView1.Columns["SystemInfoID"].Visible = false;
 
             gridView1.RowHeight = 35;
+            gridControl1.UseEmbeddedNavigator = true;
 
             // ساخت ستون VNC
             //if (gridView1.Columns["VNCConnect"] == null)

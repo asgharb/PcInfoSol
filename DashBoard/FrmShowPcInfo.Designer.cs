@@ -173,6 +173,7 @@
             panel3.Name = "panel3";
             panel3.Size = new System.Drawing.Size(1348, 42);
             panel3.TabIndex = 3;
+            panel3.Visible = false;
             // 
             // lblPageInfo
             // 
